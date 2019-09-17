@@ -1,4 +1,4 @@
-md5: eeccc3fc6ab043f615766c61110c28a3
+md5: 66bbdbafb40f7329ba2087616a5b8192
 cmd: run_featurecollection data/raw data/labels/20190917_labels.pkl data/labels data/features
   data/helper
 deps:
@@ -12,7 +12,7 @@ outs:
   cache: true
   metric: false
   persist: false
-- md5: ac9411330b7325f8481a2bb1c4bbcc91
+- md5: 6c446e7efb264f6b8d661203b85c6c33
   path: data/features/features.npy
   cache: true
   metric: false
