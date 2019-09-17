@@ -18,7 +18,7 @@ REQUIRES_PYTHON = '>=3.6.0'
 VERSION = '0.1.0a1'
 
 # What packages are required for this module to be executed?
-REQUIRED = ['sklearn', 'mlxtend', 'pandas', 'click']
+REQUIRED = ['sklearn', 'mlxtend', 'pandas', 'click', 'comet', 'dvc']
 
 # What packages are optional?
 EXTRAS = {
