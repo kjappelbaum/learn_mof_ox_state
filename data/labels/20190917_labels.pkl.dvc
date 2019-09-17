@@ -1,0 +1,7 @@
+md5: 702075d1596ab0cf6960841efa075b25
+outs:
+- md5: 552ae428a51a515299c4beb399f82471
+  path: 20190917_labels.pkl
+  cache: true
+  metric: false
+  persist: false
