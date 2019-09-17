@@ -19,6 +19,7 @@ from mlxtend.evaluate import BootstrapOutOfBag
 from sklearn.ensemble import VotingClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
 from sklearn.metrics import (
     accuracy_score,
     auc,
@@ -54,6 +55,7 @@ class MLOxidationStates:
             n: int = 10,
             max_size: int = None,
             eval_method: str = 'kfold',
+            scaler: str = 'standard',
             metricspath: str = 'metrics',
             modelpath: str = 'models',
             max_evals: int = 500,
@@ -67,6 +69,16 @@ class MLOxidationStates:
         self.n = n
         self.eval_method = eval_method
         self.max_size = max_size
+        if scaler == 'robust':
+            self.scalername = 'robust'
+            self.scaler = RobustScaler()
+        elif scaler == 'standard':
+            self.scalername = 'standard'
+            self.scaler = StandardScaler()
+        elif scaler == 'minmax':
+            self.scalername = 'minmax'
+            self.scaler = MinMaxScaler()
+
         self.bootstrap_results = []
         self.metrics = {}
         self.max_evals = max_evals
@@ -78,13 +90,31 @@ class MLOxidationStates:
         self.mix_ratios = {'rand': 0.1, 'tpe': 0.8, 'anneal': 0.1}
 
     @classmethod
-    def from_x_y_paths(cls, xpath: str, ypath: str, modelpath: str, metricspath: str, n: int, voting: str,
-                       max_size: int):
+    def from_x_y_paths(
+            cls,
+            xpath: str,
+            ypath: str,
+            modelpath: str,
+            metricspath: str,
+            scaler: str,
+            n: int,
+            voting: str,
+            max_size: int,
+    ):
         """Constructs a MLOxidationStates object from filepaths"""
-        x = np.load(xpath)
-        y = np.load(ypath)
+        x = np.load(xpath, allow_pickle=True)
+        y = np.load(ypath, allow_pickle=True)
 
-        return cls(x, y, n=n, max_size=max_size, voting=voting, modelpath=modelpath, metricspath=metricspath)
+        return cls(
+            x,
+            y,
+            n=n,
+            max_size=max_size,
+            scaler=scaler,
+            voting=voting,
+            modelpath=modelpath,
+            metricspath=metricspath,
+        )
 
     @staticmethod
     def train_ensemble(models: list, X: np.array, y: np.array, voting='soft') -> Tuple[CalibratedClassifierCV, float]:
@@ -204,10 +234,10 @@ class MLOxidationStates:
     @staticmethod
     def model_eval(
             models: list,
-            X: np.array,
-            y: np.array,
-            train: np.array,
-            test: np.array,
+            xtrain: np.array,
+            ytrain: np.array,
+            xtest: np.array,
+            ytest: np.array,
             postfix: str = COUNTER,
             outdir_metrics: str = None,
             outdir_models: str = None,
@@ -217,10 +247,10 @@ class MLOxidationStates:
 
         Arguments:
             models {list} -- list of tuples with model name and model itself
-            X {np.array} -- feature matrix
-            y {np.array} -- label vector
-            train {np.array} -- train indices
-            test {np.array} -- test indices
+            xtrain {np.array} -- feature matrix training set
+            ytrain {np.array} -- label vector training set
+            xtest {np.array} -- feature matrix test set
+            ytest {np.array} -- label vector test set
             postfix {str} -- string that will be attached to filename
             outdir_metrics {str} -- output directory for metrics
             outdir_models {str} -- output directory for models
@@ -231,10 +261,12 @@ class MLOxidationStates:
         for name, model in models:
             outname_base_metrics = os.path.join(outdir_metrics, '_'.join([STARTTIMESTRING, name, postfix]))
             outname_base_models = os.path.join(outdir_models, '_'.join([STARTTIMESTRING, name, postfix]))
-            train_true = y[train]
-            test_true = y[test]
-            train_predict = model.predict(X[train])
-            test_predict = model.predict(X[test])
+
+            train_true = ytrain
+            test_true = ytest
+
+            train_predict = model.predict(xtrain)
+            test_predict = model.predict(xtest)
             accuracy_train = accuracy_score(train_true, train_predict)
             accuracy_test = accuracy_score(test_true, test_predict)
 
@@ -272,8 +304,8 @@ class MLOxidationStates:
                 'precision_test': precision_test,
                 'recall_train': recall_train,
                 'recall_test': recall_test,
-                'training_points': len(train),
-                'test_points': len(test),
+                'training_points': len(ytrain),
+                'test_points': len(ytest),
             }
 
             arrays = {
@@ -306,9 +338,17 @@ class MLOxidationStates:
         all_predictions = []
         counter = COUNTER
         train, test = tt_indices
+
+        xtrain = self.scaler.fit_transform(self.x[train])
+        # save the latest scaler so we can use it later with latest model for
+        # evaluation on a holdout set
+
+        dump(self.scaler, os.path.join(self.modelpath, 'scaler'))
+        xtest = self.scaler.transform(self.x[test])
+
         optimized_models_split = MLOxidationStates.tune_fit(
             classifiers,
-            self.x[train],
+            xtrain,
             self.y[train],
             self.max_evals,
             self.timeout,
@@ -316,10 +356,10 @@ class MLOxidationStates:
         )
         res = MLOxidationStates.model_eval(
             optimized_models_split,
-            self.x,
-            self.y,
-            train,
-            test,
+            xtrain,
+            self.y[train],
+            xtest,
+            self.y[test],
             counter,
             self.metricspath,
             self.modelpath,
@@ -360,6 +400,7 @@ class MLOxidationStates:
         experiment.log_parameter('voting', self.voting)
         experiment.log_parameter('size', self.max_size)
         experiment.log_parameter('eval_method', self.eval_method)
+        experiment.log_parameter('scaler', self.scalername)
         experiment.add_tag('initial_test')
         experiment.log_metric('mean_training_time', mean_time)
 
@@ -464,11 +505,21 @@ class MLOxidationStates:
 @click.argument('ypath')
 @click.argument('modelpath')
 @click.argument('metricspath')
+@click.argument('scaler', default='standard')
 @click.argument('voting', default='soft')
 @click.argument('max_size', default=None)
 @click.argument('n', default=10)
-def train_model(xpath, ypath, modelpath, metricspath, voting, max_size, n):
-    ml_object = MLOxidationStates.from_x_y_paths(xpath, ypath, modelpath, metricspath, n, voting, max_size)
+def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, max_size, n):
+    ml_object = MLOxidationStates.from_x_y_paths(
+        os.path.abspath(xpath),
+        os.path.abspath(ypath),
+        os.path.abspath(modelpath),
+        os.path.abspath(metricspath),
+        scaler,
+        int(n),
+        voting,
+        int(max_size),
+    )
     ml_object.train_test_cv()
 
 
