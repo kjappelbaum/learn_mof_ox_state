@@ -259,7 +259,11 @@ class MLOxidationStates:
         predictions = []
 
         for name, model in models:
-            outname_base_metrics = os.path.join(outdir_metrics, '_'.join([STARTTIMESTRING, name, postfix]))
+            outdir_metrics_verbose = os.path.join(os.path.join(outdir_metrics, 'verbose'))
+            if not os.path.exists(outdir_metrics_verbose):
+                os.mkdir(outdir_metrics_verbose)
+
+            outname_base_metrics = os.path.join(outdir_metrics_verbose, '_'.join([STARTTIMESTRING, name, postfix]))
             outname_base_models = os.path.join(outdir_models, '_'.join([STARTTIMESTRING, name, postfix]))
 
             train_true = ytrain
