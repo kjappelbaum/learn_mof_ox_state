@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint:disable=too-many-arguments, too-many-locals
+# pylint:disable=too-many-arguments, too-many-locals, line-too-long, logging-fstring-interpolation
 """
 Trains an ensemble classifier to predict the oxidation state
 Produces a  outpath/train_metrics.json file for DVC
@@ -11,6 +11,7 @@ import numpy as np
 import os
 import json
 import pickle
+import logging
 from typing import Tuple
 from hyperopt import tpe, anneal, rand, mix
 from hpsklearn.estimator import hyperopt_estimator
@@ -44,6 +45,12 @@ classifiers = [
     ('extra_trees', components.extra_trees),
 ]
 
+trainlogger = logging.getLogger('trainer')
+trainlogger.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(acstime)s | %(filename)s: %(message)s')
+filehandler = logging.FileHandler(os.path.join('logs', STARTTIMESTRING + '_train.log'))
+trainlogger.setFormatter(formatter)
+
 
 class MLOxidationStates:
     """Collects some functions used for training of the oxidation state classifier"""
@@ -61,6 +68,7 @@ class MLOxidationStates:
             max_evals: int = 500,
             voting: str = 'soft',
             timeout: int = 600,
+            max_workers: int = 4,
     ):  # pylint:disable=too-many-arguments
 
         self.x = X
@@ -88,6 +96,9 @@ class MLOxidationStates:
         self.metricspath = metricspath
         self.modelpath = modelpath
         self.mix_ratios = {'rand': 0.1, 'tpe': 0.8, 'anneal': 0.1}
+        self.max_workers = max_workers
+
+        trainlogger.info('intialized training class')
 
     @classmethod
     def from_x_y_paths(
@@ -132,6 +143,7 @@ class MLOxidationStates:
         Returns:
             [CalibratedClassifierCV, float] -- [description]
         """
+        trainlogger.debug('training ensemble model')
         vc = VotingClassifier(models, voting=voting)
         startime = time.process_time()
         vc.train(X, y)
@@ -172,6 +184,8 @@ class MLOxidationStates:
 
         assert sum(list(mix_ratios.values())) == 1
         assert list(mix_ratios.keys()) == ['rand', 'tpe', 'anneal']
+
+        trainlogger.debug('performing hyperparameter optimization')
 
         optimized_models = []
 
@@ -258,6 +272,8 @@ class MLOxidationStates:
 
         predictions = []
 
+        trainlogger.debug('entered evaluation function')
+
         for name, model in models:
             outdir_metrics_verbose = os.path.join(os.path.join(outdir_metrics, 'verbose'))
             if not os.path.exists(outdir_metrics_verbose):
@@ -288,6 +304,10 @@ class MLOxidationStates:
             precision_test = precision_score(train_true, train_predict)
             recall_train = recall_score(train_true, train_predict)
             recall_test = recall_score(test_true, test_predict)
+
+            trainlogger.info(
+                f'model {name}: accuracy test: {accuracy_test}, accuracy train: {accuracy_train} | f1 micro test {f1_micro_test}, f1 micro train {f1_micro_train}'
+            )
 
             prediction = {
                 'model': name,
@@ -339,6 +359,8 @@ class MLOxidationStates:
         Returns:
             list -- list of dictionaries of model performance metrics
         """
+
+        trainlogger.debug('entered the function that trains one fold')
         all_predictions = []
         counter = str(COUNTER)
         train, test = tt_indices
@@ -384,6 +406,7 @@ class MLOxidationStates:
 
     def track_comet_ml(self):
         """Function to track main parameters and metrics using comet.ml"""
+        trainlogger.debug('entering the tracking function')
         experiment = Experiment(
             api_key=os.getenv('COMET_API_KEY', None),
             project_name='mof-oxidation-states',
