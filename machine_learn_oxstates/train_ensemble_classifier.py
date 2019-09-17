@@ -49,7 +49,8 @@ trainlogger = logging.getLogger('trainer')
 trainlogger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(acstime)s | %(filename)s: %(message)s')
 filehandler = logging.FileHandler(os.path.join('logs', STARTTIMESTRING + '_train.log'))
-trainlogger.setFormatter(formatter)
+filehandler.setFormatter(formatter)
+trainlogger.addHandler(filehandler)
 
 
 class MLOxidationStates:
