@@ -514,6 +514,9 @@ class MLOxidationStates:
 @click.argument('max_size', default=None)
 @click.argument('n', default=10)
 def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, max_size, n):
+    if not os.path.exists(os.path.abspath(modelpath)):
+        os.mkdir(os.path.abspath(modelpath))
+
     ml_object = MLOxidationStates.from_x_y_paths(
         os.path.abspath(xpath),
         os.path.abspath(ypath),
