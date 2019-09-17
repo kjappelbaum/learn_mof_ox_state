@@ -1,0 +1,24 @@
+md5: eeccc3fc6ab043f615766c61110c28a3
+cmd: run_featurecollection data/raw data/labels/20190917_labels.pkl data/labels data/features
+  data/helper
+deps:
+- md5: df2da8542964f39b5f7eb3df2fc22300.dir
+  path: data/raw
+- md5: 552ae428a51a515299c4beb399f82471
+  path: data/labels/20190917_labels.pkl
+outs:
+- md5: 3f06d4d72f378d595fec7a6e02ff60e8
+  path: data/labels/labels.npy
+  cache: true
+  metric: false
+  persist: false
+- md5: ac9411330b7325f8481a2bb1c4bbcc91
+  path: data/features/features.npy
+  cache: true
+  metric: false
+  persist: false
+- md5: 8b7143af5974495120c32570180de01c
+  path: data/helper/names.pkl
+  cache: true
+  metric: false
+  persist: false

@@ -1,0 +1,77 @@
+initialized feature collector: 563 forbidden structures, 7483 files with features
+reading pickle files with features
+data/raw/SITHOT.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/QEJLOJ.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/IVAQAY.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/VEKSUA.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/DENQEV.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/FORWUF02.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/MIKJEW.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/TINDEA.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/QUBZIX.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/TIPNIQ.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/CUXBIH.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/PEVBUP.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/DEWCIU.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/FUFKAT02.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/XADRAX.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/SOPQUK.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/LATQAB.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/NASSAB.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/BAFBES.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/NOJMAA.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/LETFAS.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/AQEFOS.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/NADCAY.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/UPOSUO.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/TEBZUW.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/VAYWEZ.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/DAWVUU.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/ADOBOL.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/POVVEC.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/GIKRIC01.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/DIMLIW.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/FEYCOE.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/LOCMEW.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/JIBNOA.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/GIZPIP.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/LETDIY.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/MOLWAM.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/CAYBEL.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/WUJGUE.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/PENXUC.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/FANNIT.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/QINGAY.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/POVTUQ.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/ADOCIG.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/CEWHAO.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/MAGCEE01.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/DIXVUC01.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/NIHJEW.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/IVAPIF.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/IPIDAN.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/TIDCUF01.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/SAXRIV.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/FOVJIK.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/GOLRII01.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/NOBXAG.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/XARNOW.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/DITNUR.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/SAQSUZ.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/NUDNUW03.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/DAWVOO.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/KADNOU.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/COMHAO.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/BEPMOB.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/COVHEB.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/OYUJUO.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/PATDEU.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/KEHVOK.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/DOGTOJ.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/YIPDOR.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/SIFDOD.pkl is in forbidden list and will not be considered for X, y, names
+data/raw/GUXSUO.pkl is in forbidden list and will not be considered for X, y, names
+converting raw list of features into list of site dictionaries
+collected 53613 features
+merging labels and features
+stored features into labels and names into
