@@ -47,7 +47,7 @@ classifiers = [
 
 trainlogger = logging.getLogger('trainer')
 trainlogger.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(acstime)s | %(filename)s: %(message)s')
+formatter = logging.Formatter('%(asctime)s | %(filename)s: %(message)s')
 filehandler = logging.FileHandler(os.path.join('logs', STARTTIMESTRING + '_train.log'))
 filehandler.setFormatter(formatter)
 trainlogger.addHandler(filehandler)
