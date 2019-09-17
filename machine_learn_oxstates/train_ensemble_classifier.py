@@ -40,7 +40,7 @@ STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
 
 classifiers = [
     ('knn', components.knn),
-    ('gradient_boosting', components.gradient_boosting),
+    ('gradient_boosting', partial(components.gradient_boosting, loss='deviance')),
     ('extra_trees', components.extra_trees),
 ]
 
@@ -340,15 +340,17 @@ class MLOxidationStates:
             list -- list of dictionaries of model performance metrics
         """
         all_predictions = []
-        counter = COUNTER
+        counter = str(COUNTER)
         train, test = tt_indices
 
-        xtrain = self.scaler.fit_transform(self.x[train])
+        scaler = self.scaler
+
+        xtrain = scaler.fit_transform(self.x[train])
         # save the latest scaler so we can use it later with latest model for
         # evaluation on a holdout set
 
-        dump(self.scaler, os.path.join(self.modelpath, 'scaler'))
-        xtest = self.scaler.transform(self.x[test])
+        dump(scaler, os.path.join(self.modelpath, 'scaler_' + counter))
+        xtest = scaler.transform(self.x[test])
 
         optimized_models_split = MLOxidationStates.tune_fit(
             classifiers,
@@ -497,7 +499,8 @@ class MLOxidationStates:
             bs = MLOxidationStates.get_train_test_split(self.x, self.y, self.n)
 
         # all_predictions = []
-        with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
+        # do not run this concurrently since the state  of the scaler is not clear!
+        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
             for _, metrics in executor.map(self.train_eval_single, bs):
                 COUNTER += 1
                 # all_predictions.extend(predfull)
