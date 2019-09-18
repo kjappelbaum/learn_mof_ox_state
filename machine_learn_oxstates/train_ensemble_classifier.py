@@ -67,6 +67,7 @@ class MLOxidationStates:
             modelpath: str = 'models',
             max_evals: int = 50,
             voting: str = 'soft',
+            calibrate: str = 'isotonic',
             timeout: int = 600,
             max_workers: int = 4,
     ):  # pylint:disable=too-many-arguments
@@ -97,6 +98,7 @@ class MLOxidationStates:
         self.modelpath = modelpath
         self.mix_ratios = {'rand': 0.1, 'tpe': 0.8, 'anneal': 0.1}
         self.max_workers = max_workers
+        self.calibrate = calibrate
 
         trainlogger.info('intialized training class')
 
@@ -110,6 +112,7 @@ class MLOxidationStates:
             scaler: str,
             n: int,
             voting: str,
+            calibrate: str,
             max_size: int,
     ):
         """Constructs a MLOxidationStates object from filepaths"""
@@ -123,13 +126,20 @@ class MLOxidationStates:
             max_size=max_size,
             scaler=scaler,
             voting=voting,
+            calibrate=calibrate,
             modelpath=modelpath,
             metricspath=metricspath,
         )
 
     @staticmethod
-    def train_ensemble(models: list, X: np.array, y: np.array, voting='soft',
-                       n=10) -> Tuple[CalibratedClassifierCV, float]:
+    def train_ensemble(
+            models: list,
+            X: np.array,
+            y: np.array,
+            voting: str = 'soft',
+            n: int = 10,
+            calibrate: str = 'isotonic',
+    ) -> Tuple[CalibratedClassifierCV, float]:
         """Collects base models into a voting classifier, trains it and then performs
         probability calibration
 
@@ -141,6 +151,7 @@ class MLOxidationStates:
         Keyword Arguments:
             voting {str} -- voting mechanism (hard or soft) (default: {"soft"})
              n {int} -- number of CV folds for isotonic regression (default: {10})
+             calibrate {str} -- probability calibration method (none, isotonic, sigmoid) (default: {soft})
 
         Returns:
             [CalibratedClassifierCV, float] -- [description]
@@ -152,8 +163,19 @@ class MLOxidationStates:
         vc.fit(X, y)
         endtime = time.process_time()
         elapsed_time = startime - endtime
-        isotonic = CalibratedClassifierCV(vc, cv=n, method='isotonic')
-        isotonic.fit(X, y)
+        if calibrate == 'isotonic':
+            isotonic = CalibratedClassifierCV(vc, cv=n, method='isotonic')
+            isotonic.fit(X, y)
+        elif calibrate == 'sigmoid':
+            isotonic = CalibratedClassifierCV(vc, cv=n, method='sigmoid')
+            isotonic.fit(X, y)
+        elif calibrate == 'none':
+            isotonic = vc
+        else:
+            trainlogger.info(
+                'could not understand choice for probability calibration method, will use isotonic regression')
+            isotonic = CalibratedClassifierCV(vc, cv=n, method='isotonic')
+            isotonic.fit(X, y)
 
         return isotonic, elapsed_time
 
@@ -446,6 +468,7 @@ class MLOxidationStates:
         experiment.log_parameter('size', self.max_size)
         experiment.log_parameter('eval_method', self.eval_method)
         experiment.log_parameter('scaler', self.scalername)
+        experiment.log_parameter('calibration_method', self.calibrate)
         experiment.add_tag('initial_test')
         experiment.log_metric('mean_training_time', mean_time)
 
@@ -537,7 +560,7 @@ class MLOxidationStates:
         # all_predictions = []
         # do not run this concurrently since the state  of the scaler is not clear!
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
-            for _, metrics in executor.map(self.train_eval_single, bs):
+            for metrics in executor.map(self.train_eval_single, bs):
                 COUNTER += 1
                 # all_predictions.extend(predfull)
                 self.bootstrap_results.append(metrics)
@@ -550,9 +573,10 @@ class MLOxidationStates:
 @click.argument('metricspath')
 @click.argument('scaler', default='standard')
 @click.argument('voting', default='soft')
+@click.argument('calibrate', default='none')
 @click.argument('max_size', default=None)
 @click.argument('n', default=10)
-def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, max_size, n):
+def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, calibrate, max_size, n):
     if not os.path.exists(os.path.abspath(modelpath)):
         os.mkdir(os.path.abspath(modelpath))
 
@@ -564,9 +588,11 @@ def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, max_size, 
         scaler=scaler,
         n=int(n),
         voting=voting,
+        calibrate=calibrate,
         max_size=int(max_size),
     )
     ml_object.train_test_cv()
+    ml_object.track_comet_ml()
 
 
 if __name__ == '__main__':
