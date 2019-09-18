@@ -369,14 +369,14 @@ class MLOxidationStates:
         scaler = self.scaler
 
         xtrain = scaler.fit_transform(self.x[train])
-        trainlogger.debug('the training set contains %s points', len(xtrain))
+        trainlogger.debug('the training set has shape %s', xtrain.shape)
         # save the latest scaler so we can use it later with latest model for
         # evaluation on a holdout set
 
         dump(scaler, os.path.join(self.modelpath, 'scaler_' + counter + '.joblib'))
         xtest = scaler.transform(self.x[test])
 
-        trainlogger.debug('the test set contains %s points', len(test))
+        trainlogger.debug('the test set has shape %s', test.shape)
 
         optimized_models_split = MLOxidationStates.tune_fit(
             classifiers,
