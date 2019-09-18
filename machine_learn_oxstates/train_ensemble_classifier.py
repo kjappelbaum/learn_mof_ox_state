@@ -146,10 +146,11 @@ class MLOxidationStates:
         trainlogger.debug('training ensemble model')
         vc = VotingClassifier(models, voting=voting)
         startime = time.process_time()
-        vc.train(X, y)
+        vc.fit(X, y)
         endtime = time.process_time()
         elapsed_time = startime - endtime
         isotonic = CalibratedClassifierCV(vc, cv=10, method='isotonic')
+        isotonic.fit(X, y)
 
         return isotonic, elapsed_time
 
