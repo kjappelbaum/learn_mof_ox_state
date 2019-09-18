@@ -574,7 +574,7 @@ class MLOxidationStates:
             classcounter = dict(Counter(self.y))
             trainlogger.info('the classdistribution is %s', classcounter)
             classes_to_keep = []
-            for oxidationstate, count in classcounter:
+            for oxidationstate, count in classcounter.items():
                 if count > MIN_SAMPLES:
                     classes_to_keep.append(oxidationstate)
                 else:
