@@ -68,7 +68,7 @@ class MLOxidationStates:
             scaler: str = 'standard',
             metricspath: str = 'metrics',
             modelpath: str = 'models',
-            max_evals: int = 50,
+            max_evals: int = 10,
             voting: str = 'hard',
             calibrate: str = 'sigmoid',
             timeout: int = 600,
@@ -191,17 +191,17 @@ class MLOxidationStates:
     @staticmethod
     def calibrate_model(model, method: str, X_valid: np.array, y_valid: np.array):
         if method == 'isotonic':
-            calibrated = CalibratedClassifierCV(model, cv='pretrained', method='sigmoid')
+            calibrated = CalibratedClassifierCV(model, cv='prefit', method='sigmoid')
             calibrated.fit(X_valid, y_valid)
         elif method == 'sigmoid':
-            calibrated = CalibratedClassifierCV(model, cv='pretrained', method='sigmoid')
+            calibrated = CalibratedClassifierCV(model, cv='prefit', method='sigmoid')
             calibrated.fit(X_valid, y_valid)
         elif method == 'none':
             calibrated = model
         else:
             trainlogger.info(
                 'could not understand choice for probability calibration method, will use sigmoid regression')
-            calibrated = CalibratedClassifierCV(model, cv='pretrained', method='sigmoid')
+            calibrated = CalibratedClassifierCV(model, cv='prefit', method='sigmoid')
             calibrated.fit(X_valid, y_valid)
 
         return calibrated
@@ -211,7 +211,7 @@ class MLOxidationStates:
             models: list,
             X_valid: np.ndarray,
             y_valid: np.ndarray,
-            max_evals: int = 100,
+            max_evals: int = 10,
             timeout: int = 10 * 60,
             mix_ratios: dict = {
                 'rand': 0.1,
@@ -411,6 +411,8 @@ class MLOxidationStates:
             list -- list of dictionaries of model performance metrics
         """
 
+        self.counter += 1
+
         trainlogger.debug('entered the function that trains one fold')
         all_predictions = []
         counter = str(self.counter)
@@ -577,7 +579,10 @@ class MLOxidationStates:
                 if count > MIN_SAMPLES:
                     classes_to_keep.append(oxidationstate)
                 else:
-                    trainlogger.warning('will drop class %s since it has not enough examples', oxidationstate)
+                    trainlogger.warning(
+                        'will drop class %s since it has not enough examples',
+                        oxidationstate,
+                    )
 
             selected_idx = np.where(np.isin(self.y, classes_to_keep))[0]
             self.x = self.x[selected_idx]
@@ -600,7 +605,6 @@ class MLOxidationStates:
         # do not run this concurrently since the state  of the scaler is not clear!
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             for metrics in executor.map(self.train_eval_single, bs):
-                self.counter += 1
                 # all_predictions.extend(predfull)
                 self.bootstrap_results.append(metrics)
 

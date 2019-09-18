@@ -20,10 +20,12 @@ from sklearn.metrics import (
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import permutation_test_score
 from sklearn.calibration import calibration_curve
+from mlxtend.evaluate import feature_importance_permutation
 from functools import partial
 from joblib import load
 from mine_mof_oxstate.utils import read_pickle
 from six.moves import range
+from six.moves import zip
 
 
 def bootstrapped_metrics(  # pylint:disable=too-many-arguments
@@ -83,7 +85,14 @@ def return_scoring_funcs():
     return metrics
 
 
-def test_model(modelpath: str, Xpath: str, ypath: str, namepath: str, outpath: str):  # pylint:disable=too-many-locals
+def test_model(  # pylint:disable=too-many-arguments
+        modelpath: str,
+        Xpath: str,
+        ypath: str,
+        namepath: str,
+        outpath: str,
+        featurelabelpath: str = None,
+):  # pylint:disable=too-many-locals
     """Takes a trained model and performes some tests on it and calculates statistics.
 
     Arguments:
@@ -92,6 +101,9 @@ def test_model(modelpath: str, Xpath: str, ypath: str, namepath: str, outpath: s
         ypath {str} -- path to labels in npz file
         namepath {str} -- path to names in pickle 3 file
         outpath {str} -- path to which the evaluation metrics are written
+
+    Keyword Arguments:
+        featurelabelpath {str} -- path to a picklefile with a list of the feature names, if not None, feature importances are also estimates (default {None})
     """
     lower_quantile = 2.5 / 100
     upper_quantile = 97.5 / 100
@@ -147,6 +159,23 @@ def test_model(modelpath: str, Xpath: str, ypath: str, namepath: str, outpath: s
     misclassified_w_prediction_true = [(names[i], prediction[i], y[i]) for i in list(misclassified[0])]
 
     metrics_dict['misclassified'] = misclassified_w_prediction_true
+
+    if featurelabelpath is not None:
+        feature_labels = read_pickle(featurelabelpath)
+        imp_vals, imp_all = feature_importance_permutation(
+            predict_method=model.predict,
+            X=X,
+            y=y,
+            metric='accuracy',
+            num_rounds=20,  # to get some errorbars
+            seed=1,
+        )
+        importance_error = np.std(imp_all, axis=-1)
+        importance_metrics = [
+            (name, value, error) for name, value, error in zip(feature_labels, imp_vals, importance_error)
+        ]
+        experiment.log_metrics('feature_importances', importance_metrics)
+        metrics_dict['feature_importances'] = importance_metrics
 
     for i, column in enumerate(df_metrics.columns.values):
         metrics_dict[column] = (means[i], medians[i], stds[i], lower[i], upper[i])
