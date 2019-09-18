@@ -1,0 +1,21 @@
+2019-09-18 10:16:54,756 | train_ensemble_classifier.py: intialized training class
+2019-09-18 10:16:54,800 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-18 10:16:54,810 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-18 10:16:54,817 | train_ensemble_classifier.py: the training set contains 1498 points
+2019-09-18 10:16:54,825 | train_ensemble_classifier.py: the test set contains 1502 points
+2019-09-18 10:16:54,826 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-18 10:16:54,826 | train_ensemble_classifier.py: the training set contains 1502 points
+2019-09-18 10:16:54,833 | train_ensemble_classifier.py: the test set contains 1498 points
+2019-09-18 10:16:54,833 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-18 10:46:09,294 | train_ensemble_classifier.py: entered evaluation function
+2019-09-18 10:46:10,368 | train_ensemble_classifier.py: model knn: accuracy test: 0.9532710280373832, accuracy train: 1.0 | f1 micro test 0.9532710280373832, f1 micro train 1.0
+2019-09-18 10:46:10,706 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9719626168224299, accuracy train: 1.0 | f1 micro test 0.9719626168224299, f1 micro train 1.0
+2019-09-18 10:46:11,073 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.965287049399199, accuracy train: 1.0 | f1 micro test 0.965287049399199, f1 micro train 1.0
+2019-09-18 10:46:11,227 | train_ensemble_classifier.py: training ensemble model
+2019-09-18 10:46:40,564 | train_ensemble_classifier.py: entered evaluation function
+2019-09-18 11:02:05,130 | train_ensemble_classifier.py: entered evaluation function
+2019-09-18 11:02:06,223 | train_ensemble_classifier.py: model knn: accuracy test: 0.9434087882822902, accuracy train: 1.0 | f1 micro test 0.9434087882822902, f1 micro train 1.0
+2019-09-18 11:02:06,589 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9420772303595206, accuracy train: 1.0 | f1 micro test 0.9420772303595207, f1 micro train 1.0
+2019-09-18 11:02:07,705 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9507323568575233, accuracy train: 1.0 | f1 micro test 0.9507323568575233, f1 micro train 1.0
+2019-09-18 11:02:08,715 | train_ensemble_classifier.py: training ensemble model
+2019-09-18 11:03:20,107 | train_ensemble_classifier.py: entered evaluation function

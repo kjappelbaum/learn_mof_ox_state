@@ -373,7 +373,7 @@ class MLOxidationStates:
         # save the latest scaler so we can use it later with latest model for
         # evaluation on a holdout set
 
-        dump(scaler, os.path.join(self.modelpath, 'scaler_' + counter))
+        dump(scaler, os.path.join(self.modelpath, 'scaler_' + counter + '.joblib'))
         xtest = scaler.transform(self.x[test])
 
         trainlogger.debug('the test set contains %s points', len(test))
@@ -396,14 +396,25 @@ class MLOxidationStates:
             self.metricspath,
             self.modelpath,
         )
+
         all_predictions.extend(res)
-        ensemble_model, elapsed_time = MLOxidationStates.train_ensemble(optimized_models_split,
-                                                                        self.x[train],
-                                                                        self.y[train],
-                                                                        voting=self.voting,
-                                                                        n=self.n)
-        ensemble_predictions = MLOxidationStates.model_eval([('ensemble', ensemble_model)], self.x, self.y, train, test,
-                                                            counter)
+        ensemble_model, elapsed_time = MLOxidationStates.train_ensemble(
+            optimized_models_split,
+            self.x[train],
+            self.y[train],
+            voting=self.voting,
+            n=self.n,
+        )
+        ensemble_predictions = MLOxidationStates.model_eval(
+            [('ensemble', ensemble_model)],
+            self.x,
+            self.y,
+            train,
+            test,
+            counter,
+            self.metricspath,
+            self.modelpath,
+        )
         all_predictions.extend(ensemble_predictions)
         self.timings.append(elapsed_time)
 
@@ -504,6 +515,9 @@ class MLOxidationStates:
     def train_test_cv(self):
         """Train an ensemble using a cross-validation technique for evaluation"""
         # Get different sizes for learning curves if needed
+        trainlogger.debug('the metrics are saved to %s', self.metricspath)
+        trainlogger.debug('the models are saved to %s', self.modelpath)
+
         if self.max_size is not None:
             assert self.max_size <= len(self.y)
             rng = np.random.RandomState(RANDOM_SEED)
@@ -543,14 +557,14 @@ def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, max_size, 
         os.mkdir(os.path.abspath(modelpath))
 
     ml_object = MLOxidationStates.from_x_y_paths(
-        os.path.abspath(xpath),
-        os.path.abspath(ypath),
-        os.path.abspath(modelpath),
-        os.path.abspath(metricspath),
-        scaler,
-        int(n),
-        voting,
-        int(max_size),
+        xpath=os.path.abspath(xpath),
+        ypath=os.path.abspath(ypath),
+        modelpath=os.path.abspath(modelpath),
+        metricspath=os.path.abspath(metricspath),
+        scaler=scaler,
+        n=int(n),
+        voting=voting,
+        max_size=int(max_size),
     )
     ml_object.train_test_cv()
 
