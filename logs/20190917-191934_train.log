@@ -1,0 +1,9 @@
+2019-09-17 19:19:34,082 | train_ensemble_classifier.py: intialized training class
+2019-09-17 19:19:34,101 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-17 19:19:34,101 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-17 19:19:34,103 | train_ensemble_classifier.py: the training set contains 49 points
+2019-09-17 19:19:34,104 | train_ensemble_classifier.py: the training set contains 51 points
+2019-09-17 19:19:34,106 | train_ensemble_classifier.py: the test set contains 49 points
+2019-09-17 19:19:34,106 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-17 19:19:34,106 | train_ensemble_classifier.py: the test set contains 51 points
+2019-09-17 19:19:34,107 | train_ensemble_classifier.py: performing hyperparameter optimization

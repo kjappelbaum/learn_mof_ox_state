@@ -23,7 +23,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
 from sklearn.metrics import (
     accuracy_score,
-    auc,
     balanced_accuracy_score,
     f1_score,
     precision_score,
@@ -66,7 +65,7 @@ class MLOxidationStates:
             scaler: str = 'standard',
             metricspath: str = 'metrics',
             modelpath: str = 'models',
-            max_evals: int = 500,
+            max_evals: int = 100,
             voting: str = 'soft',
             timeout: int = 600,
             max_workers: int = 4,
@@ -159,7 +158,7 @@ class MLOxidationStates:
             models: list,
             X_valid: np.ndarray,
             y_valid: np.ndarray,
-            max_evals: int = 500,
+            max_evals: int = 100,
             timeout: int = 10 * 60,
             mix_ratios: dict = {
                 'rand': 0.1,
@@ -205,6 +204,7 @@ class MLOxidationStates:
                 algo=mix_algo,
                 trial_timeout=timeout,
                 max_evals=max_evals,
+                seed=RANDOM_SEED,
             )
 
             m.fit(X_valid, y_valid)
@@ -297,8 +297,6 @@ class MLOxidationStates:
             f1_macro_train = f1_score(train_true, train_predict, average='macro')
             f1_macro_test = f1_score(test_true, test_predict, average='macro')
 
-            auc_train = auc(train_true, train_predict)
-            auc_test = auc(test_true, test_predict)
             balanced_accuracy_train = balanced_accuracy_score(train_true, train_predict)
             balanced_accuracy_test = balanced_accuracy_score(test_true, test_predict)
             precision_train = precision_score(train_true, train_predict)
@@ -321,8 +319,6 @@ class MLOxidationStates:
                 'f1_micro_test': f1_micro_test,
                 'f1_macro_train': f1_macro_train,
                 'f1_macro_test': f1_macro_test,
-                'auc_train': auc_train,
-                'auc_test': auc_test,
                 'balanced_accuracy_train': balanced_accuracy_train,
                 'balanced_accuracy_test': balanced_accuracy_test,
                 'precision_train': precision_train,
@@ -369,11 +365,14 @@ class MLOxidationStates:
         scaler = self.scaler
 
         xtrain = scaler.fit_transform(self.x[train])
+        trainlogger.debug('the training set contains %s points', len(xtrain))
         # save the latest scaler so we can use it later with latest model for
         # evaluation on a holdout set
 
         dump(scaler, os.path.join(self.modelpath, 'scaler_' + counter))
         xtest = scaler.transform(self.x[test])
+
+        trainlogger.debug('the test set contains %s points', len(test))
 
         optimized_models_split = MLOxidationStates.tune_fit(
             classifiers,
@@ -468,12 +467,6 @@ class MLOxidationStates:
             'mean_f1_macro_test': df_ensemble['f1_macro_test'].mean(),
             'median_f1_macro_test': df_ensemble['f1_macro_test'].median(),
             'std_f1_macro_test': df_ensemble['f1_macro_test'].std(),
-            'mean_auc_train': df_ensemble['auc_train'].mean(),
-            'median_auc_train': df_ensemble['auc_train'].median(),
-            'std_auc_train': df_ensemble['auc_train'].std(),
-            'mean_auc_test': df_ensemble['auc_test'].mean(),
-            'median_auc_test': df_ensemble['auc_test'].median(),
-            'std_auc_test': df_ensemble['auc_test'].std(),
             'mean_precision_train': df_ensemble['precision_train'].mean(),
             'median_precision_train': df_ensemble['precision_train'].median(),
             'std_precision_train': df_ensemble['precision_train'].std(),
@@ -524,7 +517,7 @@ class MLOxidationStates:
 
         # all_predictions = []
         # do not run this concurrently since the state  of the scaler is not clear!
-        with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             for _, metrics in executor.map(self.train_eval_single, bs):
                 COUNTER += 1
                 # all_predictions.extend(predfull)

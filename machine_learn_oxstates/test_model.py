@@ -15,7 +15,6 @@ from sklearn.metrics import (
     f1_score,
     precision_score,
     recall_score,
-    roc_auc_score,
 )
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import permutation_test_score
@@ -68,15 +67,15 @@ def return_scoring_funcs():
     """
     f1_micro = partial(f1_score, average='micro')
     f1_macro = partial(f1_score, average='macro')
-
+    precision = partial(precision_score, average='micro')
+    recall = partial(recall_score, average='micro')
     metrics = [
         ('accuracy', accuracy_score),
         ('balanced_accuracy', balanced_accuracy_score),
         ('f1_micro', f1_micro),
         ('f1_macro', f1_macro),
-        ('precision', precision_score),
-        ('recall', recall_score),
-        ('auc', roc_auc_score),
+        ('precision', precision),
+        ('recall', recall),
     ]
 
     return metrics
@@ -120,13 +119,13 @@ def test_model(modelpath: str, Xpath: str, ypath: str, namepath: str, outpath: s
                                                                                n_permutations=100,
                                                                                n_jobs=-1)
 
-    auc, auc_permutation_scores, auc_pvalue = permutation_test_score(model,
-                                                                     X,
-                                                                     y,
-                                                                     scoring='roc_auc_score',
-                                                                     cv=cv,
-                                                                     n_permutations=100,
-                                                                     n_jobs=-1)
+    f1, f1_permutation_scores, f1_pvalue = permutation_test_score(model,
+                                                                  X,
+                                                                  y,
+                                                                  scoring='f1_score',
+                                                                  cv=cv,
+                                                                  n_permutations=100,
+                                                                  n_jobs=-1)
 
     metrics_dict = {}
 
@@ -134,9 +133,9 @@ def test_model(modelpath: str, Xpath: str, ypath: str, namepath: str, outpath: s
     metrics_dict['accuracy_permutation_scores'] = acc_permutation_scores
     metrics_dict['accuracy_p_value'] = accuracy_pvalue
 
-    metrics_dict['auc_cv'] = auc
-    metrics_dict['auc_permutation_scores'] = auc_permutation_scores
-    metrics_dict['auc_p_value'] = auc_pvalue
+    metrics_dict['f1_cv'] = f1
+    metrics_dict['f1_permutation_scores'] = f1_permutation_scores
+    metrics_dict['f1_p_value'] = f1_pvalue
 
     prediction = model.predict(y)
     misclassified = np.where(y != prediction)
@@ -153,12 +152,12 @@ def test_model(modelpath: str, Xpath: str, ypath: str, namepath: str, outpath: s
 
     experiment.log_metrics('accuracy_cv', accuracy)
     experiment.log_metrics('accuracy_p_value', accuracy_pvalue)
-    experiment.log_metrics('auc_cv', auc)
-    experiment.log_metrics('auc_p_value', auc_pvalue)
+    experiment.log_metrics('f1_cv', f1)
+    experiment.log_metrics('f1_p_value', f1_pvalue)
     experiment.log_metrics('missclassified', misclassified_w_prediction_true)
 
     # now write a .json with metrics for DVC
-    with open(os.path.join(outpath, 'metrics.json'), 'w') as fp:
+    with open(os.path.join(outpath, 'test_metrics.json'), 'w') as fp:
         json.dump(metrics_dict, fp)
 
 
