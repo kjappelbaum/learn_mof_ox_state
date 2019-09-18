@@ -174,7 +174,7 @@ class MLOxidationStates:
 
         # calibrate the base esimators
         models_calibrated = []
-        for model_sklearn in models_sklearn:
+        for _, model_sklearn in models_sklearn:
             models_calibrated.append(MLOxidationStates.calibrate_model(model_sklearn, calibrate, X_valid, y_valid))
 
         vc = VotingClassifier(models_calibrated, voting=voting)
