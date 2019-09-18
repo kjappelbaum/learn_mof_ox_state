@@ -128,7 +128,8 @@ class MLOxidationStates:
         )
 
     @staticmethod
-    def train_ensemble(models: list, X: np.array, y: np.array, voting='soft') -> Tuple[CalibratedClassifierCV, float]:
+    def train_ensemble(models: list, X: np.array, y: np.array, voting='soft',
+                       n=10) -> Tuple[CalibratedClassifierCV, float]:
         """Collects base models into a voting classifier, trains it and then performs
         probability calibration
 
@@ -139,6 +140,7 @@ class MLOxidationStates:
 
         Keyword Arguments:
             voting {str} -- voting mechanism (hard or soft) (default: {"soft"})
+             n {int} -- number of CV folds for isotonic regression (default: {10})
 
         Returns:
             [CalibratedClassifierCV, float] -- [description]
@@ -150,7 +152,7 @@ class MLOxidationStates:
         vc.fit(X, y)
         endtime = time.process_time()
         elapsed_time = startime - endtime
-        isotonic = CalibratedClassifierCV(vc, cv=10, method='isotonic')
+        isotonic = CalibratedClassifierCV(vc, cv=n, method='isotonic')
         isotonic.fit(X, y)
 
         return isotonic, elapsed_time
@@ -398,7 +400,8 @@ class MLOxidationStates:
         ensemble_model, elapsed_time = MLOxidationStates.train_ensemble(optimized_models_split,
                                                                         self.x[train],
                                                                         self.y[train],
-                                                                        voting=self.voting)
+                                                                        voting=self.voting,
+                                                                        n=self.n)
         ensemble_predictions = MLOxidationStates.model_eval([('ensemble', ensemble_model)], self.x, self.y, train, test,
                                                             counter)
         all_predictions.extend(ensemble_predictions)
