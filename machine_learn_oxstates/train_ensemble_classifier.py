@@ -569,7 +569,6 @@ class MLOxidationStates:
         if self.max_size is not None:
             assert self.max_size <= len(self.y)
             rng = np.random.RandomState(RANDOM_SEED)
-            sample_idx = np.arange(self.x.shape[0])
 
             classcounter = dict(Counter(self.y))
             trainlogger.info('the classdistribution is %s', classcounter)
@@ -584,6 +583,7 @@ class MLOxidationStates:
             self.x = self.x[selected_idx]
             self.y = self.y[selected_idx]
 
+            sample_idx = np.arange(self.x.shape[0])
             sampled_idx = rng.choice(sample_idx, size=self.max_size, replace=True)
 
             self.x = self.x[sampled_idx]
