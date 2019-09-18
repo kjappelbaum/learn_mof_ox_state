@@ -376,7 +376,7 @@ class MLOxidationStates:
         dump(scaler, os.path.join(self.modelpath, 'scaler_' + counter + '.joblib'))
         xtest = scaler.transform(self.x[test])
 
-        trainlogger.debug('the test set has shape %s', test.shape)
+        trainlogger.debug('the test set has shape %s', xtest.shape)
 
         optimized_models_split = MLOxidationStates.tune_fit(
             classifiers,
@@ -407,10 +407,10 @@ class MLOxidationStates:
         )
         ensemble_predictions = MLOxidationStates.model_eval(
             [('ensemble', ensemble_model)],
-            self.x,
-            self.y,
-            train,
-            test,
+            xtrain,
+            self.y[train],
+            xtest,
+            self.y[test],
             counter,
             self.metricspath,
             self.modelpath,
