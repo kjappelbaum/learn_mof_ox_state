@@ -299,10 +299,10 @@ class MLOxidationStates:
 
             balanced_accuracy_train = balanced_accuracy_score(train_true, train_predict)
             balanced_accuracy_test = balanced_accuracy_score(test_true, test_predict)
-            precision_train = precision_score(train_true, train_predict)
-            precision_test = precision_score(train_true, train_predict)
-            recall_train = recall_score(train_true, train_predict)
-            recall_test = recall_score(test_true, test_predict)
+            precision_train = precision_score(train_true, train_predict, average='micro')
+            precision_test = precision_score(train_true, train_predict, average='micro')
+            recall_train = recall_score(train_true, train_predict, average='micro')
+            recall_test = recall_score(test_true, test_predict, average='micro')
 
             trainlogger.info(
                 f'model {name}: accuracy test: {accuracy_test}, accuracy train: {accuracy_train} | f1 micro test {f1_micro_test}, f1 micro train {f1_micro_train}'

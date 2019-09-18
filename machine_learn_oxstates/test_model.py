@@ -25,7 +25,8 @@ from mine_mof_oxstate.utils import read_pickle
 from six.moves import range
 
 
-def bootstrapped_metrics(model, X, y, scoring_funcs, n_rounds=200, seed=1234) -> list:  # pylint:disable=too-many-arguments
+def bootstrapped_metrics(  # pylint:disable=too-many-arguments
+        model, X, y, scoring_funcs, n_rounds=200, seed=1234) -> list:
     """Get bootstrapped statistics for the metrics estimated with the callables in scoring_funcs
 
     Arguments:
