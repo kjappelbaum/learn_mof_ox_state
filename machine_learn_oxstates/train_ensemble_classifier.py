@@ -13,6 +13,7 @@ import json
 import pickle
 import logging
 from typing import Tuple
+from comet_ml import Experiment
 from hyperopt import tpe, anneal, rand, mix
 from hpsklearn.estimator import hyperopt_estimator
 from hpsklearn import components
@@ -32,9 +33,7 @@ import pandas as pd
 from joblib import dump
 import concurrent.futures
 import click
-from comet_ml import Experiment
 
-COUNTER = 0
 RANDOM_SEED = 1234
 STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
 
@@ -66,8 +65,8 @@ class MLOxidationStates:
             metricspath: str = 'metrics',
             modelpath: str = 'models',
             max_evals: int = 50,
-            voting: str = 'soft',
-            calibrate: str = 'isotonic',
+            voting: str = 'hard',
+            calibrate: str = 'sigmoid',
             timeout: int = 600,
             max_workers: int = 4,
     ):  # pylint:disable=too-many-arguments
@@ -99,6 +98,7 @@ class MLOxidationStates:
         self.mix_ratios = {'rand': 0.1, 'tpe': 0.8, 'anneal': 0.1}
         self.max_workers = max_workers
         self.calibrate = calibrate
+        self.counter = 0
 
         trainlogger.info('intialized training class')
 
@@ -160,7 +160,6 @@ class MLOxidationStates:
         models_sklearn = [(name, model.best_model()['learner']) for name, model in models]
         vc = VotingClassifier(models_sklearn, voting=voting)
         startime = time.process_time()
-        vc.fit(X, y)
         endtime = time.process_time()
         elapsed_time = startime - endtime
         if calibrate == 'isotonic':
@@ -170,11 +169,12 @@ class MLOxidationStates:
             isotonic = CalibratedClassifierCV(vc, cv=n, method='sigmoid')
             isotonic.fit(X, y)
         elif calibrate == 'none':
+            vc.fit(X, y)
             isotonic = vc
         else:
             trainlogger.info(
-                'could not understand choice for probability calibration method, will use isotonic regression')
-            isotonic = CalibratedClassifierCV(vc, cv=n, method='isotonic')
+                'could not understand choice for probability calibration method, will use sigmoid regression')
+            isotonic = CalibratedClassifierCV(vc, cv=n, method='sigmoid')
             isotonic.fit(X, y)
 
         return isotonic, elapsed_time
@@ -279,7 +279,7 @@ class MLOxidationStates:
             ytrain: np.array,
             xtest: np.array,
             ytest: np.array,
-            postfix: str = COUNTER,
+            postfix: str = 0,
             outdir_metrics: str = None,
             outdir_models: str = None,
     ):
@@ -385,7 +385,7 @@ class MLOxidationStates:
 
         trainlogger.debug('entered the function that trains one fold')
         all_predictions = []
-        counter = str(COUNTER)
+        counter = str(self.counter)
         train, test = tt_indices
 
         scaler = self.scaler
@@ -561,7 +561,7 @@ class MLOxidationStates:
         # do not run this concurrently since the state  of the scaler is not clear!
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             for metrics in executor.map(self.train_eval_single, bs):
-                COUNTER += 1
+                self.counter += 1
                 # all_predictions.extend(predfull)
                 self.bootstrap_results.append(metrics)
 
@@ -572,8 +572,8 @@ class MLOxidationStates:
 @click.argument('modelpath')
 @click.argument('metricspath')
 @click.argument('scaler', default='standard')
-@click.argument('voting', default='soft')
-@click.argument('calibrate', default='none')
+@click.argument('voting', default='hard')
+@click.argument('calibrate', default='sigmoid')
 @click.argument('max_size', default=None)
 @click.argument('n', default=10)
 def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, calibrate, max_size, n):

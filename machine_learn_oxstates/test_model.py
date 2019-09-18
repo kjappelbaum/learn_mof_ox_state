@@ -9,6 +9,7 @@ import os
 import pandas as pd
 import json
 import click
+from comet_ml import Experiment
 from sklearn.metrics import (
     accuracy_score,
     balanced_accuracy_score,
@@ -20,7 +21,6 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import permutation_test_score
 from functools import partial
 from joblib import load
-from comet_ml import Experiment
 from mine_mof_oxstate.utils import read_pickle
 from six.moves import range
 
