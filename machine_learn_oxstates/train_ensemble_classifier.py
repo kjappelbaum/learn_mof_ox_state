@@ -65,7 +65,7 @@ class MLOxidationStates:
             scaler: str = 'standard',
             metricspath: str = 'metrics',
             modelpath: str = 'models',
-            max_evals: int = 100,
+            max_evals: int = 50,
             voting: str = 'soft',
             timeout: int = 600,
             max_workers: int = 4,
