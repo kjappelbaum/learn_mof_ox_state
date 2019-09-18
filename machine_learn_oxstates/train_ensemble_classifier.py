@@ -50,6 +50,8 @@ filehandler = logging.FileHandler(os.path.join('logs', STARTTIMESTRING + '_train
 filehandler.setFormatter(formatter)
 trainlogger.addHandler(filehandler)
 
+VALID_SIZE = 0.2
+
 
 class MLOxidationStates:
     """Collects some functions used for training of the oxidation state classifier"""
@@ -137,7 +139,6 @@ class MLOxidationStates:
             X: np.array,
             y: np.array,
             voting: str = 'soft',
-            n: int = 10,
             calibrate: str = 'isotonic',
     ) -> Tuple[CalibratedClassifierCV, float]:
         """Collects base models into a voting classifier, trains it and then performs
@@ -158,26 +159,50 @@ class MLOxidationStates:
         """
         trainlogger.debug('training ensemble model')
         models_sklearn = [(name, model.best_model()['learner']) for name, model in models]
-        vc = VotingClassifier(models_sklearn, voting=voting)
+        # hyperopt uses by  default the last .2 percent as a validation set, we use the same convention here to do the
+        # probability calibration
+        # https://github.com/hyperopt/hyperopt-sklearn/blob/52a5522fae473bce0ea1de5f36bb84ed37990d02/hpsklearn/estimator.py#L268
+
+        n_train = int(len(y) * (1 - VALID_SIZE))
+
+        X_train = X[:n_train]
+        y_train = y[:n_train]
+        X_valid = X[n_train:]
+        y_valid = y[n_train:]
+
+        # calibrate the base esimators
+        models_calibrated = []
+        for model_sklearn in models_sklearn:
+            models_calibrated.append(MLOxidationStates.calibrate_model(model_sklearn, calibrate, X_valid, y_valid))
+
+        vc = VotingClassifier(models_calibrated, voting=voting)
+
         startime = time.process_time()
+        vc.fit(X_train, y_train)
         endtime = time.process_time()
         elapsed_time = startime - endtime
-        if calibrate == 'isotonic':
-            isotonic = CalibratedClassifierCV(vc, cv=n, method='isotonic')
-            isotonic.fit(X, y)
-        elif calibrate == 'sigmoid':
-            isotonic = CalibratedClassifierCV(vc, cv=n, method='sigmoid')
-            isotonic.fit(X, y)
-        elif calibrate == 'none':
-            vc.fit(X, y)
-            isotonic = vc
+
+        # ToDo: maybe add calibration here if voting == "soft"
+
+        return vc, elapsed_time
+
+    @staticmethod
+    def calibrate_model(model, method: str, X_valid: np.array, y_valid: np.array):
+        if method == 'isotonic':
+            calibrated = CalibratedClassifierCV(model, cv='pretrained', method='sigmoid')
+            calibrated.fit(X_valid, y_valid)
+        elif method == 'sigmoid':
+            calibrated = CalibratedClassifierCV(model, cv='pretrained', method='sigmoid')
+            calibrated.fit(X_valid, y_valid)
+        elif method == 'none':
+            calibrated = model
         else:
             trainlogger.info(
                 'could not understand choice for probability calibration method, will use sigmoid regression')
-            isotonic = CalibratedClassifierCV(vc, cv=n, method='sigmoid')
-            isotonic.fit(X, y)
+            calibrated = CalibratedClassifierCV(model, cv='pretrained', method='sigmoid')
+            calibrated.fit(X_valid, y_valid)
 
-        return isotonic, elapsed_time
+        return calibrated
 
     @staticmethod
     def tune_fit(
@@ -233,7 +258,8 @@ class MLOxidationStates:
                 seed=RANDOM_SEED,
             )
 
-            m.fit(X_valid, y_valid)
+            m.fit(X_valid, y_valid, valid_size=VALID_SIZE,
+                  cv_shuffle=False)  # avoid shuffleing to have the same validation set for the ensemble stage
 
             optimized_models.append((name, m))
 
@@ -420,13 +446,10 @@ class MLOxidationStates:
         )
 
         all_predictions.extend(res)
-        ensemble_model, elapsed_time = MLOxidationStates.train_ensemble(
-            optimized_models_split,
-            self.x[train],
-            self.y[train],
-            voting=self.voting,
-            n=self.n,
-        )
+        ensemble_model, elapsed_time = MLOxidationStates.train_ensemble(optimized_models_split,
+                                                                        self.x[train],
+                                                                        self.y[train],
+                                                                        voting=self.voting)
         ensemble_predictions = MLOxidationStates.model_eval(
             [('ensemble', ensemble_model)],
             xtrain,
@@ -573,7 +596,7 @@ class MLOxidationStates:
 @click.argument('metricspath')
 @click.argument('scaler', default='standard')
 @click.argument('voting', default='hard')
-@click.argument('calibrate', default='sigmoid')
+@click.argument('calibrate', default='none')
 @click.argument('max_size', default=None)
 @click.argument('n', default=10)
 def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, calibrate, max_size, n):

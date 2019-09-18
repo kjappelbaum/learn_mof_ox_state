@@ -4,7 +4,8 @@ This module performs inference on new structures
 """
 from __future__ import absolute_import
 from pymatgen import Structure
-#from mine_mof_oxstate.featurize import (
+
+# from mine_mof_oxstate.featurize import (
 #    GetFeatures,)  # ToDo: maybe migrate module this into this package
 from joblib import load
 

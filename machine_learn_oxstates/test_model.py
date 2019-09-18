@@ -19,6 +19,7 @@ from sklearn.metrics import (
 )
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import permutation_test_score
+from sklearn.calibration import calibration_curve
 from functools import partial
 from joblib import load
 from mine_mof_oxstate.utils import read_pickle
@@ -41,7 +42,7 @@ def bootstrapped_metrics(  # pylint:disable=too-many-arguments
         seed {int} -- random seed (default: {1234})
 
     Returns:
-        list  -- list of dictionaries of metrics
+        list -- list of dictionaries of metrics
     """
     rng = np.random.RandomState(seed)
 
@@ -92,6 +93,9 @@ def test_model(modelpath: str, Xpath: str, ypath: str, namepath: str, outpath: s
         namepath {str} -- path to names in pickle 3 file
         outpath {str} -- path to which the evaluation metrics are written
     """
+    lower_quantile = 2.5 / 100
+    upper_quantile = 97.5 / 100
+
     experiment = Experiment(api_key=os.getenv('COMET_API_KEY', None), project_name='mof-oxidation-states')
     experiment.add_tag('model evaluation')
 
@@ -107,8 +111,8 @@ def test_model(modelpath: str, Xpath: str, ypath: str, namepath: str, outpath: s
 
     means = df_metrics.mean().values
     medians = df_metrics.median().values
-    lower = df_metrics.quantile(2.5 / 100).values
-    upper = df_metrics.quantile(97.5 / 100).values
+    lower = df_metrics.quantile(lower_quantile).values
+    upper = df_metrics.quantile(upper_quantile).values
     stds = df_metrics.std().values
 
     cv = StratifiedKFold(10)
@@ -156,6 +160,11 @@ def test_model(modelpath: str, Xpath: str, ypath: str, namepath: str, outpath: s
     experiment.log_metrics('f1_cv', f1)
     experiment.log_metrics('f1_p_value', f1_pvalue)
     experiment.log_metrics('missclassified', misclassified_w_prediction_true)
+
+    cc = calibration_curve(y, model.predict(X), n_bins=10)
+
+    metrics_dict['calibration_curve_true_probab'] = cc[0]
+    metrics_dict['calibration_curve_predicted_probab'] = cc[1]
 
     # now write a .json with metrics for DVC
     with open(os.path.join(outpath, 'test_metrics.json'), 'w') as fp:
