@@ -144,7 +144,8 @@ class MLOxidationStates:
             [CalibratedClassifierCV, float] -- [description]
         """
         trainlogger.debug('training ensemble model')
-        vc = VotingClassifier(models, voting=voting)
+        models_sklearn = [(name, model.best_model()['learner']) for name, model in models]
+        vc = VotingClassifier(models_sklearn, voting=voting)
         startime = time.process_time()
         vc.fit(X, y)
         endtime = time.process_time()
