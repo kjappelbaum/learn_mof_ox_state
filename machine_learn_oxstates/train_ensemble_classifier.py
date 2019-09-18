@@ -7,6 +7,7 @@ Produces a  outpath/train_metrics.json file for DVC
 from __future__ import absolute_import
 from functools import partial
 import time
+from collections import Counter
 import numpy as np
 import os
 import json
@@ -36,6 +37,7 @@ import click
 
 RANDOM_SEED = 1234
 STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
+MIN_SAMPLES = 10
 
 classifiers = [
     ('knn', components.knn),
@@ -568,6 +570,20 @@ class MLOxidationStates:
             assert self.max_size <= len(self.y)
             rng = np.random.RandomState(RANDOM_SEED)
             sample_idx = np.arange(self.x.shape[0])
+
+            classcounter = dict(Counter(self.y))
+            trainlogger.info('the classdistribution is %s', classcounter)
+            classes_to_keep = []
+            for oxidationstate, count in classcounter:
+                if count > MIN_SAMPLES:
+                    classes_to_keep.append(oxidationstate)
+                else:
+                    trainlogger.warning('will drop class %s since it has not enough examples', oxidationstate)
+
+            selected_idx = np.where(np.isin(self.y, classes_to_keep))[0]
+            self.x = self.x[selected_idx]
+            self.y = self.y[selected_idx]
+
             sampled_idx = rng.choice(sample_idx, size=self.max_size, replace=True)
 
             self.x = self.x[sampled_idx]

@@ -1,0 +1,3 @@
+2019-09-18 17:44:22,039 | train_ensemble_classifier.py: intialized training class
+2019-09-18 17:44:22,040 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-09-18 17:44:22,040 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models

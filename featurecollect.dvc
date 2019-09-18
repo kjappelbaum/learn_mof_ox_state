@@ -1,24 +1,29 @@
-md5: 66bbdbafb40f7329ba2087616a5b8192
+md5: a23107410c33c89725434f49e594f552
 cmd: run_featurecollection data/raw data/labels/20190917_labels.pkl data/labels data/features
-  data/helper
+  data/helper crystal_nn_fingerprint ward_prd bond_orientational
 deps:
-- md5: df2da8542964f39b5f7eb3df2fc22300.dir
+- md5: 815e7d2abbccf9f367dabb6b9d4647e8.dir
   path: data/raw
 - md5: 552ae428a51a515299c4beb399f82471
   path: data/labels/20190917_labels.pkl
 outs:
-- md5: 3f06d4d72f378d595fec7a6e02ff60e8
+- md5: 7ce701b6056e81842d835bba21fd9e8f
   path: data/labels/labels.npy
   cache: true
   metric: false
   persist: false
-- md5: 6c446e7efb264f6b8d661203b85c6c33
+- md5: 3af77ed8b53d528ed1727eec4b665004
   path: data/features/features.npy
   cache: true
   metric: false
   persist: false
-- md5: 8b7143af5974495120c32570180de01c
+- md5: 213c683b952f11b15046480412bb2f1f
   path: data/helper/names.pkl
+  cache: true
+  metric: false
+  persist: false
+- md5: 3f5f940ef21504a391b6965fd8c42c9f
+  path: data/helper/feature_names.pkl
   cache: true
   metric: false
   persist: false
