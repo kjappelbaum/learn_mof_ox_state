@@ -179,7 +179,14 @@ class MLOxidationStates:
         for name, model_sklearn in models_sklearn:
             models_calibrated.append((
                 name,
-                MLOxidationStates.calibrate_model(model_sklearn, calibrate, X_valid, y_valid),
+                MLOxidationStates.calibrate_model(
+                    model_sklearn.best_model()['learner'],
+                    calibrate,
+                    X_train,
+                    y_train,
+                    X_valid,
+                    y_valid,
+                ),
             ))
 
         vc = VotingClassifier(models_calibrated, voting=voting)
@@ -194,7 +201,15 @@ class MLOxidationStates:
         return vc, elapsed_time
 
     @staticmethod
-    def calibrate_model(model, method: str, X_valid: np.array, y_valid: np.array):
+    def calibrate_model(
+            model,
+            method: str,
+            X_train: np.array,
+            y_train: np.array,
+            X_valid: np.array,
+            y_valid: np.array,
+    ):
+        model.fit(X_train, y_train)
         if method == 'isotonic':
             calibrated = CalibratedClassifierCV(model, cv='prefit', method='sigmoid')
             calibrated.fit(X_valid, y_valid)
