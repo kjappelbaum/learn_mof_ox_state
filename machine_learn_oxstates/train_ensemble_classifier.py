@@ -3,6 +3,9 @@
 """
 Trains an ensemble classifier to predict the oxidation state
 Produces a  outpath/train_metrics.json file for DVC
+
+Note that it tries to fit the different folds in parallel using multiple processes, by default it
+uses maximal 5 workers which is good e.g. require CV=5 or  CV=10 if you can run that many processes in parallel.
 """
 from __future__ import absolute_import
 from functools import partial
@@ -72,7 +75,7 @@ class MLOxidationStates:
             voting: str = 'hard',
             calibrate: str = 'sigmoid',
             timeout: int = 600,
-            max_workers: int = 4,
+            max_workers: int = 5,
     ):  # pylint:disable=too-many-arguments
 
         self.x = X
