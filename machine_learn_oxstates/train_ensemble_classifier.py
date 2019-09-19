@@ -162,7 +162,7 @@ class MLOxidationStates:
             [CalibratedClassifierCV, float] -- [description]
         """
         trainlogger.debug('training ensemble model')
-        models_sklearn = [(name, model.best_model()['learner']) for name, model in models]
+        models_sklearn = [(name, model) for name, model in models]
         # hyperopt uses by  default the last .2 percent as a validation set, we use the same convention here to do the
         # probability calibration
         # https://github.com/hyperopt/hyperopt-sklearn/blob/52a5522fae473bce0ea1de5f36bb84ed37990d02/hpsklearn/estimator.py#L268
