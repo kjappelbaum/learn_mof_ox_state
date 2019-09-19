@@ -403,16 +403,17 @@ class MLOxidationStates:
 
         return arrays, prediction
 
-    def train_eval_single(self, tt_indices, counter):
+    def train_eval_single(self, count_indx: tuple):
         """Peforms a optimize, train, evaluation loop on one fold
 
         Arguments:
-            tt_indices {tuple} -- indices for training and test set
-            counter {int} -- fold index
+            count_indx {tuple} -- (fold index, indices for training and test set)
 
         Returns:
             list -- list of dictionaries of model performance metrics
         """
+
+        counter, tt_indices = count_indx
 
         trainlogger.debug('entered the function that trains one fold')
         all_predictions = []
