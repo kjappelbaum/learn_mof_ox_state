@@ -193,8 +193,8 @@ class MLOxidationStates:
 
         startime = time.process_time()
         vc.fit(X_train, y_train)
-        if 'voting' == 'soft':
-            vc = MLOxidationStates.calibrate_model(vc, calibrate, X_valid, y_valid)
+        #if "voting" == "soft":
+        #    vc = MLOxidationStates.calibrate_model(vc, calibrate, X_valid, y_valid)
 
         endtime = time.process_time()
         elapsed_time = startime - endtime
@@ -204,12 +204,7 @@ class MLOxidationStates:
         return vc, elapsed_time
 
     @staticmethod
-    def calibrate_model(
-            model,
-            method: str,
-            X_valid: np.array,
-            y_valid: np.array,
-    ):
+    def calibrate_model(model, method: str, X_valid: np.array, y_valid: np.array):
         if method == 'isotonic':
             trainlogger.debug('calibrating using isotonic regression')
             calibrated = CalibratedClassifierCV(model, cv='prefit', method='isotonic')
