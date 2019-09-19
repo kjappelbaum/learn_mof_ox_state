@@ -1,4 +1,4 @@
-md5: b13def44099684a5fe1d18b524884ded
+md5: dc9e67b0abaade187ea0c69d64eb1f3f
 cmd: python machine_learn_oxstates/train_ensemble_classifier.py data/features/features.npy
   data/labels/labels.npy models metrics standard hard none 2000 2
 deps:
@@ -7,17 +7,17 @@ deps:
 - md5: 7ce701b6056e81842d835bba21fd9e8f
   path: data/labels/labels.npy
 outs:
-- md5: 2805a2a7c3ccaeda0b04e8891a988d01.dir
+- md5: 46d802d18dd6ca009a3f021f9c2541ca.dir
   path: models
   cache: true
   metric: false
   persist: false
-- md5: 88c0e85f3b5c4bca1fd4c45df417f70a.dir
+- md5: 6a792cca7f4093e173ae9310a0ae6509.dir
   path: metrics/verbose
   cache: true
   metric: false
   persist: false
-- md5: 1fca46b66cd63404f28ac42eeded1034
+- md5: a497f9fbe01d492a2d2d4299f1e77a06
   path: metrics/train_metrics.json
   cache: false
   metric: true
