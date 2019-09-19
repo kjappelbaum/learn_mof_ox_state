@@ -8,6 +8,7 @@ Note that it tries to fit the different folds in parallel using multiple process
 uses maximal 5 workers which is good e.g. require CV=5 or  CV=10 if you can run that many processes in parallel.
 """
 from __future__ import absolute_import
+from __future__ import print_function
 from functools import partial
 import time
 from collections import Counter
@@ -546,6 +547,7 @@ class MLOxidationStates:
             dict -- dictionary with most important metrics
         """
         df = pd.DataFrame(metrics)
+        print((df.head()))
         df_ensemble = df[df['model'] == 'ensemble']
 
         summary_metrics = {
