@@ -431,7 +431,7 @@ class MLOxidationStates:
 
             dump(model, outname_base_models + '.joblib')
 
-        return arrays, prediction
+        return predictions
 
     def train_eval_single(self, count_indx: tuple):
         """Peforms a optimize, train, evaluation loop on one fold
