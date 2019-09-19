@@ -33,6 +33,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
+from ml_insights import SplineCalibratedClassifierCV
 import pandas as pd
 from joblib import dump
 import concurrent.futures
@@ -143,7 +144,7 @@ class MLOxidationStates:
             X: np.array,
             y: np.array,
             voting: str = 'soft',
-            calibrate: str = 'isotonic',
+            calibrate: str = 'spline',
     ) -> Tuple[CalibratedClassifierCV, float]:
         """Collects base models into a voting classifier, trains it and then performs
         probability calibration
@@ -177,6 +178,7 @@ class MLOxidationStates:
         # calibrate the base esimators
         models_calibrated = []
         for name, model_sklearn in models_sklearn:
+            trainlogger.debug('calibrating  %s', name)
             models_calibrated.append((
                 name,
                 MLOxidationStates.calibrate_model(
@@ -190,6 +192,8 @@ class MLOxidationStates:
             ))
 
         vc = VotingClassifier(models_calibrated, voting=voting)
+
+        trainlogger.debug('now fitting votingclassifier')
 
         startime = time.process_time()
         vc.fit(X_train, y_train)
@@ -211,13 +215,20 @@ class MLOxidationStates:
     ):
         model.fit(X_train, y_train)
         if method == 'isotonic':
-            calibrated = CalibratedClassifierCV(model, cv='prefit', method='sigmoid')
+            trainlogger.debug('calibrating using isotonic regression')
+            calibrated = CalibratedClassifierCV(model, cv='prefit', method='isotonic')
             calibrated.fit(X_valid, y_valid)
         elif method == 'sigmoid':
+            trainlogger.debug('calibrating using sigmoid regression')
             calibrated = CalibratedClassifierCV(model, cv='prefit', method='sigmoid')
             calibrated.fit(X_valid, y_valid)
         elif method == 'none':
+            trainlogger.debug('not calibrating')
             calibrated = model
+        elif method == 'spline':
+            trainlogger.debug('calibrating using spline calibration')
+            calibrated = SplineCalibratedClassifierCV(model, cv='prefit')
+            calibrated.fit(X_valid, y_valid)
         else:
             trainlogger.info(
                 'could not understand choice for probability calibration method, will use sigmoid regression')
@@ -636,7 +647,7 @@ class MLOxidationStates:
 @click.argument('metricspath')
 @click.argument('scaler', default='standard')
 @click.argument('voting', default='hard')
-@click.argument('calibrate', default='none')
+@click.argument('calibrate', default='spline')
 @click.argument('max_size', default=None)
 @click.argument('n', default=10)
 def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, calibrate, max_size, n):

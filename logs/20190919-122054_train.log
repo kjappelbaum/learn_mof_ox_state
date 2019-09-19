@@ -1,0 +1,50 @@
+2019-09-19 12:20:54,517 | train_ensemble_classifier.py: intialized training class
+2019-09-19 12:20:54,517 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-09-19 12:20:54,517 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-09-19 12:20:54,523 | train_ensemble_classifier.py: the classdistribution is {3: 2734, 2: 11579, 1: 2642, 6: 226, 4: 325, 5: 103, 7: 1}
+2019-09-19 12:20:54,523 | train_ensemble_classifier.py: will drop class 7 since it has not enough examples
+2019-09-19 12:20:54,614 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-19 12:20:54,646 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-19 12:20:54,669 | train_ensemble_classifier.py: the training set has shape (13597, 93)
+2019-09-19 12:20:54,678 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-19 12:20:54,683 | train_ensemble_classifier.py: the test set has shape (3403, 93)
+2019-09-19 12:20:54,683 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-19 12:20:54,718 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-19 12:20:54,714 | train_ensemble_classifier.py: the training set has shape (13600, 93)
+2019-09-19 12:20:54,728 | train_ensemble_classifier.py: the test set has shape (3400, 93)
+2019-09-19 12:20:54,728 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-19 12:20:54,741 | train_ensemble_classifier.py: the training set has shape (13600, 93)
+2019-09-19 12:20:54,754 | train_ensemble_classifier.py: the test set has shape (3400, 93)
+2019-09-19 12:20:54,754 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-19 12:20:54,762 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-19 12:20:54,786 | train_ensemble_classifier.py: the training set has shape (13601, 93)
+2019-09-19 12:20:54,800 | train_ensemble_classifier.py: the test set has shape (3399, 93)
+2019-09-19 12:20:54,801 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-19 12:20:54,837 | train_ensemble_classifier.py: the training set has shape (13602, 93)
+2019-09-19 12:20:54,848 | train_ensemble_classifier.py: the test set has shape (3398, 93)
+2019-09-19 12:20:54,848 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-19 13:01:09,477 | train_ensemble_classifier.py: entered evaluation function
+2019-09-19 13:01:59,072 | train_ensemble_classifier.py: model knn: accuracy test: 0.9844117647058823, accuracy train: 1.0 | f1 micro test 0.9844117647058823, f1 micro train 1.0
+2019-09-19 13:02:00,474 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9888235294117647, accuracy train: 1.0 | f1 micro test 0.9888235294117647, f1 micro train 1.0
+2019-09-19 13:02:08,164 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9888235294117647, accuracy train: 1.0 | f1 micro test 0.9888235294117647, f1 micro train 1.0
+2019-09-19 13:02:10,068 | train_ensemble_classifier.py: training ensemble model
+2019-09-19 13:03:08,937 | train_ensemble_classifier.py: entered evaluation function
+2019-09-19 13:03:42,006 | train_ensemble_classifier.py: entered evaluation function
+2019-09-19 13:03:48,737 | train_ensemble_classifier.py: entered evaluation function
+2019-09-19 13:04:20,609 | train_ensemble_classifier.py: entered evaluation function
+2019-09-19 13:04:29,199 | train_ensemble_classifier.py: model knn: accuracy test: 0.9811930649426976, accuracy train: 1.0 | f1 micro test 0.9811930649426976, f1 micro train 1.0
+2019-09-19 13:04:33,208 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9894210990302674, accuracy train: 1.0 | f1 micro test 0.9894210990302674, f1 micro train 1.0
+2019-09-19 13:04:38,798 | train_ensemble_classifier.py: model knn: accuracy test: 0.9820535451603413, accuracy train: 1.0 | f1 micro test 0.9820535451603413, f1 micro train 1.0
+2019-09-19 13:04:39,960 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9900088157508081, accuracy train: 1.0 | f1 micro test 0.9900088157508081, f1 micro train 1.0
+2019-09-19 13:04:41,957 | train_ensemble_classifier.py: training ensemble model
+2019-09-19 13:04:43,047 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9897028537805237, accuracy train: 1.0 | f1 micro test 0.9897028537805237, f1 micro train 1.0
+2019-09-19 13:04:43,803 | train_ensemble_classifier.py: model knn: accuracy test: 0.9844025897586816, accuracy train: 1.0 | f1 micro test 0.9844025897586816, f1 micro train 1.0
+2019-09-19 13:04:48,380 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9891112419070042, accuracy train: 1.0 | f1 micro test 0.9891112419070042, f1 micro train 1.0
+2019-09-19 13:04:50,161 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9894086496028244, accuracy train: 1.0 | f1 micro test 0.9894086496028244, f1 micro train 1.0
+2019-09-19 13:04:52,189 | train_ensemble_classifier.py: training ensemble model
+2019-09-19 13:04:55,074 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9861683343143025, accuracy train: 1.0 | f1 micro test 0.9861683343143025, f1 micro train 1.0
+2019-09-19 13:04:56,823 | train_ensemble_classifier.py: training ensemble model
+2019-09-19 13:05:27,411 | train_ensemble_classifier.py: model knn: accuracy test: 0.9808823529411764, accuracy train: 1.0 | f1 micro test 0.9808823529411764, f1 micro train 1.0
+2019-09-19 13:05:31,512 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9897058823529412, accuracy train: 1.0 | f1 micro test 0.9897058823529412, f1 micro train 1.0
+2019-09-19 13:05:38,551 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9888235294117647, accuracy train: 1.0 | f1 micro test 0.9888235294117647, f1 micro train 1.0
+2019-09-19 13:05:40,563 | train_ensemble_classifier.py: training ensemble model
