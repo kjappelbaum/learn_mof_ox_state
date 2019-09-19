@@ -192,7 +192,7 @@ class MLOxidationStates:
 
         # due to the way this is implemented in sklearn, we cannot use the voting on prefit models
 
-        vc = EnsembleVoteClassifier(models_calibrated, voting=voting, refit=False, weights=[1] * len(models_calibrated))
+        vc = EnsembleVoteClassifier(models_calibrated, voting=voting, weights=[1] * len(models_calibrated))
 
         trainlogger.debug('now fitting votingclassifier')
 
