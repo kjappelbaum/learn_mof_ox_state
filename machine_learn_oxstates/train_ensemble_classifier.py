@@ -180,8 +180,7 @@ class MLOxidationStates:
         models_calibrated = []
         for name, model_sklearn in models_sklearn:
             trainlogger.debug('calibrating  %s', name)
-            models_calibrated.append((
-                name,
+            models_calibrated.append(
                 MLOxidationStates.calibrate_model(
                     model_sklearn.best_model()['learner'],
                     calibrate,
@@ -189,8 +188,7 @@ class MLOxidationStates:
                     y_train,
                     X_valid,
                     y_valid,
-                ),
-            ))
+                ))
 
         # due to the way this is implemented in sklearn, we cannot use the voting on prefit models
 
