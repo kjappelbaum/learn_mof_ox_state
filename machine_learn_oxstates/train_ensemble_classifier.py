@@ -180,15 +180,10 @@ class MLOxidationStates:
         models_calibrated = []
         for name, model_sklearn in models_sklearn:
             trainlogger.debug('calibrating  %s', name)
-            models_calibrated.append(
-                MLOxidationStates.calibrate_model(
-                    model_sklearn.best_model()['learner'],
-                    calibrate,
-                    X_train,
-                    y_train,
-                    X_valid,
-                    y_valid,
-                ))
+            model = model_sklearn.best_model()['learner']
+            model.fit(X_train, y_train)
+
+            models_calibrated.append(MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid))
 
         # due to the way this is implemented in sklearn, we cannot use the voting on prefit models
 
@@ -198,6 +193,9 @@ class MLOxidationStates:
 
         startime = time.process_time()
         vc.fit(X_train, y_train)
+        if 'voting' == 'soft':
+            vc = MLOxidationStates.calibrate_model(vc, calibrate, X_valid, y_valid)
+
         endtime = time.process_time()
         elapsed_time = startime - endtime
 
@@ -209,12 +207,9 @@ class MLOxidationStates:
     def calibrate_model(
             model,
             method: str,
-            X_train: np.array,
-            y_train: np.array,
             X_valid: np.array,
             y_valid: np.array,
     ):
-        model.fit(X_train, y_train)
         if method == 'isotonic':
             trainlogger.debug('calibrating using isotonic regression')
             calibrated = CalibratedClassifierCV(model, cv='prefit', method='isotonic')
