@@ -531,7 +531,7 @@ class MLOxidationStates:
         experiment.log_parameter('eval_method', self.eval_method)
         experiment.log_parameter('scaler', self.scalername)
         experiment.log_parameter('calibration_method', self.calibrate)
-        experiment.add_tag('initial_test')
+        experiment.add_tag('initial_model_eval')
         experiment.log_metric('mean_training_time', mean_time)
 
     @staticmethod
