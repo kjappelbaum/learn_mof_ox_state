@@ -171,8 +171,6 @@ class MLOxidationStates:
 
         n_train = int(len(y) * (1 - VALID_SIZE))
 
-        X_train = X[:n_train]
-        y_train = y[:n_train]
         X_valid = X[n_train:]
         y_valid = y[n_train:]
 
@@ -181,14 +179,20 @@ class MLOxidationStates:
         models_calibrated = []
         for name, model_sklearn in models_sklearn:
             trainlogger.debug('calibrating  %s', name)
-            model = model_sklearn.best_model()['learner']
-            model.fit(X_train, y_train)
-            trainlogger.debug('the accuracay on the validation set before calibration is %s',
-                              accuracy_score(y_valid, model.predict(X_valid)))
+            model = model_sklearn
+            trainlogger.debug(
+                'the accuracay on the validation set before calibration is %s',
+                accuracy_score(y_valid, model.predict(X_valid)),
+            )
             calibrated = MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid)
-            models_calibrated.append((name, MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid)))
-            trainlogger.debug('the accuracay on the validation set after calibration is %s',
-                              accuracy_score(y_valid, calibrated.predict(X_valid)))
+            models_calibrated.append((
+                name,
+                MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid),
+            ))
+            trainlogger.debug(
+                'the accuracay on the validation set after calibration is %s',
+                accuracy_score(y_valid, calibrated.predict(X_valid)),
+            )
 
         # due to the way this is implemented in sklearn, we cannot use the voting on prefit models
 
@@ -227,8 +231,8 @@ class MLOxidationStates:
     @staticmethod
     def tune_fit(
             models: list,
-            X_valid: np.ndarray,
-            y_valid: np.ndarray,
+            X: np.ndarray,
+            y: np.ndarray,
             max_evals: int = 10,
             timeout: int = 10 * 60,
             mix_ratios: dict = {
@@ -278,8 +282,16 @@ class MLOxidationStates:
                 seed=RANDOM_SEED,
             )
 
-            m.fit(X_valid, y_valid, valid_size=VALID_SIZE,
+            m.fit(X, y, valid_size=VALID_SIZE,
                   cv_shuffle=False)  # avoid shuffleing to have the same validation set for the ensemble stage
+
+            m = m.best_model()['learner']
+
+            n_train = int(len(y) * (1 - VALID_SIZE))
+            X_train = X[:n_train]
+            y_train = y[:n_train]
+
+            m.fit(X_train, y_train)
 
             optimized_models.append((name, m))
 
@@ -440,9 +452,9 @@ class MLOxidationStates:
         xtrain = self.x[train]
         xtrain = scaler.fit_transform(xtrain)
         trainlogger.debug('the training set has shape %s', xtrain.shape)
+
         # save the latest scaler so we can use it later with latest model for
         # evaluation on a holdout set
-
         dump(scaler, os.path.join(self.modelpath, 'scaler_' + counter + '.joblib'))
         xtest = self.x[test]
         xtest = scaler.transform(xtest)
@@ -467,8 +479,9 @@ class MLOxidationStates:
             self.metricspath,
             self.modelpath,
         )
-
         all_predictions.extend(res)
+
+        # now build an ensemble based on the single models
         ensemble_model, elapsed_time = MLOxidationStates.train_ensemble(
             optimized_models_split,
             self.x[train],
