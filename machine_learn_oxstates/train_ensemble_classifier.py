@@ -481,10 +481,13 @@ class MLOxidationStates:
         )
 
         all_predictions.extend(res)
-        ensemble_model, elapsed_time = MLOxidationStates.train_ensemble(optimized_models_split,
-                                                                        self.x[train],
-                                                                        self.y[train],
-                                                                        voting=self.voting)
+        ensemble_model, elapsed_time = MLOxidationStates.train_ensemble(
+            optimized_models_split,
+            self.x[train],
+            self.y[train],
+            voting=self.voting,
+            calibrate=self.calibrate,
+        )
         ensemble_predictions = MLOxidationStates.model_eval(
             [('ensemble', ensemble_model)],
             xtrain,
