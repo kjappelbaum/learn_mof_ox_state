@@ -102,7 +102,6 @@ class MLOxidationStates:
         self.mix_ratios = {'rand': 0.1, 'tpe': 0.8, 'anneal': 0.1}
         self.max_workers = max_workers
         self.calibrate = calibrate
-        self.counter = 0
 
         trainlogger.info('intialized training class')
 
@@ -174,8 +173,11 @@ class MLOxidationStates:
 
         # calibrate the base esimators
         models_calibrated = []
-        for _, model_sklearn in models_sklearn:
-            models_calibrated.append(MLOxidationStates.calibrate_model(model_sklearn, calibrate, X_valid, y_valid))
+        for name, model_sklearn in models_sklearn:
+            models_calibrated.append((
+                name,
+                MLOxidationStates.calibrate_model(model_sklearn, calibrate, X_valid, y_valid),
+            ))
 
         vc = VotingClassifier(models_calibrated, voting=voting)
 
@@ -401,21 +403,20 @@ class MLOxidationStates:
 
         return arrays, prediction
 
-    def train_eval_single(self, tt_indices):
+    def train_eval_single(self, tt_indices, counter):
         """Peforms a optimize, train, evaluation loop on one fold
 
         Arguments:
             tt_indices {tuple} -- indices for training and test set
+            counter {int} -- fold index
 
         Returns:
             list -- list of dictionaries of model performance metrics
         """
 
-        self.counter += 1
-
         trainlogger.debug('entered the function that trains one fold')
         all_predictions = []
-        counter = str(self.counter)
+        counter = str(counter)
         train, test = tt_indices
 
         scaler = self.scaler
@@ -604,7 +605,7 @@ class MLOxidationStates:
         # all_predictions = []
         # do not run this concurrently since the state  of the scaler is not clear!
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
-            for metrics in executor.map(self.train_eval_single, bs):
+            for metrics in executor.map(self.train_eval_single, enumerate(bs)):
                 # all_predictions.extend(predfull)
                 self.bootstrap_results.append(metrics)
 
