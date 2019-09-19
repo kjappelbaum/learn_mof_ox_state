@@ -437,14 +437,15 @@ class MLOxidationStates:
         train, test = tt_indices
 
         scaler = self.scaler
-
-        xtrain = scaler.fit_transform(self.x[train])
+        xtrain = self.x[train]
+        xtrain = scaler.fit_transform(xtrain)
         trainlogger.debug('the training set has shape %s', xtrain.shape)
         # save the latest scaler so we can use it later with latest model for
         # evaluation on a holdout set
 
         dump(scaler, os.path.join(self.modelpath, 'scaler_' + counter + '.joblib'))
-        xtest = scaler.transform(self.x[test])
+        xtest = self.x[test]
+        xtest = scaler.transform(xtest)
 
         trainlogger.debug('the test set has shape %s', xtest.shape)
 
