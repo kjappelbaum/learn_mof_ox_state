@@ -605,7 +605,7 @@ class MLOxidationStates:
         # all_predictions = []
         # do not run this concurrently since the state  of the scaler is not clear!
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
-            for metrics in executor.map(self.train_eval_single, enumerate(bs)):
+            for metrics in executor.map(self.train_eval_single, list(enumerate(bs))):
                 # all_predictions.extend(predfull)
                 self.bootstrap_results.append(metrics)
 
