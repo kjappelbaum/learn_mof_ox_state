@@ -23,7 +23,7 @@ from hyperopt import tpe, anneal, rand, mix
 from hpsklearn.estimator import hyperopt_estimator
 from hpsklearn import components
 from mlxtend.evaluate import BootstrapOutOfBag
-from sklearn.ensemble import VotingClassifier
+from mlxtend.classifier import EnsembleVoteClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
@@ -192,7 +192,9 @@ class MLOxidationStates:
                 ),
             ))
 
-        vc = VotingClassifier(models_calibrated, voting=voting)
+        # due to the way this is implemented in sklearn, we cannot use the voting on prefit models
+
+        vc = EnsembleVoteClassifier(models_calibrated, voting=voting, refit=False)
 
         trainlogger.debug('now fitting votingclassifier')
 
@@ -547,7 +549,6 @@ class MLOxidationStates:
             dict -- dictionary with most important metrics
         """
         df = pd.DataFrame(metrics)
-        print((df.head()))
         df_ensemble = df[df['model'] == 'ensemble']
 
         summary_metrics = {
