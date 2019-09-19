@@ -22,8 +22,8 @@ from comet_ml import Experiment
 from hyperopt import tpe, anneal, rand, mix
 from hpsklearn.estimator import hyperopt_estimator
 from hpsklearn import components
+from utils import VotingClassifier
 from mlxtend.evaluate import BootstrapOutOfBag
-from mlxtend.classifier import EnsembleVoteClassifier
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
@@ -177,22 +177,20 @@ class MLOxidationStates:
         y_valid = y[n_train:]
 
         # calibrate the base esimators
+        startime = time.process_time()
         models_calibrated = []
         for name, model_sklearn in models_sklearn:
             trainlogger.debug('calibrating  %s', name)
             model = model_sklearn.best_model()['learner']
             model.fit(X_train, y_train)
 
-            models_calibrated.append(MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid))
+            models_calibrated.append((name, MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid)))
 
         # due to the way this is implemented in sklearn, we cannot use the voting on prefit models
 
-        vc = EnsembleVoteClassifier(models_calibrated, voting=voting, weights=[1] * len(models_calibrated))
+        vc = VotingClassifier(models_calibrated, voting=voting)
 
-        trainlogger.debug('now fitting votingclassifier')
-
-        startime = time.process_time()
-        vc.fit(X_train, y_train)
+        # vc.fit(X_train, y_train)
         #if "voting" == "soft":
         #    vc = MLOxidationStates.calibrate_model(vc, calibrate, X_valid, y_valid)
 
