@@ -1,0 +1,15 @@
+2019-09-19 14:03:05,168 | train_ensemble_classifier.py: intialized training class
+2019-09-19 14:03:05,169 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-09-19 14:03:05,169 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-09-19 14:03:05,174 | train_ensemble_classifier.py: the classdistribution is {3: 2734, 2: 11579, 1: 2642, 6: 226, 4: 325, 5: 103, 7: 1}
+2019-09-19 14:03:05,174 | train_ensemble_classifier.py: will drop class 7 since it has not enough examples
+2019-09-19 14:03:05,227 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-19 14:03:05,228 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-19 14:03:05,232 | train_ensemble_classifier.py: the training set has shape (49, 93)
+2019-09-19 14:03:05,232 | train_ensemble_classifier.py: the training set has shape (51, 93)
+2019-09-19 14:03:05,237 | train_ensemble_classifier.py: the test set has shape (49, 93)
+2019-09-19 14:03:05,237 | train_ensemble_classifier.py: the test set has shape (51, 93)
+2019-09-19 14:03:05,237 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-19 14:03:05,237 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-19 14:03:26,804 | train_ensemble_classifier.py: entered evaluation function
+2019-09-19 14:03:29,975 | train_ensemble_classifier.py: entered evaluation function

@@ -642,7 +642,7 @@ class MLOxidationStates:
         with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
             for metrics in executor.map(self.train_eval_single, enumerate(list(bs))):
                 # all_predictions.extend(predfull)
-                self.bootstrap_results.append(metrics)
+                self.bootstrap_results.extend(metrics)
 
 
 @click.command('cli')
