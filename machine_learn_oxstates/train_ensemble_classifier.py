@@ -183,21 +183,19 @@ class MLOxidationStates:
             trainlogger.debug('calibrating  %s', name)
             model = model_sklearn.best_model()['learner']
             model.fit(X_train, y_train)
-
+            trainlogger.debug('the accuracay on the validation set before calibration is %s',
+                              accuracy_score(y_valid, model.predict(X_valid)))
+            calibrated = MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid)
             models_calibrated.append((name, MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid)))
+            trainlogger.debug('the accuracay on the validation set after calibration is %s',
+                              accuracy_score(y_valid, calibrated.predict(X_valid)))
 
         # due to the way this is implemented in sklearn, we cannot use the voting on prefit models
 
         vc = VotingClassifier(models_calibrated, voting=voting)
 
-        # vc.fit(X_train, y_train)
-        #if "voting" == "soft":
-        #    vc = MLOxidationStates.calibrate_model(vc, calibrate, X_valid, y_valid)
-
         endtime = time.process_time()
         elapsed_time = startime - endtime
-
-        # ToDo: maybe add calibration here if voting == "soft"
 
         return vc, elapsed_time
 
