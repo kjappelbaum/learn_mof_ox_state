@@ -47,5 +47,6 @@ MIN_SAMPLES = 10
 def load_model(modelpath):
     model = load(modelpath)
 
+
 def train_base_models():
     ...
