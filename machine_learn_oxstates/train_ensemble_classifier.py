@@ -35,6 +35,7 @@ from sklearn.metrics import (
     recall_score,
 )
 from ml_insights import SplineCalibratedClassifierCV
+from imblearn.over_sampling import SMOTE, BorderlineSMOTE, ADASYN
 import pandas as pd
 from joblib import dump
 import concurrent.futures
@@ -57,27 +58,28 @@ filehandler = logging.FileHandler(os.path.join('logs', STARTTIMESTRING + '_train
 filehandler.setFormatter(formatter)
 trainlogger.addHandler(filehandler)
 
-VALID_SIZE = 0.2
+VALID_SIZE = 0.3
 
 
 class MLOxidationStates:
     """Collects some functions used for training of the oxidation state classifier"""
 
     def __init__(
-            self,
-            X: np.array,
-            y: np.array,
-            n: int = 10,
-            max_size: int = None,
-            eval_method: str = 'kfold',
-            scaler: str = 'standard',
-            metricspath: str = 'metrics',
-            modelpath: str = 'models',
-            max_evals: int = 10,
-            voting: str = 'hard',
-            calibrate: str = 'sigmoid',
-            timeout: int = 600,
-            max_workers: int = 5,
+        self,
+        X: np.array,
+        y: np.array,
+        n: int = 10,
+        max_size: int = None,
+        eval_method: str = 'kfold',
+        scaler: str = 'standard',
+        metricspath: str = 'metrics',
+        modelpath: str = 'models',
+        max_evals: int = 100,
+        voting: str = 'hard',
+        calibrate: str = 'sigmoid',
+        timeout: int = 600,
+        oversampling: str = 'smote',
+        max_workers: int = 5,
     ):  # pylint:disable=too-many-arguments
 
         self.x = X
@@ -107,21 +109,24 @@ class MLOxidationStates:
         self.mix_ratios = {'rand': 0.1, 'tpe': 0.8, 'anneal': 0.1}
         self.max_workers = max_workers
         self.calibrate = calibrate
+        self.oversampling = oversampling
+        assert oversampling in [None, 'smote', 'adasyn', 'boderlinesmote']
 
         trainlogger.info('intialized training class')
 
     @classmethod
     def from_x_y_paths(
-            cls,
-            xpath: str,
-            ypath: str,
-            modelpath: str,
-            metricspath: str,
-            scaler: str,
-            n: int,
-            voting: str,
-            calibrate: str,
-            max_size: int,
+        cls,
+        xpath: str,
+        ypath: str,
+        modelpath: str,
+        metricspath: str,
+        scaler: str,
+        n: int,
+        voting: str,
+        calibrate: str,
+        max_size: int,
+        oversampling: str,
     ):
         """Constructs a MLOxidationStates object from filepaths"""
         x = np.load(xpath, allow_pickle=True)
@@ -137,15 +142,16 @@ class MLOxidationStates:
             calibrate=calibrate,
             modelpath=modelpath,
             metricspath=metricspath,
+            oversampling=oversampling,
         )
 
     @staticmethod
     def train_ensemble(
-            models: list,
-            X: np.array,
-            y: np.array,
-            voting: str = 'soft',
-            calibrate: str = 'spline',
+        models: list,
+        X: np.array,
+        y: np.array,
+        voting: str = 'soft',
+        calibrate: str = 'spline',
     ) -> Tuple[CalibratedClassifierCV, float]:
         """Collects base models into a voting classifier, trains it and then performs
         probability calibration
@@ -184,11 +190,17 @@ class MLOxidationStates:
                 'the accuracay on the validation set before calibration is %s',
                 accuracy_score(y_valid, model.predict(X_valid)),
             )
-            calibrated = MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid)
-            models_calibrated.append((
-                name,
-                MLOxidationStates.calibrate_model(model, calibrate, X_valid, y_valid),
-            ))
+            calibrated = MLOxidationStates.calibrate_model(
+                model, calibrate, X_valid, y_valid
+            )
+            models_calibrated.append(
+                (
+                    name,
+                    MLOxidationStates.calibrate_model(
+                        model, calibrate, X_valid, y_valid
+                    ),
+                )
+            )
             trainlogger.debug(
                 'the accuracay on the validation set after calibration is %s',
                 accuracy_score(y_valid, calibrated.predict(X_valid)),
@@ -222,7 +234,8 @@ class MLOxidationStates:
             calibrated.fit(X_valid, y_valid)
         else:
             trainlogger.info(
-                'could not understand choice for probability calibration method, will use sigmoid regression')
+                'could not understand choice for probability calibration method, will use sigmoid regression'
+            )
             calibrated = CalibratedClassifierCV(model, cv='prefit', method='sigmoid')
             calibrated.fit(X_valid, y_valid)
 
@@ -230,16 +243,16 @@ class MLOxidationStates:
 
     @staticmethod
     def tune_fit(
-            models: list,
-            X: np.ndarray,
-            y: np.ndarray,
-            max_evals: int = 10,
-            timeout: int = 10 * 60,
-            mix_ratios: dict = {
-                'rand': 0.1,
-                'tpe': 0.8,
-                'anneal': 0.1,
-            },  # pylint:disable=dangerous-default-value
+        models: list,
+        X: np.ndarray,
+        y: np.ndarray,
+        max_evals: int = 100,
+        timeout: int = 10 * 60,
+        mix_ratios: dict = {
+            'rand': 0.1,
+            'tpe': 0.8,
+            'anneal': 0.1,
+        },  # pylint:disable=dangerous-default-value
     ) -> list:
         """Tune model hyperparameters using hyperopt using a mixed strategy.
         Make sure when using this function that no data leakage happens.
@@ -282,9 +295,11 @@ class MLOxidationStates:
                 seed=RANDOM_SEED,
             )
 
-            m.fit(X, y, valid_size=VALID_SIZE,
-                  cv_shuffle=False)  # avoid shuffleing to have the same validation set for the ensemble stage
+            m.fit(
+                X, y, valid_size=VALID_SIZE, cv_shuffle=False
+            )  # avoid shuffleing to have the same validation set for the ensemble stage
 
+            # chose the model with best hyperparameters and train it
             m = m.best_model()['learner']
 
             n_train = int(len(y) * (1 - VALID_SIZE))
@@ -332,14 +347,14 @@ class MLOxidationStates:
 
     @staticmethod
     def model_eval(
-            models: list,
-            xtrain: np.array,
-            ytrain: np.array,
-            xtest: np.array,
-            ytest: np.array,
-            postfix: str = 0,
-            outdir_metrics: str = None,
-            outdir_models: str = None,
+        models: list,
+        xtrain: np.array,
+        ytrain: np.array,
+        xtest: np.array,
+        ytest: np.array,
+        postfix: str = 0,
+        outdir_metrics: str = None,
+        outdir_models: str = None,
     ):
         """Peforms a model evaluation on training and test set and dump the predictions with the actual values
         into an outout file
@@ -360,12 +375,18 @@ class MLOxidationStates:
         trainlogger.debug('entered evaluation function')
 
         for name, model in models:
-            outdir_metrics_verbose = os.path.join(os.path.join(outdir_metrics, 'verbose'))
+            outdir_metrics_verbose = os.path.join(
+                os.path.join(outdir_metrics, 'verbose')
+            )
             if not os.path.exists(outdir_metrics_verbose):
                 os.mkdir(outdir_metrics_verbose)
 
-            outname_base_metrics = os.path.join(outdir_metrics_verbose, '_'.join([STARTTIMESTRING, name, postfix]))
-            outname_base_models = os.path.join(outdir_models, '_'.join([STARTTIMESTRING, name, postfix]))
+            outname_base_metrics = os.path.join(
+                outdir_metrics_verbose, '_'.join([STARTTIMESTRING, name, postfix])
+            )
+            outname_base_models = os.path.join(
+                outdir_models, '_'.join([STARTTIMESTRING, name, postfix])
+            )
 
             train_true = ytrain
             test_true = ytest
@@ -383,7 +404,9 @@ class MLOxidationStates:
 
             balanced_accuracy_train = balanced_accuracy_score(train_true, train_predict)
             balanced_accuracy_test = balanced_accuracy_score(test_true, test_predict)
-            precision_train = precision_score(train_true, train_predict, average='micro')
+            precision_train = precision_score(
+                train_true, train_predict, average='micro'
+            )
             precision_test = precision_score(train_true, train_predict, average='micro')
             recall_train = recall_score(train_true, train_predict, average='micro')
             recall_test = recall_score(test_true, test_predict, average='micro')
@@ -451,7 +474,27 @@ class MLOxidationStates:
         scaler = self.scaler
         xtrain = self.x[train]
         xtrain = scaler.fit_transform(xtrain)
+        ytrain = self.y[train]
+        ytest = self.y[test]
+
+        if self.oversampling == 'smote':
+            trainlogger.debug('using smote oversampling')
+            xtrain, ytrain = SMOTE(random_state=RANDOM_SEED).fit_resample(
+                xtrain, ytrain
+            )
+        elif self.oversampling == 'borderlinesmote':
+            trainlogger.debug('using BorderlineSMOTE oversamplign')
+            xtrain, ytrain = BorderlineSMOTE(random_state=RANDOM_SEED).fit_resample(
+                xtrain, ytrain
+            )
+        elif self.oversampling == 'adaysn':
+            trainlogger.debug('using Adayn oversamplign')
+            xtrain, ytrain = ADASYN(random_state=RANDOM_SEED).fit_resample(
+                xtrain, ytrain
+            )
+
         trainlogger.debug('the training set has shape %s', xtrain.shape)
+        # do oversampling here
 
         # save the latest scaler so we can use it later with latest model for
         # evaluation on a holdout set
@@ -462,19 +505,14 @@ class MLOxidationStates:
         trainlogger.debug('the test set has shape %s', xtest.shape)
 
         optimized_models_split = MLOxidationStates.tune_fit(
-            classifiers,
-            xtrain,
-            self.y[train],
-            self.max_evals,
-            self.timeout,
-            self.mix_ratios,
+            classifiers, xtrain, ytrain, self.max_evals, self.timeout, self.mix_ratios
         )
         res = MLOxidationStates.model_eval(
             optimized_models_split,
             xtrain,
-            self.y[train],
+            ytrain,
             xtest,
-            self.y[test],
+            ytest,
             counter,
             self.metricspath,
             self.modelpath,
@@ -484,17 +522,17 @@ class MLOxidationStates:
         # now build an ensemble based on the single models
         ensemble_model, elapsed_time = MLOxidationStates.train_ensemble(
             optimized_models_split,
-            self.x[train],
-            self.y[train],
+            xtrain,
+            ytrain,
             voting=self.voting,
             calibrate=self.calibrate,
         )
         ensemble_predictions = MLOxidationStates.model_eval(
             [('ensemble', ensemble_model)],
             xtrain,
-            self.y[train],
+            ytrain,
             xtest,
-            self.y[test],
+            ytest,
             counter,
             self.metricspath,
             self.modelpath,
@@ -513,9 +551,9 @@ class MLOxidationStates:
         )
 
         mean_time = np.mean(np.array(self.timings))
-        self.metrics = MLOxidationStates.summarize_metrics(self.bootstrap_results,
-                                                           outpath=self.metricspath,
-                                                           timings=mean_time)
+        self.metrics = MLOxidationStates.summarize_metrics(
+            self.bootstrap_results, outpath=self.metricspath, timings=mean_time
+        )
         experiment.log_dataset_hash(self.x)
         experiment.log_metrics(self.metrics)
         basemodels = [i for i, _ in classifiers]
@@ -531,8 +569,11 @@ class MLOxidationStates:
         experiment.log_parameter('eval_method', self.eval_method)
         experiment.log_parameter('scaler', self.scalername)
         experiment.log_parameter('calibration_method', self.calibrate)
+        experiment.log_parameter('oversampling', self.oversampling)
         experiment.add_tag('initial_model_eval')
+        experiment.log_parameter('validation_percentage', VALID_SIZE)
         experiment.log_metric('mean_training_time', mean_time)
+        return experiment
 
     @staticmethod
     def summarize_metrics(metrics: list, outpath: str, timings: float):
@@ -580,11 +621,19 @@ class MLOxidationStates:
             'mean_recall_test': df_ensemble['recall_train'].mean(),
             'median_recall_test': df_ensemble['recall_train'].median(),
             'std_recall_test': df_ensemble['recall_train'].std(),
-            'mean_balanced_accuracy_train': df_ensemble['balanced_accuracy_train'].mean(),
-            'median_balanced_accuracy_train': df_ensemble['balanced_accuracy_train'].median(),
+            'mean_balanced_accuracy_train': df_ensemble[
+                'balanced_accuracy_train'
+            ].mean(),
+            'median_balanced_accuracy_train': df_ensemble[
+                'balanced_accuracy_train'
+            ].median(),
             'std_balanced_accuracy_train': df_ensemble['balanced_accuracy_train'].std(),
-            'mean_balanced_accuracy_test': df_ensemble['balanced_accuracy_train'].mean(),
-            'median_balanced_accuracy_test': df_ensemble['balanced_accuracy_train'].median(),
+            'mean_balanced_accuracy_test': df_ensemble[
+                'balanced_accuracy_train'
+            ].mean(),
+            'median_balanced_accuracy_test': df_ensemble[
+                'balanced_accuracy_train'
+            ].median(),
             'std_balanced_accuracy_test': df_ensemble['balanced_accuracy_train'].std(),
             'mean_training_set_size': df_ensemble['training_points'].mean(),
             'mean_test_set_size': df_ensemble['test_points'].mean(),
@@ -603,25 +652,25 @@ class MLOxidationStates:
         trainlogger.debug('the metrics are saved to %s', self.metricspath)
         trainlogger.debug('the models are saved to %s', self.modelpath)
 
+        classcounter = dict(Counter(self.y))
+        trainlogger.info('the classdistribution is %s', classcounter)
+        classes_to_keep = []
+        for oxidationstate, count in classcounter.items():
+            if count > MIN_SAMPLES:
+                classes_to_keep.append(oxidationstate)
+            else:
+                trainlogger.warning(
+                    'will drop class %s since it has not enough examples',
+                    oxidationstate,
+                )
+
+        selected_idx = np.where(np.isin(self.y, classes_to_keep))[0]
+        self.x = self.x[selected_idx]
+        self.y = self.y[selected_idx]
+
         if self.max_size is not None:
             assert self.max_size <= len(self.y)
             rng = np.random.RandomState(RANDOM_SEED)
-
-            classcounter = dict(Counter(self.y))
-            trainlogger.info('the classdistribution is %s', classcounter)
-            classes_to_keep = []
-            for oxidationstate, count in classcounter.items():
-                if count > MIN_SAMPLES:
-                    classes_to_keep.append(oxidationstate)
-                else:
-                    trainlogger.warning(
-                        'will drop class %s since it has not enough examples',
-                        oxidationstate,
-                    )
-
-            selected_idx = np.where(np.isin(self.y, classes_to_keep))[0]
-            self.x = self.x[selected_idx]
-            self.y = self.y[selected_idx]
 
             sample_idx = np.arange(self.x.shape[0])
             sampled_idx = rng.choice(sample_idx, size=self.max_size, replace=True)
@@ -638,7 +687,9 @@ class MLOxidationStates:
 
         # all_predictions = []
         # do not run this concurrently since the state  of the scaler is not clear!
-        with concurrent.futures.ProcessPoolExecutor(max_workers=self.max_workers) as executor:
+        with concurrent.futures.ProcessPoolExecutor(
+            max_workers=self.max_workers
+        ) as executor:
             for metrics in executor.map(self.train_eval_single, enumerate(list(bs))):
                 # all_predictions.extend(predfull)
                 self.bootstrap_results.extend(metrics)
@@ -654,7 +705,19 @@ class MLOxidationStates:
 @click.argument('calibrate', default='spline')
 @click.argument('max_size', default=None)
 @click.argument('n', default=10)
-def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, calibrate, max_size, n):
+@click.argument('oversampling', default='smote')
+def train_model(
+    xpath,
+    ypath,
+    modelpath,
+    metricspath,
+    scaler,
+    voting,
+    calibrate,
+    max_size,
+    n,
+    oversampling,
+):
     if not os.path.exists(os.path.abspath(modelpath)):
         os.mkdir(os.path.abspath(modelpath))
 
@@ -668,9 +731,12 @@ def train_model(xpath, ypath, modelpath, metricspath, scaler, voting, calibrate,
         voting=voting,
         calibrate=calibrate,
         max_size=int(max_size),
+        oversampling=oversampling,
     )
     ml_object.train_test_cv()
-    ml_object.track_comet_ml()
+    experiment = ml_object.track_comet_ml()
+    experiment.log_asset(xpath)
+    experiment.log_asset(ypath)
 
 
 if __name__ == '__main__':
