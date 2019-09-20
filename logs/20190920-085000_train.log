@@ -1,0 +1,34 @@
+2019-09-20 08:50:00,249 | train_ensemble_classifier.py: intialized training class
+2019-09-20 08:50:00,250 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-09-20 08:50:00,250 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-09-20 08:50:00,255 | train_ensemble_classifier.py: the classdistribution is {2: 13379, 1: 3092, 3: 3185, 4: 377, 6: 269, 5: 117}
+2019-09-20 08:50:00,315 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,317 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:00,325 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,329 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:00,336 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,339 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:00,350 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,354 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:00,363 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,364 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:00,635 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 08:50:00,667 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,672 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:00,707 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 08:50:00,712 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 08:50:00,728 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 08:50:00,741 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,745 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:00,755 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,757 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:00,769 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 08:50:00,773 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,774 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:00,794 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 08:50:00,797 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 08:50:01,043 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 08:50:01,061 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 08:50:01,062 | train_ensemble_classifier.py: the training set has shape (17604, 101)
+2019-09-20 08:50:01,109 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 08:50:01,117 | train_ensemble_classifier.py: the training set has shape (17598, 101)

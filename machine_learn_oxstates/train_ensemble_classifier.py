@@ -477,8 +477,8 @@ class MLOxidationStates:
 
         scaler = self.scaler
         xtrain = self.x[train]
-        ytrain = self.y[train]
-        ytest = self.y[test]
+        ytrain = self.y[train].reshape(-1, 1)
+        ytest = self.y[test].reshape(-1, 1)
 
         if self.oversampling == "smote":
             trainlogger.debug("using smote oversampling")
@@ -499,7 +499,6 @@ class MLOxidationStates:
         xtrain = scaler.fit_transform(xtrain)
 
         trainlogger.debug("the training set has shape %s", xtrain.shape)
-        # do oversampling here
 
         # save the latest scaler so we can use it later with latest model for
         # evaluation on a holdout set
@@ -523,7 +522,13 @@ class MLOxidationStates:
         trainlogger.debug("the test set has shape %s", xtest.shape)
 
         optimized_models_split = MLOxidationStates.tune_fit(
-            classifiers, xtrain, ytrain, self.max_evals, self.timeout, self.mix_ratios, valid_size
+            classifiers,
+            xtrain,
+            ytrain,
+            self.max_evals,
+            self.timeout,
+            self.mix_ratios,
+            valid_size,
         )
         res = MLOxidationStates.model_eval(
             optimized_models_split,
@@ -544,7 +549,7 @@ class MLOxidationStates:
             ytrain,
             voting=self.voting,
             calibrate=self.calibrate,
-            valid_size=valid_size
+            valid_size=valid_size,
         )
         ensemble_predictions = MLOxidationStates.model_eval(
             [("ensemble", ensemble_model)],
