@@ -111,6 +111,11 @@ class MLOxidationStates:
         self.calibrate = calibrate
         self.oversampling = oversampling
 
+        self.experiment = Experiment(
+            api_key=os.getenv('COMET_API_KEY', None),
+            project_name='mof-oxidation-states',
+        )
+
         trainlogger.info('intialized training class')
 
     @classmethod
@@ -245,7 +250,7 @@ class MLOxidationStates:
             mix_ratios: dict = {
                 'rand': 0.1,
                 'tpe': 0.8,
-                'anneal': 0.1,
+                'anneal': 0.1
             },
             valid_size: float = VALID_SIZE,
     ) -> list:
@@ -555,35 +560,31 @@ class MLOxidationStates:
     def track_comet_ml(self):
         """Function to track main parameters and metrics using comet.ml"""
         trainlogger.debug('entering the tracking function')
-        experiment = Experiment(
-            api_key=os.getenv('COMET_API_KEY', None),
-            project_name='mof-oxidation-states',
-        )
 
         mean_time = np.mean(np.array(self.timings))
         self.metrics = MLOxidationStates.summarize_metrics(self.bootstrap_results,
                                                            outpath=self.metricspath,
                                                            timings=mean_time)
-        experiment.log_dataset_hash(self.x)
-        experiment.log_metrics(self.metrics)
+        self.experiment.log_dataset_hash(self.x)
+        self.experiment.log_metrics(self.metrics)
         basemodels = [i for i, _ in classifiers]
-        experiment.log_parameter('models', basemodels)
-        experiment.log_parameter('n_bootstraps', self.n)
-        experiment.log_parameter('max_hyperopt_eval', self.max_evals)
-        experiment.log_parameter('timeout_hyperopt', self.timeout)
-        experiment.log_parameter('fraction_tpe', self.mix_ratios['tpe'])
-        experiment.log_parameter('fraction_random', self.mix_ratios['rand'])
-        experiment.log_parameter('fraction_anneal', self.mix_ratios['anneal'])
-        experiment.log_parameter('voting', self.voting)
-        experiment.log_parameter('size', self.max_size)
-        experiment.log_parameter('eval_method', self.eval_method)
-        experiment.log_parameter('scaler', self.scalername)
-        experiment.log_parameter('calibration_method', self.calibrate)
-        experiment.log_parameter('oversampling', self.oversampling)
-        experiment.add_tag('initial_model_eval')
-        experiment.log_parameter('validation_percentage', VALID_SIZE)
-        experiment.log_metric('mean_training_time', mean_time)
-        return experiment
+        self.experiment.log_parameter('models', basemodels)
+        self.experiment.log_parameter('n_bootstraps', self.n)
+        self.experiment.log_parameter('max_hyperopt_eval', self.max_evals)
+        self.experiment.log_parameter('timeout_hyperopt', self.timeout)
+        self.experiment.log_parameter('fraction_tpe', self.mix_ratios['tpe'])
+        self.experiment.log_parameter('fraction_random', self.mix_ratios['rand'])
+        self.experiment.log_parameter('fraction_anneal', self.mix_ratios['anneal'])
+        self.experiment.log_parameter('voting', self.voting)
+        self.experiment.log_parameter('size', self.max_size)
+        self.experiment.log_parameter('eval_method', self.eval_method)
+        self.experiment.log_parameter('scaler', self.scalername)
+        self.experiment.log_parameter('calibration_method', self.calibrate)
+        self.experiment.log_parameter('oversampling', self.oversampling)
+        self.experiment.add_tag('initial_model_eval')
+        self.experiment.log_parameter('validation_percentage', VALID_SIZE)
+        self.experiment.log_metric('mean_training_time', mean_time)
+        return self.experiment
 
     @staticmethod
     def summarize_metrics(metrics: list, outpath: str, timings: float):
