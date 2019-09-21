@@ -738,6 +738,7 @@ def train_model(
     experiment = ml_object.track_comet_ml()
     experiment.log_asset(xpath)
     experiment.log_asset(ypath)
+    experiment.add_tag('optimizing feature set')
 
 
 if __name__ == '__main__':
