@@ -1,43 +1,43 @@
-md5: e294bb309ef417b280aa78edf8474398
+md5: cc9e679ba8118c6cda6234d71ccbe82e
 cmd: run_featurecollection data/raw data/labels/20190917_labels.pkl data/labels data/features
-  data/helper 0.2 holdout crystal_nn_fingerprint ward_prd bond_orientational behler_parinello
+  data/helper 0.2 holdout crystal_nn_fingerprint ward_prd
 deps:
 - md5: 39b9f13a3457461db77918cc090989e1.dir
   path: data/raw
 - md5: 552ae428a51a515299c4beb399f82471
   path: data/labels/20190917_labels.pkl
 outs:
-- md5: 97e6d1f30c94df27e74d2aa0a8efde13
+- md5: 25f0ee37ddf19fc98017e534df905eba
   path: data/labels/labels.npy
   cache: true
   metric: false
   persist: false
-- md5: 9007cd65d6336bc78848630b52d45639
+- md5: 7a8d4ec089c12e2823857b0c69e3fb8a
   path: data/features/features.npy
   cache: true
   metric: false
   persist: false
-- md5: f42733a1515b87d8e934c4ca2e4b803c
+- md5: a062865031a52e962723aa9613b3a854
   path: data/helper/names.pkl
   cache: true
   metric: false
   persist: false
-- md5: dddb26154f31320c24c4aa9c38e39a48
+- md5: e8b36d15b54806843365b8a36cf9d909
   path: data/helper/feature_names.pkl
   cache: true
   metric: false
   persist: false
-- md5: 5d9e654e8f348aa2337b616541f6ef70
+- md5: 6758b35ada5cebfc50d4da5523c11c98
   path: holdout/features.npy
   cache: true
   metric: false
   persist: false
-- md5: dd6cbf2dee8f02318f84e144b28e582b
+- md5: 71332e4b844cd9653a38707fc55613c8
   path: holdout/labels.npy
   cache: true
   metric: false
   persist: false
-- md5: de2d7358762c99aa224b0fa33e1bf572
+- md5: e2e986a810ffe88f26a0a0656cc0391a
   path: holdout/names.pkl
   cache: true
   metric: false

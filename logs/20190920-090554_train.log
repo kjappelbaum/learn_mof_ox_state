@@ -1,0 +1,34 @@
+2019-09-20 09:05:54,150 | train_ensemble_classifier.py: intialized training class
+2019-09-20 09:05:54,150 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-09-20 09:05:54,150 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-09-20 09:05:54,155 | train_ensemble_classifier.py: the classdistribution is {2: 13379, 1: 3092, 3: 3185, 4: 377, 6: 269, 5: 117}
+2019-09-20 09:05:54,217 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 09:05:54,218 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 09:05:54,229 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 09:05:54,232 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 09:05:54,247 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 09:05:54,249 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 09:05:54,255 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 09:05:54,256 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 09:05:54,291 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 09:05:54,296 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 09:05:54,468 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 09:05:54,473 | train_ensemble_classifier.py: the test set has shape (352, 101)
+2019-09-20 09:05:54,473 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-20 09:05:54,546 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 09:05:54,557 | train_ensemble_classifier.py: the test set has shape (351, 101)
+2019-09-20 09:05:54,558 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-20 09:05:54,618 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 09:05:54,634 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 09:05:54,636 | train_ensemble_classifier.py: the test set has shape (351, 101)
+2019-09-20 09:05:54,636 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-20 09:05:54,643 | train_ensemble_classifier.py: the test set has shape (350, 101)
+2019-09-20 09:05:54,644 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-20 09:05:54,678 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 09:05:54,692 | train_ensemble_classifier.py: the test set has shape (350, 101)
+2019-09-20 09:05:54,693 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-20 11:25:15,020 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-20 11:25:15,021 | train_ensemble_classifier.py: using smote oversampling
+2019-09-20 11:25:15,334 | train_ensemble_classifier.py: the training set has shape (17598, 101)
+2019-09-20 11:25:15,338 | train_ensemble_classifier.py: the test set has shape (349, 101)
+2019-09-20 11:25:15,338 | train_ensemble_classifier.py: performing hyperparameter optimization
