@@ -1,0 +1,12 @@
+2019-09-22 17:09:49,857 | train_ensemble_classifier.py: intialized training class
+2019-09-22 17:09:49,857 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-09-22 17:09:49,857 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-09-22 17:09:49,861 | train_ensemble_classifier.py: the classdistribution is {2: 13379, 1: 3092, 3: 3185, 4: 377, 5: 117, 6: 269}
+2019-09-22 17:09:49,960 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-22 17:09:49,993 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-22 17:09:49,994 | train_ensemble_classifier.py: the training set has shape (9998, 85)
+2019-09-22 17:09:50,010 | train_ensemble_classifier.py: the test set has shape (7001, 85)
+2019-09-22 17:09:50,010 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-22 17:09:50,055 | train_ensemble_classifier.py: the training set has shape (10002, 85)
+2019-09-22 17:09:50,065 | train_ensemble_classifier.py: the test set has shape (6998, 85)
+2019-09-22 17:09:50,065 | train_ensemble_classifier.py: performing hyperparameter optimization

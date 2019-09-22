@@ -87,6 +87,7 @@ def return_scoring_funcs():
 
 def test_model(  # pylint:disable=too-many-arguments
         modelpath: str,
+        scalerpath: str,
         Xpath: str,
         ypath: str,
         namepath: str,
@@ -97,6 +98,7 @@ def test_model(  # pylint:disable=too-many-arguments
 
     Arguments:
         modelpath {str} -- path to sklearn model in .joblib file
+        modelpath {str} -- path to the scaler object
         Xpath {str} -- path to features in npz file
         ypath {str} -- path to labels in npz file
         namepath {str} -- path to names in pickle 3 file
@@ -112,7 +114,9 @@ def test_model(  # pylint:disable=too-many-arguments
     experiment.add_tag('model evaluation')
 
     model = load(modelpath)
+    scaler = load(scalerpath)
     X = np.load(Xpath)
+    X = scaler.transform(X)
     y = np.load(ypath)
     experiment.log_dataset_hash(X)
     names = read_pickle(namepath)
@@ -202,10 +206,11 @@ def test_model(  # pylint:disable=too-many-arguments
 
 @click.command('cli')
 @click.argument('modelpath')
+@click.argument('scalerpath')
 @click.argument('xpath')
 @click.argument('ypath')
 @click.argument('outpath')
-def main(modelpath, xpath, ypath, namepath, outpath):
+def main(modelpath, scalerpath, xpath, ypath, namepath, outpath):
     test_model(modelpath, xpath, ypath, namepath, outpath)
 
 

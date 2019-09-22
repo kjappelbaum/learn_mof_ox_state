@@ -45,11 +45,8 @@ RANDOM_SEED = 1234
 STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
 MIN_SAMPLES = 10
 
-classifiers = [
-    ('knn', components.knn),
-    ('gradient_boosting', partial(components.gradient_boosting, loss='deviance')),
-    ('extra_trees', components.extra_trees),
-]
+classifiers = [('knn', components.knn), ('gradient_boosting', partial(components.gradient_boosting, loss='deviance')),
+               ('extra_trees', components.extra_trees), ('naive_bayes', components.naive_bayes)]
 
 trainlogger = logging.getLogger('trainer')
 trainlogger.setLevel(logging.DEBUG)
@@ -110,11 +107,6 @@ class MLOxidationStates:
         self.max_workers = max_workers
         self.calibrate = calibrate
         self.oversampling = oversampling
-
-        self.experiment = Experiment(
-            api_key=os.getenv('COMET_API_KEY', None),
-            project_name='mof-oxidation-states',
-        )
 
         trainlogger.info('intialized training class')
 
@@ -560,6 +552,10 @@ class MLOxidationStates:
     def track_comet_ml(self):
         """Function to track main parameters and metrics using comet.ml"""
         trainlogger.debug('entering the tracking function')
+        self.experiment = Experiment(
+            api_key=os.getenv('COMET_API_KEY', None),
+            project_name='mof-oxidation-states',
+        )
 
         mean_time = np.mean(np.array(self.timings))
         self.metrics = MLOxidationStates.summarize_metrics(self.bootstrap_results,

@@ -1,0 +1,57 @@
+2019-09-21 19:13:33,481 | train_ensemble_classifier.py: intialized training class
+2019-09-21 19:13:33,481 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-09-21 19:13:33,481 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-09-21 19:13:33,486 | train_ensemble_classifier.py: the classdistribution is {2: 13379, 1: 3092, 3: 3185, 4: 377, 5: 117, 6: 269}
+2019-09-21 19:13:33,589 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-21 19:13:33,618 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-21 19:13:33,622 | train_ensemble_classifier.py: the training set has shape (9998, 85)
+2019-09-21 19:13:33,697 | train_ensemble_classifier.py: the test set has shape (7001, 85)
+2019-09-21 19:13:33,698 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-21 19:13:33,715 | train_ensemble_classifier.py: the training set has shape (10002, 85)
+2019-09-21 19:13:33,732 | train_ensemble_classifier.py: the test set has shape (6998, 85)
+2019-09-21 19:13:33,732 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-21 21:06:17,420 | train_ensemble_classifier.py: entered evaluation function
+2019-09-21 21:06:46,006 | train_ensemble_classifier.py: model knn: accuracy test: 0.9761462648193115, accuracy train: 0.9945380413877991 | f1 micro test 0.9761462648193115, f1 micro train 0.9945380413877991
+2019-09-21 21:06:47,349 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9832881016997572, accuracy train: 0.9966151242403262 | f1 micro test 0.9832881016997572, f1 micro train 0.9966151242403262
+2019-09-21 21:06:47,724 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9877160405656334, accuracy train: 0.9973844141857066 | f1 micro test 0.9877160405656334, f1 micro train 0.9973844141857066
+2019-09-21 21:06:47,762 | train_ensemble_classifier.py: training ensemble model
+2019-09-21 21:06:47,762 | train_ensemble_classifier.py: calibrating  knn
+2019-09-21 21:06:52,800 | train_ensemble_classifier.py: the accuracay on the validation set before calibration is 0.9763412195934689
+2019-09-21 21:06:52,800 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:06:57,170 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:07:05,538 | train_ensemble_classifier.py: the accuracay on the validation set after calibration is 0.975674775074975
+2019-09-21 21:07:05,538 | train_ensemble_classifier.py: calibrating  gradient_boosting
+2019-09-21 21:07:05,752 | train_ensemble_classifier.py: the accuracay on the validation set before calibration is 0.9853382205931356
+2019-09-21 21:07:05,752 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:07:06,010 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:07:06,486 | train_ensemble_classifier.py: the accuracay on the validation set after calibration is 0.9860046651116294
+2019-09-21 21:07:06,488 | train_ensemble_classifier.py: calibrating  extra_trees
+2019-09-21 21:07:06,524 | train_ensemble_classifier.py: the accuracay on the validation set before calibration is 0.9886704431856048
+2019-09-21 21:07:06,524 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:07:06,609 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:07:06,724 | train_ensemble_classifier.py: the accuracay on the validation set after calibration is 0.9886704431856048
+2019-09-21 21:07:06,724 | train_ensemble_classifier.py: entered evaluation function
+2019-09-21 21:07:36,337 | train_ensemble_classifier.py: model ensemble: accuracy test: 0.9858591629767176, accuracy train: 0.9971536272020924 | f1 micro test 0.9858591629767176, f1 micro train 0.9971536272020924
+2019-09-21 21:19:31,371 | train_ensemble_classifier.py: entered evaluation function
+2019-09-21 21:23:58,941 | train_ensemble_classifier.py: model knn: accuracy test: 0.9689911403258074, accuracy train: 0.9923088755576065 | f1 micro test 0.9689911403258074, f1 micro train 0.9923088755576065
+2019-09-21 21:24:00,207 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9854244069734209, accuracy train: 0.9961544377788033 | f1 micro test 0.9854244069734209, f1 micro train 0.9961544377788033
+2019-09-21 21:24:00,718 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9854244069734209, accuracy train: 0.9963082602676512 | f1 micro test 0.9854244069734209, f1 micro train 0.9963082602676512
+2019-09-21 21:24:00,808 | train_ensemble_classifier.py: training ensemble model
+2019-09-21 21:24:00,809 | train_ensemble_classifier.py: calibrating  knn
+2019-09-21 21:24:49,027 | train_ensemble_classifier.py: the accuracay on the validation set before calibration is 0.9666666666666667
+2019-09-21 21:24:49,027 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:25:36,823 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:27:10,420 | train_ensemble_classifier.py: the accuracay on the validation set after calibration is 0.9666666666666667
+2019-09-21 21:27:10,420 | train_ensemble_classifier.py: calibrating  gradient_boosting
+2019-09-21 21:27:10,605 | train_ensemble_classifier.py: the accuracay on the validation set before calibration is 0.9833333333333333
+2019-09-21 21:27:10,605 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:27:10,813 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:27:11,203 | train_ensemble_classifier.py: the accuracay on the validation set after calibration is 0.983
+2019-09-21 21:27:11,203 | train_ensemble_classifier.py: calibrating  extra_trees
+2019-09-21 21:27:11,265 | train_ensemble_classifier.py: the accuracay on the validation set before calibration is 0.984
+2019-09-21 21:27:11,265 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:27:11,355 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-21 21:27:11,505 | train_ensemble_classifier.py: the accuracay on the validation set after calibration is 0.984
+2019-09-21 21:27:11,506 | train_ensemble_classifier.py: entered evaluation function
+2019-09-21 21:31:40,810 | train_ensemble_classifier.py: model ensemble: accuracy test: 0.9859959988568162, accuracy train: 0.9963851715120751 | f1 micro test 0.9859959988568162, f1 micro train 0.9963851715120751
+2019-09-21 21:31:41,068 | train_ensemble_classifier.py: entering the tracking function
