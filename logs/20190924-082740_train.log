@@ -1,0 +1,33 @@
+2019-09-24 08:27:40,667 | train_ensemble_classifier.py: intialized training class
+2019-09-24 08:27:40,668 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-09-24 08:27:40,668 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-09-24 08:27:40,675 | train_ensemble_classifier.py: the classdistribution is {2: 13379, 1: 3092, 3: 3185, 4: 377, 5: 117, 6: 269}
+2019-09-24 08:27:40,688 | train_ensemble_classifier.py: Entering full training mode, which trains on only one fold.
+2019-09-24 08:27:40,688 | train_ensemble_classifier.py: This mode should only be used when the selected architecture is stable
+2019-09-24 08:27:40,703 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-09-24 08:27:40,738 | train_ensemble_classifier.py: the training set has shape (17997, 85)
+2019-09-24 08:27:40,741 | train_ensemble_classifier.py: the test set has shape (1402, 85)
+2019-09-24 08:27:40,741 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-09-24 18:54:41,464 | train_ensemble_classifier.py: entered evaluation function
+2019-09-24 18:55:22,474 | train_ensemble_classifier.py: model knn: accuracy test: 0.9864479315263909, accuracy train: 0.9996236154425207 | f1 micro test 0.9864479315263909, f1 micro train 0.9996236154425207
+2019-09-24 18:55:22,908 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9914407988587732, accuracy train: 0.9997311538875148 | f1 micro test 0.9914407988587732, f1 micro train 0.9997311538875148
+2019-09-24 18:55:25,488 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9921540656205421, accuracy train: 0.9998386923325089 | f1 micro test 0.9921540656205421, f1 micro train 0.9998386923325089
+2019-09-24 18:55:26,100 | train_ensemble_classifier.py: training ensemble model
+2019-09-24 18:55:26,100 | train_ensemble_classifier.py: calibrating  knn
+2019-09-24 18:55:27,742 | train_ensemble_classifier.py: the accuracay on the validation set before calibration is 0.9883527454242929
+2019-09-24 18:55:27,742 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-24 18:55:29,207 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-24 18:55:32,167 | train_ensemble_classifier.py: the accuracay on the validation set after calibration is 0.9883527454242929
+2019-09-24 18:55:32,167 | train_ensemble_classifier.py: calibrating  gradient_boosting
+2019-09-24 18:55:32,183 | train_ensemble_classifier.py: the accuracay on the validation set before calibration is 0.9916805324459235
+2019-09-24 18:55:32,183 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-24 18:55:32,216 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-24 18:55:32,266 | train_ensemble_classifier.py: the accuracay on the validation set after calibration is 0.9933444259567388
+2019-09-24 18:55:32,266 | train_ensemble_classifier.py: calibrating  extra_trees
+2019-09-24 18:55:32,440 | train_ensemble_classifier.py: the accuracay on the validation set before calibration is 0.9950083194675541
+2019-09-24 18:55:32,440 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-24 18:55:32,617 | train_ensemble_classifier.py: calibrating using sigmoid regression
+2019-09-24 18:55:32,902 | train_ensemble_classifier.py: the accuracay on the validation set after calibration is 0.9933444259567388
+2019-09-24 18:55:32,902 | train_ensemble_classifier.py: entered evaluation function
+2019-09-24 18:56:16,560 | train_ensemble_classifier.py: model ensemble: accuracy test: 0.9907275320970043, accuracy train: 0.9997849231100119 | f1 micro test 0.9907275320970043, f1 micro train 0.9997849231100119
+2019-09-24 18:56:17,457 | train_ensemble_classifier.py: entering the tracking function

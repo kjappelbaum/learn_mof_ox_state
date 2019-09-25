@@ -4,6 +4,7 @@ This module is meant to be used to test the performance on a seperate holdout se
 """
 
 from __future__ import absolute_import
+from __future__ import print_function
 import numpy as np
 import os
 import pandas as pd
@@ -26,6 +27,54 @@ from joblib import load
 from mine_mof_oxstate.utils import read_pickle
 from six.moves import range
 from six.moves import zip
+import concurrent.futures
+from functools import partial
+
+
+class NpEncoder(json.JSONEncoder):
+    """https://stackoverflow.com/questions/50916422/python-typeerror-object-of-type-int64-is-not-json-serializable/50916741"""
+
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(NpEncoder, self).default(obj)
+
+
+def _permutation_score_base(model, X, y, cv, metric_func, shuffle=True, _=None):
+    model_ = model
+    avg_score = []
+    if shuffle:
+        X = np.random.shuffle(X)
+        y = np.random.shuffle(y)
+    for train, test in cv.split(X, y):
+        X_train = X[train]
+        X_test = X[test]
+        y_train = y[train]
+        y_test = y[test]
+        model_.fit(X_train, y_train)  # <- this is currently not implemented ...
+        avg_score.append(metric_func(y_test, model_.predict(X_test)))
+
+    return np.mean(np.array(avg_score))
+
+
+def permutation_test(model, X, y, rounds=50, metric_func=balanced_accuracy_score, max_workers=4):
+    cv = StratifiedKFold(5)
+    permuted_scores = []
+    score = _permutation_score_base(model, X, y, cv, metric_func, shuffle=False)
+    base_permutation_score = partial(_permutation_score_base, model=model, X=X, y=y, cv=cv, metric_func=metric_func)
+
+    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+        for metric in executor.map(_permutation_score_base, range(rounds)):
+            permuted_scores.append(metric)
+
+    permuted_scores = np.array(permuted_scores)
+    p_value = (np.sum(permuted_scores >= score) + 1.0) / (rounds + 1)
+    return score, permuted_scores, p_value
 
 
 def bootstrapped_metrics(  # pylint:disable=too-many-arguments
@@ -43,6 +92,7 @@ def bootstrapped_metrics(  # pylint:disable=too-many-arguments
         n_rounds {int} -- number of bootstrap samples (default: {200})
         seed {int} -- random seed (default: {1234})
 
+
     Returns:
         list -- list of dictionaries of metrics
     """
@@ -55,8 +105,8 @@ def bootstrapped_metrics(  # pylint:disable=too-many-arguments
     for _ in range(n_rounds):
         scores = {}
         bootstrap_idx = rng.choice(sample_idx, size=sample_idx.shape[0], replace=True)
+        prediction = model.predict(X[bootstrap_idx])
         for metricname, metric in scoring_funcs:
-            prediction = model.predict(X[bootstrap_idx])
             scores[metricname] = metric(y[bootstrap_idx], prediction)
         metrics.append(scores)
 
@@ -132,38 +182,24 @@ def test_model(  # pylint:disable=too-many-arguments
     stds = df_metrics.std().values
 
     cv = StratifiedKFold(10)
-    accuracy, acc_permutation_scores, accuracy_pvalue = permutation_test_score(model,
-                                                                               X,
-                                                                               y,
-                                                                               scoring='accuracy',
-                                                                               cv=cv,
-                                                                               n_permutations=100,
-                                                                               n_jobs=-1)
-
-    f1, f1_permutation_scores, f1_pvalue = permutation_test_score(model,
-                                                                  X,
-                                                                  y,
-                                                                  scoring='f1_score',
-                                                                  cv=cv,
-                                                                  n_permutations=100,
-                                                                  n_jobs=-1)
-
+    # balanced_accuracy, balanced_acc_permutation_scores, balanced_accuracy_pvalue = permutation_test(
+    #     model, X, y
+    # )
+    #
     metrics_dict = {}
+    #
+    # metrics_dict["balanced_accuracy_cv"] = balanced_accuracy
+    # metrics_dict[
+    #     "balanced_accuracy_permutation_scores"
+    # ] = balanced_acc_permutation_scores
+    # metrics_dict["balanced_accuracy_p_value"] = balanced_accuracy_pvalue
 
-    metrics_dict['accuracy_cv'] = accuracy
-    metrics_dict['accuracy_permutation_scores'] = acc_permutation_scores
-    metrics_dict['accuracy_p_value'] = accuracy_pvalue
-
-    metrics_dict['f1_cv'] = f1
-    metrics_dict['f1_permutation_scores'] = f1_permutation_scores
-    metrics_dict['f1_p_value'] = f1_pvalue
-
-    prediction = model.predict(y)
+    prediction = model.predict(X)
     misclassified = np.where(y != prediction)
     misclassified_w_prediction_true = [(names[i], prediction[i], y[i]) for i in list(misclassified[0])]
 
     metrics_dict['misclassified'] = misclassified_w_prediction_true
-
+    experiment.log_metric('misclassified', misclassified)
     if featurelabelpath is not None:
         feature_labels = read_pickle(featurelabelpath)
         imp_vals, imp_all = feature_importance_permutation(
@@ -178,30 +214,29 @@ def test_model(  # pylint:disable=too-many-arguments
         importance_metrics = [
             (name, value, error) for name, value, error in zip(feature_labels, imp_vals, importance_error)
         ]
-        experiment.log_metrics('feature_importances', importance_metrics)
+        experiment.log_metric('feature_importances', importance_metrics)
         metrics_dict['feature_importances'] = importance_metrics
 
     for i, column in enumerate(df_metrics.columns.values):
         metrics_dict[column] = (means[i], medians[i], stds[i], lower[i], upper[i])
-        experiment.log_metrics('_'.join([column, 'mean']), means[i])
-        experiment.log_metrics('_'.join([column, 'median']), medians[i])
-        experiment.log_metrics('_'.join([column, 'lower']), lower[i])
-        experiment.log_metrics('_'.join([column, 'std']), stds[i])
+        print((column, means[i], '_'.join([column, 'mean'])))
+        experiment.log_metric('_'.join([column, 'mean']), means[i])
+        experiment.log_metric('_'.join([column, 'median']), medians[i])
+        experiment.log_metric('_'.join([column, 'lower']), lower[i])
+        experiment.log_metric('_'.join([column, 'std']), stds[i])
 
-    experiment.log_metrics('accuracy_cv', accuracy)
-    experiment.log_metrics('accuracy_p_value', accuracy_pvalue)
-    experiment.log_metrics('f1_cv', f1)
-    experiment.log_metrics('f1_p_value', f1_pvalue)
-    experiment.log_metrics('missclassified', misclassified_w_prediction_true)
+    # experiment.log_metrics("balanced_accuracy_cv", balanced_accuracy)
+    # experiment.log_metrics("balanced_accuracy_p_value", balanced_accuracy_pvalue)
+    # experiment.log_metrics("missclassified", misclassified_w_prediction_true)
+    #
+    # cc = calibration_curve(y, model.predict(X), n_bins=10)
 
-    cc = calibration_curve(y, model.predict(X), n_bins=10)
-
-    metrics_dict['calibration_curve_true_probab'] = cc[0]
-    metrics_dict['calibration_curve_predicted_probab'] = cc[1]
+    # metrics_dict["calibration_curve_true_probab"] = cc[0]
+    # metrics_dict["calibration_curve_predicted_probab"] = cc[1]
 
     # now write a .json with metrics for DVC
     with open(os.path.join(outpath, 'test_metrics.json'), 'w') as fp:
-        json.dump(metrics_dict, fp)
+        json.dump(metrics_dict, fp, cls=NpEncoder)
 
 
 @click.command('cli')
@@ -209,9 +244,11 @@ def test_model(  # pylint:disable=too-many-arguments
 @click.argument('scalerpath')
 @click.argument('xpath')
 @click.argument('ypath')
+@click.argument('namepath')
 @click.argument('outpath')
-def main(modelpath, scalerpath, xpath, ypath, namepath, outpath):
-    test_model(modelpath, xpath, ypath, namepath, outpath)
+@click.argument('featurelabelpath')
+def main(modelpath, scalerpath, xpath, ypath, namepath, outpath, featurelabelpath):  # pylint:disable=too-many-arguments
+    test_model(modelpath, scalerpath, xpath, ypath, namepath, outpath, featurelabelpath)
 
 
 if __name__ == '__main__':

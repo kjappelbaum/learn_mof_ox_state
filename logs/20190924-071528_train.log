@@ -1,0 +1,6 @@
+2019-09-24 07:15:28,213 | train_ensemble_classifier.py: intialized training class
+2019-09-24 07:15:28,213 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-09-24 07:15:28,214 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-09-24 07:15:28,219 | train_ensemble_classifier.py: the classdistribution is {2: 13379, 1: 3092, 3: 3185, 4: 377, 5: 117, 6: 269}
+2019-09-24 07:15:28,229 | train_ensemble_classifier.py: Entering full training mode, which trains on only one fold.
+2019-09-24 07:15:28,229 | train_ensemble_classifier.py: This mode should only be used when the selected architecture is stable
