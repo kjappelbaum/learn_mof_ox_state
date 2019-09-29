@@ -3,6 +3,8 @@
 from __future__ import absolute_import
 import numpy as np
 from sklearn.utils.validation import check_is_fitted
+from sklearn.ensemble.voting import _parallel_fit_estimator
+from scipy.stats import zscore
 
 
 class VotingClassifier:
@@ -10,13 +12,15 @@ class VotingClassifier:
     https://gist.github.com/tomquisel/a421235422fdf6b51ec2ccc5e3dee1b4"""
 
     def __init__(self, estimators, voting='hard', weights=None):
-        self.estimators = [e[1] for e in estimators]
+        self._estimators = [e[1] for e in estimators]
+        self.estimators = self._estimators
         self.named_estimators = dict(estimators)
         self.voting = voting
         self.weights = weights
 
     def fit(self, X, y, sample_weight=None):
-        raise NotImplementedError
+        """Important for randomization tests, refits each estimator"""
+        self._estimators = [_parallel_fit_estimator(e, X, y, sample_weight) for e in self.estimators]
 
     def predict(self, X):
         """ Predict class labels for X.
@@ -31,7 +35,7 @@ class VotingClassifier:
             Predicted class labels.
         """
 
-        check_is_fitted(self, 'estimators')
+        check_is_fitted(self, '_estimators')
         if self.voting == 'soft':
             maj = np.argmax(self.predict_proba(X), axis=1)
 
@@ -44,9 +48,16 @@ class VotingClassifier:
             )
         return maj
 
+    def _voting_agreement(self, X):
+        """
+        Returns the average z-score
+        """
+        predictions = self._predict(X)
+        return np.mean(zscore(predictions, axis=-1), axis=-1)
+
     def _collect_probas(self, X):
         """Collect results from clf.predict calls. """
-        return np.asarray([clf.predict_proba(X) for clf in self.estimators])
+        return np.asarray([clf.predict_proba(X) for clf in self._estimators])
 
     def _predict_proba(self, X):
         """Predict class probabilities for X in 'soft' voting """
@@ -87,7 +98,7 @@ class VotingClassifier:
           array-like = [n_samples, n_classifiers]
             Class labels predicted by each classifier.
         """
-        check_is_fitted(self, 'estimators')
+        check_is_fitted(self, '_estimators')
         if self.voting == 'soft':
             return self._collect_probas(X)
         else:
@@ -95,4 +106,4 @@ class VotingClassifier:
 
     def _predict(self, X):
         """Collect results from clf.predict calls. """
-        return np.asarray([clf.predict(X) for clf in self.estimators]).T
+        return np.asarray([clf.predict(X) for clf in self._estimators]).T

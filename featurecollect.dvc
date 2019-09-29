@@ -1,4 +1,4 @@
-md5: 88aea5cf4a18c51744d137bc5ba26997
+md5: a166a8ac5057917a680b63c452a6fa5a
 cmd: run_featurecollection data/raw data/labels/20190917_labels.pkl data/labels data/features
   data/helper 0.2 holdout crystal_nn_fingerprint ward_prb row column
 deps:
@@ -7,17 +7,17 @@ deps:
 - md5: 552ae428a51a515299c4beb399f82471
   path: data/labels/20190917_labels.pkl
 outs:
-- md5: 56a59c57e2cd6039e4a6ece23690a462
+- md5: db7d3ef80e65b516eab54de17a2d8583
   path: data/labels/labels.npy
   cache: true
   metric: false
   persist: false
-- md5: 09c8118cf52f01ef8b3960b50df1f45f
+- md5: 189e8962636c0b2a956ddcd01c05cd66
   path: data/features/features.npy
   cache: true
   metric: false
   persist: false
-- md5: 783a2091bc01a9db3ed5d88f10603108
+- md5: a6026da5c2fcaed7568410ef81c2dc31
   path: data/helper/names.pkl
   cache: true
   metric: false
@@ -27,17 +27,17 @@ outs:
   cache: true
   metric: false
   persist: false
-- md5: 259e5ec959b09053b446a812b83c21d2
+- md5: 0928cb0c13a6349df3f78f028cd43b29
   path: holdout/features.npy
   cache: true
   metric: false
   persist: false
-- md5: 058dadf0db1bbe16636415758e27b72d
+- md5: 779c8beeab15c5db20c15712b0ff620d
   path: holdout/labels.npy
   cache: true
   metric: false
   persist: false
-- md5: c95667d9a3ffc803568faaa568266f73
+- md5: 40ffdc2db44d3c03db4b06b85a99bdd6
   path: holdout/names.pkl
   cache: true
   metric: false
