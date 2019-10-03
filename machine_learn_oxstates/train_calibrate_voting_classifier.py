@@ -25,16 +25,15 @@ from sklearn.metrics import (
 
 
 class TrainVotingClassifier:
-
     def __init__(  # pylint:disable=too-many-arguments
-            self,
-            votingclassifier,
-            X,
-            y,
-            calibration=None,
-            voting=None,
-            outdir=None,
-            scaler='minmax',
+        self,
+        votingclassifier,
+        X,
+        y,
+        calibration=None,
+        voting=None,
+        outdir=None,
+        scaler="minmax",
     ):
         self.votingclassifier = votingclassifier
         self.X = X
@@ -48,14 +47,14 @@ class TrainVotingClassifier:
             self.outdir = os.getcwd()
         self.traintime = None
 
-        if scaler == 'robust':
-            self.scalername = 'robust'
+        if scaler == "robust":
+            self.scalername = "robust"
             self.scaler = RobustScaler()
-        elif scaler == 'standard':
-            self.scalername = 'standard'
+        elif scaler == "standard":
+            self.scalername = "standard"
             self.scaler = StandardScaler()
-        elif scaler == 'minmax':
-            self.scalername = 'minmax'
+        elif scaler == "minmax":
+            self.scalername = "minmax"
             self.scaler = MinMaxScaler()
 
         # initialize voting and calibration if None based on the settings of the classifier
@@ -66,27 +65,27 @@ class TrainVotingClassifier:
             self.voting = self.votingclassifier.voting
 
         self.experiment = Experiment(
-            api_key=os.getenv('COMET_API_KEY', None),
-            project_name='mof-oxidation-states',
+            api_key=os.getenv("COMET_API_KEY", None),
+            project_name="mof-oxidation-states",
         )
 
         # directly log some parameters of the experiment
 
-        self.experiment.log_parameter('voting', self.voting)
-        self.experiment.log_parameter('calibration', self.calibration)
-        self.experiment.log_parameter('scaler', self.scaler)
-        self.experiment.log_parameter('training_size', len(self.y))
+        self.experiment.log_parameter("voting", self.voting)
+        self.experiment.log_parameter("calibration", self.calibration)
+        self.experiment.log_parameter("scaler", self.scaler)
+        self.experiment.log_parameter("training_size", len(self.y))
 
     @classmethod
     def from_files(  # pylint:disable=too-many-arguments
-            cls,
-            joblibpath,
-            featurematrixpath,
-            labelpath,
-            calibration=None,
-            voting=None,
-            outdir=None,
-            scaler='standard',
+        cls,
+        joblibpath,
+        featurematrixpath,
+        labelpath,
+        calibration=None,
+        voting=None,
+        outdir=None,
+        scaler="standard",
     ):
         model = load(joblibpath)
         X = np.load(featurematrixpath)
@@ -99,49 +98,54 @@ class TrainVotingClassifier:
         self.votingclassifier.fit(self.X, self.y)
         endtime = time.process_time()
         self.traintime = startime - endtime
-        self.experiment.log_metric('training_time', self.traintime)
+        self.experiment.log_metric("training_time", self.traintime)
 
     def _train_metrics(self):
         predict = self.model.predict(self.X)
 
         accuracy = accuracy_score(self.y, predict)
-        f1_micro = f1_score(self.y, predict, average='micro')
-        f1_macro = f1_score(self.y, predict, average='macro')
+        f1_micro = f1_score(self.y, predict, average="micro")
+        f1_macro = f1_score(self.y, predict, average="macro")
         balanced_accuracy = balanced_accuracy_score(self.y, predict)
-        precision = precision_score(self.y, predict, average='micro')
-        recall = recall_score(self.y, predict, average='micro')
+        precision = precision_score(self.y, predict, average="micro")
+        recall = recall_score(self.y, predict, average="micro")
 
-        self.experiment.log_metric('accuracy', accuracy)
-        self.experiment.log_metric('f1_micro', f1_micro)
-        self.experiment.log_metric('f1_macro', f1_macro)
-        self.experiment.log_metric('balanced_accuracy', balanced_accuracy)
-        self.experiment.log_metric('precision', precision)
-        self.experiment.log_metric('recall', recall)
+        self.experiment.log_metric("accuracy", accuracy)
+        self.experiment.log_metric("f1_micro", f1_micro)
+        self.experiment.log_metric("f1_macro", f1_macro)
+        self.experiment.log_metric("balanced_accuracy", balanced_accuracy)
+        self.experiment.log_metric("precision", precision)
+        self.experiment.log_metric("recall", recall)
 
     def _dump(self):
         self.votingclassifier._check_is_fitted()  # pylint:disable=protected-access
-        dump(self.votingclassifier, os.path.join(self.outdir, 'votingclassifier.joblib'))
-        dump(self.scaler, os.path.join(self.outdir, 'scaler.joblib'))
+        dump(
+            self.votingclassifier, os.path.join(self.outdir, "votingclassifier.joblib")
+        )
+        dump(self.scaler, os.path.join(self.outdir, "scaler.joblib"))
 
     def train(self):
         self._fit()
         self._dump()
 
 
-@click.command('cli')
-@click.argument('modelpath')
-@click.agument('featurepath')
-@click.argument('labelpath')
-@click.argument('calibration')
-@click.argument('voting')
-@click.agument('outdir')
-@click.agument('scaler')
+@click.command("cli")
+@click.argument("modelpath")
+@click.agument("featurepath")
+@click.argument("labelpath")
+@click.argument("calibration")
+@click.argument("voting")
+@click.agument("outdir")
+@click.agument("scaler")
 def main(  # pylint:disable=too-many-arguments
-        modelpath, featurepath, labelpath, calibration, voting, outdir, scaler):
+    modelpath, featurepath, labelpath, calibration, voting, outdir, scaler
+):
 
-    vc = TrainVotingClassifier.from_files(modelpath, featurepath, labelpath, calibration, voting, outdir, scaler)
+    vc = TrainVotingClassifier.from_files(
+        modelpath, featurepath, labelpath, calibration, voting, outdir, scaler
+    )
     vc.train()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()  # pylint:disable=no-value-for-parameter
