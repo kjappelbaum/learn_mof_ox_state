@@ -1,0 +1,19 @@
+2019-10-02 00:54:29,483 | train_ensemble_classifier.py: intialized training class
+2019-10-02 00:54:29,483 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-10-02 00:54:29,483 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-10-02 00:54:29,492 | train_ensemble_classifier.py: the classdistribution is {3: 9976, 2: 25483, 5: 604, 1: 8727, 4: 1942, 6: 2004}
+2019-10-02 00:54:29,500 | train_ensemble_classifier.py: Entering full training mode, which trains on only one fold.
+2019-10-02 00:54:29,500 | train_ensemble_classifier.py: This mode should only be used when the selected architecture is stable
+2019-10-02 00:54:29,501 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-10-02 00:54:29,502 | train_ensemble_classifier.py: the training set has shape (157, 124)
+2019-10-02 00:54:29,503 | train_ensemble_classifier.py: the test set has shape (30, 124)
+2019-10-02 00:54:29,503 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-10-02 00:59:28,585 | train_ensemble_classifier.py: entered evaluation function
+2019-10-02 00:59:28,599 | train_ensemble_classifier.py: model knn: accuracy test: 0.9, accuracy train: 0.9941176470588236 | f1 micro test 0.9, f1 micro train 0.9941176470588236
+2019-10-02 00:59:28,613 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9, accuracy train: 0.9941176470588236 | f1 micro test 0.9, f1 micro train 0.9941176470588236
+2019-10-02 00:59:28,718 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9, accuracy train: 0.9882352941176471 | f1 micro test 0.9, f1 micro train 0.9882352941176471
+2019-10-02 00:59:28,737 | train_ensemble_classifier.py: calibrating and building ensemble model
+2019-10-02 00:59:28,737 | train_ensemble_classifier.py: now, calibrating the base base estimators
+2019-10-02 00:59:28,767 | train_ensemble_classifier.py: entered evaluation function
+2019-10-02 00:59:28,806 | train_ensemble_classifier.py: model ensemble: accuracy test: 0.9, accuracy train: 1.0 | f1 micro test 0.9, f1 micro train 1.0
+2019-10-02 00:59:28,877 | train_ensemble_classifier.py: entering the tracking function

@@ -1,0 +1,16 @@
+2019-10-01 23:36:54,338 | train_ensemble_classifier.py: intialized training class
+2019-10-01 23:36:54,338 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
+2019-10-01 23:36:54,338 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
+2019-10-01 23:36:54,345 | train_ensemble_classifier.py: the classdistribution is {3: 9976, 2: 25483, 5: 604, 1: 8727, 4: 1942, 6: 2004}
+2019-10-01 23:36:54,353 | train_ensemble_classifier.py: Entering full training mode, which trains on only one fold.
+2019-10-01 23:36:54,353 | train_ensemble_classifier.py: This mode should only be used when the selected architecture is stable
+2019-10-01 23:36:54,355 | train_ensemble_classifier.py: entered the function that trains one fold
+2019-10-01 23:36:54,356 | train_ensemble_classifier.py: the training set has shape (238, 124)
+2019-10-01 23:36:54,356 | train_ensemble_classifier.py: the test set has shape (43, 124)
+2019-10-01 23:36:54,356 | train_ensemble_classifier.py: performing hyperparameter optimization
+2019-10-01 23:43:34,111 | train_ensemble_classifier.py: entered evaluation function
+2019-10-01 23:43:34,137 | train_ensemble_classifier.py: model knn: accuracy test: 0.9069767441860465, accuracy train: 0.8871595330739299 | f1 micro test 0.9069767441860465, f1 micro train 0.8871595330739299
+2019-10-01 23:43:34,162 | train_ensemble_classifier.py: model gradient_boosting: accuracy test: 0.9534883720930233, accuracy train: 0.9922178988326849 | f1 micro test 0.9534883720930233, f1 micro train 0.9922178988326849
+2019-10-01 23:43:34,293 | train_ensemble_classifier.py: model extra_trees: accuracy test: 0.9069767441860465, accuracy train: 0.9961089494163424 | f1 micro test 0.9069767441860465, f1 micro train 0.9961089494163424
+2019-10-01 23:43:34,300 | train_ensemble_classifier.py: calibrating and building ensemble model
+2019-10-01 23:43:34,300 | train_ensemble_classifier.py: now, calibrating the base base estimators
