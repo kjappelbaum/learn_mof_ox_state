@@ -1,0 +1,68 @@
+Running command:
+	python machine_learn_oxstates/train_calibrate_voting_classifier.py models/20191002-071136_ensemble_0.joblib data/features/features.npy data/labels/labels.npy sigmoid hard models_large standard
+COMET INFO: old comet version (2.0.13) detected. current: 2.0.14 please update your comet lib with command: `pip install --no-cache-dir --upgrade comet_ml`
+COMET INFO: Experiment is live on comet.ml https://www.comet.ml/kjappelbaum/mof-oxidation-states/87dc62ed5b5c4741aad4ca1256cabfcf
+
+Traceback (most recent call last):
+  File "machine_learn_oxstates/train_calibrate_voting_classifier.py", line 152, in <module>
+    main()  # pylint:disable=no-value-for-parameter
+  File "/home/kevin/anaconda3/envs/ml/lib/python3.7/site-packages/click/core.py", line 764, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/kevin/anaconda3/envs/ml/lib/python3.7/site-packages/click/core.py", line 717, in main
+    rv = self.invoke(ctx)
+  File "/home/kevin/anaconda3/envs/ml/lib/python3.7/site-packages/click/core.py", line 956, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/kevin/anaconda3/envs/ml/lib/python3.7/site-packages/click/core.py", line 555, in invoke
+    return callback(*args, **kwargs)
+  File "machine_learn_oxstates/train_calibrate_voting_classifier.py", line 148, in main
+    vc.train()
+  File "machine_learn_oxstates/train_calibrate_voting_classifier.py", line 129, in train
+    self._fit()
+  File "machine_learn_oxstates/train_calibrate_voting_classifier.py", line 99, in _fit
+    self.votingclassifier.fit(self.X, self.y)
+AttributeError: 'VotingClassifier' object has no attribute 'fit'
+COMET INFO: ----------------------------
+COMET INFO: Comet.ml Experiment Summary:
+COMET INFO:   Data:
+COMET INFO:     url: https://www.comet.ml/kjappelbaum/mof-oxidation-states/87dc62ed5b5c4741aad4ca1256cabfcf
+COMET INFO: ----------------------------
+COMET INFO: Uploading stats to Comet before program termination (may take several seconds)
+ERROR: failed to run command - stage 'train_large.dvc' cmd 'python machine_learn_oxstates/train_calibrate_voting_classifier.py models/20191002-071136_ensemble_0.joblib data/features/features.npy data/labels/labels.npy sigmoid hard models_large standard' failed
+
+Having any troubles?. Hit us up at https://dvc.org/support, we are always happy to help!
+Running command:
+	python machine_learn_oxstates/train_calibrate_voting_classifier.py models/20191002-071136_ensemble_0.joblib data/features/features.npy data/labels/labels.npy sigmoid hard models_large standard
+COMET INFO: old comet version (2.0.13) detected. current: 2.0.14 please update your comet lib with command: `pip install --no-cache-dir --upgrade comet_ml`
+COMET INFO: Experiment is live on comet.ml https://www.comet.ml/kjappelbaum/mof-oxidation-states/0c87b56a10c948dd90f11b760c09a376
+
+Traceback (most recent call last):
+  File "machine_learn_oxstates/train_calibrate_voting_classifier.py", line 152, in <module>
+    main()  # pylint:disable=no-value-for-parameter
+  File "/home/kevin/anaconda3/envs/ml/lib/python3.7/site-packages/click/core.py", line 764, in __call__
+    return self.main(*args, **kwargs)
+  File "/home/kevin/anaconda3/envs/ml/lib/python3.7/site-packages/click/core.py", line 717, in main
+    rv = self.invoke(ctx)
+  File "/home/kevin/anaconda3/envs/ml/lib/python3.7/site-packages/click/core.py", line 956, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/home/kevin/anaconda3/envs/ml/lib/python3.7/site-packages/click/core.py", line 555, in invoke
+    return callback(*args, **kwargs)
+  File "machine_learn_oxstates/train_calibrate_voting_classifier.py", line 148, in main
+    vc.train()
+  File "machine_learn_oxstates/train_calibrate_voting_classifier.py", line 130, in train
+    self._dump()
+  File "machine_learn_oxstates/train_calibrate_voting_classifier.py", line 124, in _dump
+    self.votingclassifier, os.path.join(self.outdir, "votingclassifier.joblib")
+  File "/home/kevin/anaconda3/envs/ml/lib/python3.7/site-packages/joblib/numpy_pickle.py", line 501, in dump
+    with open(filename, 'wb') as f:
+FileNotFoundError: [Errno 2] No such file or directory: 'models_large/votingclassifier.joblib'
+COMET INFO: ----------------------------
+COMET INFO: Comet.ml Experiment Summary:
+COMET INFO:   Data:
+COMET INFO:     url: https://www.comet.ml/kjappelbaum/mof-oxidation-states/0c87b56a10c948dd90f11b760c09a376
+COMET INFO:   Metrics [count] (min, max):
+COMET INFO:     training_time: (-2653.9843281129997, -2653.9843281129997)
+COMET INFO: ----------------------------
+COMET INFO: Uploading stats to Comet before program termination (may take several seconds)
+ERROR: failed to run command - stage 'train_large.dvc' cmd 'python machine_learn_oxstates/train_calibrate_voting_classifier.py models/20191002-071136_ensemble_0.joblib data/features/features.npy data/labels/labels.npy sigmoid hard models_large standard' failed
+
+Having any troubles?. Hit us up at https://dvc.org/support, we are always happy to help!
