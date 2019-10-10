@@ -1,13 +1,14 @@
-md5: 65f9477c58b2974900177ea670c5f735
+md5: 17f47ee4252ec439dc183d05e8154633
 cmd: python machine_learn_oxstates/train_calibrate_voting_classifier.py models/20191002-071136_ensemble_0.joblib
-  data/features/features.npy data/labels/labels.npy sigmoid hard models_large standard
+  data/features/features.npy data/labels/labels.npy isotonic soft models_large standard
+  holdout/valid/features.npy holdout/valid/labels.npy
 deps:
-- md5: 4141a2e2362bc475027b247c122ab5b8
+- md5: 9d47fcf7fa4890c5b75df5ed691c66e5
   path: data/features/features.npy
-- md5: 227b347f0e853c026a2561c612a06adb
+- md5: 26345232bc59c8ec0ca77b1f4344ab0d
   path: data/labels/labels.npy
 outs:
-- md5: 44bd58c488aab5aaf61f35c76808cd46.dir
+- md5: 095d2bc31920875d79f4ff9807e32271.dir
   path: models_large
   cache: true
   metric: false

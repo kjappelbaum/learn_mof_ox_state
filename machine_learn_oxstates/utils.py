@@ -9,10 +9,12 @@ from ml_insights import SplineCalibratedClassifierCV
 
 
 class VotingClassifier:
-    """Stripped-down version of VotingClassifier that uses prefit estimators.
+    """Custom version of VotingClassifier that uses prefit estimators and that has support for
+        - Probability calibration
+        - Multiclass as I like it (prediction gives the label and not the index)
     https://gist.github.com/tomquisel/a421235422fdf6b51ec2ccc5e3dee1b4"""
 
-    def __init__(self, estimators, voting='hard', weights=None):
+    def __init__(self, estimators, voting="hard", weights=None):
         self._estimators = [e[1] for e in estimators]
         self.estimators = self._estimators
         self.named_estimators = dict(estimators)
@@ -21,33 +23,41 @@ class VotingClassifier:
         self.calibration = None
         self.calibrated = False
         self.refitted = False
+        self.classes = None
 
     def _fit(self, X, y, sample_weight=None):
         """Important for randomization tests, refits each estimator"""
-        self._estimators = [_parallel_fit_estimator(e, X, y, sample_weight) for e in self.estimators]
+        self._estimators = [
+            _parallel_fit_estimator(e, X, y, sample_weight) for e in self.estimators
+        ]
         self.calibrated = False
         self.refitted = True
+        self.classes = np.unique(y)
 
     def _calibrate_base_estimators(self, method, X, y):
         self.calibration = method
         self._check_is_fitted()
-        self._estimators = [self._calibrate_model(model, method, X, y) for model in self._estimators]
+        self._estimators = [
+            self._calibrate_model(model, method, X, y) for model in self._estimators
+        ]
         self.calibrated = True
 
-    def _calibrate_model(self, model, method: str, X_valid: np.array, y_valid: np.array):
-        if method == 'isotonic':
-            calibrated = CalibratedClassifierCV(model, cv='prefit', method='isotonic')
+    def _calibrate_model(
+        self, model, method: str, X_valid: np.array, y_valid: np.array
+    ):
+        if method == "isotonic":
+            calibrated = CalibratedClassifierCV(model, cv="prefit", method="isotonic")
             calibrated.fit(X_valid, y_valid)
-        elif method == 'sigmoid':
-            calibrated = CalibratedClassifierCV(model, cv='prefit', method='sigmoid')
+        elif method == "sigmoid":
+            calibrated = CalibratedClassifierCV(model, cv="prefit", method="sigmoid")
             calibrated.fit(X_valid, y_valid)
-        elif method == 'none':
+        elif method == "none":
             calibrated = model
-        elif method == 'spline':
-            calibrated = SplineCalibratedClassifierCV(model, cv='prefit')
+        elif method == "spline":
+            calibrated = SplineCalibratedClassifierCV(model, cv="prefit")
             calibrated.fit(X_valid, y_valid)
         else:
-            calibrated = CalibratedClassifierCV(model, cv='prefit', method='sigmoid')
+            calibrated = CalibratedClassifierCV(model, cv="prefit", method="sigmoid")
             calibrated.fit(X_valid, y_valid)
 
         return calibrated
@@ -66,15 +76,18 @@ class VotingClassifier:
         """
 
         self._check_is_fitted()
-        if self.voting == 'soft':
-            maj = np.argmax(self.predict_proba(X), axis=1)
-
+        if self.voting == "soft":
+            m = np.argmax(self.predict_proba(X), axis=1)
+            if self.classes is not None:
+                maj = self.classes[m]
+            else:
+                maj = m
         else:  # 'hard' voting
             predictions = self._predict(X)
             maj = np.apply_along_axis(
                 lambda x: np.argmax(np.bincount(x, weights=self.weights)),
                 axis=1,
-                arr=predictions.astype('int'),
+                arr=predictions.astype("int"),
             )
         return maj
 
@@ -91,14 +104,16 @@ class VotingClassifier:
 
     def _check_is_fitted(self):
         for estimator in self._estimators:
-            if not hasattr(estimator, 'classes_'):
-                raise ValueError('Classifier not fitted')
+            if not hasattr(estimator, "classes_"):
+                raise ValueError("Classifier not fitted")
 
     def _predict_proba(self, X):
         """Predict class probabilities for X in 'soft' voting """
         self._check_is_fitted()
-        if self.voting == 'hard':
-            raise AttributeError('predict_proba is not available when' ' voting=%r' % self.voting)
+        if self.voting == "hard":
+            raise AttributeError(
+                "predict_proba is not available when" " voting=%r" % self.voting
+            )
         avg = np.average(self._collect_probas(X), axis=0, weights=self.weights)
         return avg
 
@@ -134,7 +149,7 @@ class VotingClassifier:
             Class labels predicted by each classifier.
         """
         self._check_is_fitted()
-        if self.voting == 'soft':
+        if self.voting == "soft":
             return self._collect_probas(X)
         else:
             return self._predict(X)
