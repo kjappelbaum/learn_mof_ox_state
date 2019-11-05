@@ -71,7 +71,7 @@ class TrainVotingClassifier:
             self.voting = self.votingclassifier.voting
 
     @classmethod
-    def from_files(  # pylint:disable=too-many-arguments
+    def from_files(  # pylint:disable=too-many-arguments, too-many-locals
             cls,
             joblibpath,
             featurematrixpath,

@@ -9,12 +9,12 @@ import numpy as np
 import os
 import pandas as pd
 import click
-from learn_mof_oxstate.utils import (
+from learnmofox.utils import (
     training_calibrate,
     make_if_not_exist,
     summarize_data,
 )
-from learn_mof_oxstate.metrics import bootstrapped_metrics, return_scoring_funcs
+from learnmofox.metrics import bootstrapped_metrics, return_scoring_funcs
 
 
 def setup_learning_curve_point(trainxpath, trainypath, points, basepath):
@@ -50,7 +50,7 @@ def test_model(  # pylint:disable=too-many-arguments
         ytestpath: str,
         outpath: str,
         numpoints: int,
-        bootstraps: int,
+        bootstraps: int,  # pylint:disable=unused-argument
 ):  # pylint:disable=too-many-locals
 
     print('Subsampling')

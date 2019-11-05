@@ -22,7 +22,7 @@ from comet_ml import Experiment
 from hyperopt import tpe, anneal, rand, mix, hp
 from hpsklearn.estimator import hyperopt_estimator
 from hpsklearn import components
-from learn_mof_oxstate.utils import VotingClassifier
+from learnmofox.utils import VotingClassifier
 from mlxtend.evaluate import BootstrapOutOfBag
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler

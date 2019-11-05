@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from dask.distributed import Client, LocalCluster
 from functools import partial
 import itertools
-from learn_mof_oxstate.utils import (
+from learnmofox.utils import (
     setup_dummy,
     get_metrics_dict,
     make_if_not_exist,

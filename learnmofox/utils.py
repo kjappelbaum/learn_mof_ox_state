@@ -11,7 +11,7 @@ from sklearn.calibration import _CalibratedClassifier
 from ml_insights import SplineCalibratedClassifierCV
 from sklearn.preprocessing import LabelBinarizer
 import warnings
-from learn_mof_oxstate.train_calibrate_voting_classifier_no_track import TrainVotingClassifier
+from learnmofox.train_calibrate_voting_classifier_no_track import TrainVotingClassifier
 from mine_mof_oxstate.utils import apricot_select
 
 SUBMISSION_TEMPLATE = """#!/bin/bash -l
@@ -31,7 +31,7 @@ export COMET_API_KEY='Nqp9NvaVztUCG2exYT9vV2Dl0'
 """
 
 
-def training_calibrate(
+def training_calibrate(  # pylint:disable=too-many-arguments
         modelpath,
         featurepath,
         labelpath,
@@ -87,7 +87,8 @@ def setup_dummy(trainxpath, trainypath):
     return dummy_uniform, dummy_stratified
 
 
-def load_data(trainxpath, trainypath, validxpath, validypath, holdoutxpath, holdoutypath):
+def load_data(  # pylint:disable=too-many-arguments
+        trainxpath, trainypath, validxpath, validypath, holdoutxpath, holdoutypath):
     """Loads the data and returns np.arrays"""
     trainx = np.load(trainxpath)
     trainy = np.load(trainypath)
@@ -125,7 +126,7 @@ class VotingClassifier:
         self._fit(X, y, sample_weight=None)
         return self
 
-    def _fit(self, X, y, sample_weight=None):
+    def _fit(self, X, y, sample_weight=None):  # pylint:disable=unused-argument
         """Important for randomization tests, refits each estimator"""
         print(f'using classes {np.unique(y)} for fit')
         y = y.astype(np.int)

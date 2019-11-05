@@ -6,7 +6,7 @@ from pathlib import Path
 from glob import glob
 import subprocess
 import click
-from machine_learn_oxstates.utils import SUBMISSION_TEMPLATE, _make_if_not_exists
+from learnmofox.utils import SUBMISSION_TEMPLATE, _make_if_not_exists
 
 to_analyze = [
     # "metal_center_feat",
@@ -48,7 +48,7 @@ def write_run_command(  # pylint:disable=too-many-function-args, too-many-argume
     ytestpath = os.path.join(holdoutpath, 'labels.npy')
 
     bootstraps = 200
-    return f'python machine_learn_oxstates/bootstrapped_metrics_cli.py {modelpath} {xtrainpath} {ytrainpath} {xvalidpath} {yvalidpath} {xtestpath} {ytestpath} {outpath} {numpoints} {bootstraps}'
+    return f'python machine_learn_oxstates/bootstrapped_metrics_cli.py {modelpath} {xtrainpath} {ytrainpath} {xvalidpath} {yvalidpath} {xtestpath} {ytestpath} {outpath} {numpoints} {bootstraps}'  # pylint:disable=line-too-long
 
 
 def write_slurmfile(name: str, command: str):

@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import concurrent.futures
 import numpy as np
 from functools import partial
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
@@ -16,7 +17,7 @@ from tqdm import tqdm
 from six.moves import range
 
 
-def _bootstrap_metric_fold(_, model, X, y, scoring_funcs, sample_idx, rng):
+def _bootstrap_metric_fold(_, model, X, y, scoring_funcs, sample_idx, rng):  # pylint:disable=too-many-arguments
     scores = {}
     bootstrap_idx = rng.choice(sample_idx, size=sample_idx.shape[0], replace=True)
     prediction = model.predict(X[bootstrap_idx])
@@ -111,19 +112,23 @@ def get_metrics_dict(true, predicted, dummy=False):
 def _permutation_score_base(_, model, X, y, cv, metric_func, shuffle=True):
     model_ = model
     avg_score = []
-    if shuffle:
-        X = np.random.shuffle(X)
-        y = np.random.shuffle(y)
+    if shuffle:  # shuffle modifies in place!
+        np.random.shuffle(X)
+        np.random.shuffle(y)
 
     for train, test in cv.split(X, y):
+
         X_train = X[train]
         X_test = X[test]
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(X_train)
+        X_test = scaler.transform(X_test)
         y_train = y[train]
         y_test = y[test]
 
         X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.3)
         model_.fit(X_train, y_train)
-        model_.calibrate(model_.calibrate, X_valid, y_valid)
+        model_._calibrate_base_estimators('isotonic', X_valid, y_valid)  # pylint:disable=protected-access
         avg_score.append(metric_func(y_test, model_.predict(X_test)))
 
     return np.mean(np.array(avg_score))
@@ -133,7 +138,7 @@ def permutation_test(model, X, y, rounds=30, metric_func=balanced_accuracy_score
     cv = StratifiedKFold(5)
     permuted_scores = []
     model_ = model
-    score = _permutation_score_base(model, X, y, cv, metric_func, shuffle=False)
+    score = _permutation_score_base(None, model, X, y, cv, metric_func, shuffle=False)
     base_permutation_score = partial(_permutation_score_base, model=model_, X=X, y=y, cv=cv, metric_func=metric_func)
 
     rounds = list(range(rounds))

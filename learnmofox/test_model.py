@@ -15,7 +15,7 @@ from comet_ml import Experiment
 
 from joblib import load
 from mine_mof_oxstate.utils import read_pickle
-from learn_mof_oxstate.metrics import bootstrapped_metrics, return_scoring_funcs
+from learnmofox.metrics import bootstrapped_metrics, return_scoring_funcs
 from mlxtend.evaluate import feature_importance_permutation
 from sklearn.calibration import calibration_curve
 from six.moves import zip

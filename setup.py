@@ -9,7 +9,7 @@ import os
 from setuptools import find_packages, setup
 
 # Package meta-data.
-NAME = 'learn_mof_oxstate'
+NAME = 'learnmofox'
 DESCRIPTION = 'machine learn MOF oxidation states'
 URL = 'https://github.com/kjappelbaum/learn_mof_ox_state'
 EMAIL = 'kevin.jablonka@epfl.ch'
