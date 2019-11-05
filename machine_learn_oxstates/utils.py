@@ -11,7 +11,7 @@ from sklearn.calibration import _CalibratedClassifier
 from ml_insights import SplineCalibratedClassifierCV
 from sklearn.preprocessing import LabelBinarizer
 import warnings
-from .train_calibrate_voting_classifier_no_track import TrainVotingClassifier
+from learn_mof_oxstate.train_calibrate_voting_classifier_no_track import TrainVotingClassifier
 from mine_mof_oxstate.utils import apricot_select
 
 SUBMISSION_TEMPLATE = """#!/bin/bash -l
@@ -120,6 +120,10 @@ class VotingClassifier:
         self.classes = np.array([1, 2, 3, 4, 5, 6, 7, 8])
         self.lb = LabelBinarizer()
         self.lb.fit(self.classes)
+
+    def fit(self, X, y, sample_weight=None):
+        self._fit(X, y, sample_weight=None)
+        return self
 
     def _fit(self, X, y, sample_weight=None):
         """Important for randomization tests, refits each estimator"""
