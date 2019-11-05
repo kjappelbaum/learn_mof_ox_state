@@ -1,44 +1,46 @@
-md5: ffca3ab6b33e2885e0c678b6a7023627
+md5: 8e35c0e1c3af5e37a0300ac411b4f1c0
 cmd: run_featurecollection data/20190928_features data/labels/20190917_labels.pkl
-  data/labels data/features data/helper 0.2 holdout 60000 crystal_nn_fingerprint local_property_stats
-  row column
+  data/labels data/features data/helper 0.2 holdout 100000 crystal_nn_no_steinhardt
+  column_differences electronegativity_differences valence_differences unfilled_differences
+  nsvalence_differences row column valenceelectrons diffto18electrons sunfilled punfilled
+  dunfilled
 deps:
-- md5: c2cfeae3eaaec1130a2461a36e81a116.dir
+- md5: af15698f82ffb2028e21547f4e1d6891.dir
   path: data/20190928_features
 - md5: 552ae428a51a515299c4beb399f82471
   path: data/labels/20190917_labels.pkl
 outs:
-- md5: 26345232bc59c8ec0ca77b1f4344ab0d
+- md5: 4bae2d8fcfa2b8f9d3374030ae4a9d57
   path: data/labels/labels.npy
   cache: true
   metric: false
   persist: false
-- md5: 9d47fcf7fa4890c5b75df5ed691c66e5
+- md5: 28c811a18ddcd3d10c714b72b727d0ea
   path: data/features/features.npy
   cache: true
   metric: false
   persist: false
-- md5: f039832f0143a5b0a2259355e9f84816
+- md5: 7bcf2a67f19832d5e64c0adc6a29be5e
   path: data/helper/names.pkl
   cache: true
   metric: false
   persist: false
-- md5: a796af7289c403394e6237a045f033d0
+- md5: 8e80a52148e5f45c9125681ed7a0cf1a
   path: data/helper/feature_names.pkl
   cache: true
   metric: false
   persist: false
-- md5: 1d7769672548e48e35340b2025ca9efe
+- md5: b41cb54188ba5a28a88de192b1908be8
   path: holdout/features.npy
   cache: true
   metric: false
   persist: false
-- md5: 0976b99fe69221fac784077409c3cacb
+- md5: efc3f7c3bd54d4e3358087e37e02a289
   path: holdout/labels.npy
   cache: true
   metric: false
   persist: false
-- md5: e453ca9c3dddd4fb97b412938291c048
+- md5: d4a21e5411c74f2b47513377dea9636a
   path: holdout/names.pkl
   cache: true
   metric: false

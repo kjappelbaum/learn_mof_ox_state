@@ -13,18 +13,29 @@ NAME = 'learn_mof_oxstate'
 DESCRIPTION = 'machine learn MOF oxidation states'
 URL = 'https://github.com/kjappelbaum/learn_mof_ox_state'
 EMAIL = 'kevin.jablonka@epfl.ch'
-AUTHOR = 'Kevin M. Jablonka, Daniele Ongari, Berend Smit'
+AUTHOR = 'Kevin M. Jablonka, Daniele Ongari, Seyed Mohamad Moosavi, Berend Smit'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1.0a1'
+VERSION = '0.2.0a1'
 
 # What packages are required for this module to be executed?
-REQUIRED = ['sklearn', 'mlxtend', 'pandas', 'click', 'comet', 'dvc']
+REQUIRED = [
+    'hpsklearn',
+    'hyperopt',
+    'sklearn',
+    'imblearn',
+    'ml_insights',
+    'mlxtend',
+    'pandas',
+    'click',
+    'comet',
+    'dvc',
+]
 
 # What packages are optional?
 EXTRAS = {
     'testing': ['pytest'],
     'linting': ['prospector', 'pre-commit', 'pylint'],
-    'documentation': ['sphinx', 'sphinx_rtd_theme', 'sphinx-autodoc-typehints']
+    'documentation': ['sphinx', 'sphinx_rtd_theme', 'sphinx-autodoc-typehints'],
 }
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -62,4 +73,5 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-    ])
+    ],
+)

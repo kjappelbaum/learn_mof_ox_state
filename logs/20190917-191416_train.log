@@ -1,5 +1,0 @@
-2019-09-17 19:14:16,490 | train_ensemble_classifier.py: intialized training class
-2019-09-17 19:14:16,510 | train_ensemble_classifier.py: entered the function that trains one fold
-2019-09-17 19:14:16,510 | train_ensemble_classifier.py: entered the function that trains one fold
-2019-09-17 19:14:16,515 | train_ensemble_classifier.py: performing hyperparameter optimization
-2019-09-17 19:14:16,515 | train_ensemble_classifier.py: performing hyperparameter optimization

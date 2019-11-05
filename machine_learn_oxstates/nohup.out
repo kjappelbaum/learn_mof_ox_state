@@ -1,5 +1,0 @@
-Running command:
-	python machine_learn_oxstates/train_ensemble_classifier.py data/features/features.npy data/labels/labels.npy models metrics standard soft sigmoid 20000 2 none
-ERROR: failed to run command - missing dependencies: data/features/features.npy, data/labels/labels.npy
-
-Having any troubles?. Hit us up at https://dvc.org/support, we are always happy to help!

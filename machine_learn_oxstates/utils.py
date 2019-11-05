@@ -1,11 +1,104 @@
 # -*- coding: utf-8 -*-
-# pylint:disable=no-else-return
+# pylint:disable=no-else-return,invalid-name
 from __future__ import absolute_import
+from __future__ import print_function
+import os
 import numpy as np
 from sklearn.ensemble.voting import _parallel_fit_estimator
+from sklearn.dummy import DummyClassifier
 from scipy.stats import zscore
-from sklearn.calibration import CalibratedClassifierCV
+from sklearn.calibration import _CalibratedClassifier
 from ml_insights import SplineCalibratedClassifierCV
+from sklearn.preprocessing import LabelBinarizer
+import warnings
+from .train_calibrate_voting_classifier_no_track import TrainVotingClassifier
+from mine_mof_oxstate.utils import apricot_select
+
+SUBMISSION_TEMPLATE = """#!/bin/bash -l
+#SBATCH --chdir ./
+#SBATCH --mem 24GB
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH --job-name {name}
+#SBATCH --time {time}:00:00
+#SBATCH --partition serial
+
+source /home/kjablonk/anaconda3/bin/activate
+conda activate ml
+export COMET_API_KEY='Nqp9NvaVztUCG2exYT9vV2Dl0'
+
+{command}
+"""
+
+
+def training_calibrate(
+        modelpath,
+        featurepath,
+        labelpath,
+        validxpath,
+        validypath,
+        outdir,
+        scaler='standard',
+        voting='soft',
+        calibration='isotonic',
+):
+    """Loads, trains and calibrates a votingclassifier and return the fitted classifier and the 'trained' scaler"""
+    vc = TrainVotingClassifier.from_files(
+        modelpath,
+        featurepath,
+        labelpath,
+        calibration,
+        voting,
+        outdir,
+        scaler,
+        validxpath,
+        validypath,
+    )
+    vc.train()
+    model, scaler = vc.return_models()
+    return model, scaler
+
+
+def summarize_data(x, y, points):
+    assert len(x) == len(y)
+    assert len(y) >= points  # otherwise there is no way to select anything
+    indices = apricot_select(x, points)
+
+    xsummarized = x[indices]
+    ysummarized = y[indices]
+
+    return xsummarized, ysummarized
+
+
+def make_if_not_exist(filepath):
+    if not os.path.exists(filepath):
+        os.mkdir(filepath)
+
+
+def setup_dummy(trainxpath, trainypath):
+    X = np.load(trainxpath)
+    y = np.load(trainypath)
+    dummy_uniform = DummyClassifier(strategy='uniform')
+    dummy_stratified = DummyClassifier(strategy='stratified')
+
+    dummy_uniform.fit(X, y)
+    dummy_stratified.fit(X, y)
+
+    return dummy_uniform, dummy_stratified
+
+
+def load_data(trainxpath, trainypath, validxpath, validypath, holdoutxpath, holdoutypath):
+    """Loads the data and returns np.arrays"""
+    trainx = np.load(trainxpath)
+    trainy = np.load(trainypath)
+
+    validx = np.load(validxpath)
+    validy = np.load(validypath)
+
+    holdoutx = np.load(holdoutxpath)
+    holdouty = np.load(holdoutypath)
+
+    return trainx, trainy, validx, validy, holdoutx, holdouty
 
 
 class VotingClassifier:
@@ -14,50 +107,64 @@ class VotingClassifier:
         - Multiclass as I like it (prediction gives the label and not the index)
     https://gist.github.com/tomquisel/a421235422fdf6b51ec2ccc5e3dee1b4"""
 
-    def __init__(self, estimators, voting="hard", weights=None):
-        self._estimators = [e[1] for e in estimators]
-        self.estimators = self._estimators
+    def __init__(self, estimators, voting='hard', weights=None):
+        self._estimators = [e[1] for e in estimators]  # in self._estimators are the raw, uncalibrated, estimators
+        self.estimators = (self._estimators
+                          )  # in self.estimators are the calibrated estimators which are used for predictions
         self.named_estimators = dict(estimators)
         self.voting = voting
         self.weights = weights
         self.calibration = None
         self.calibrated = False
         self.refitted = False
-        self.classes = None
+        self.classes = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+        self.lb = LabelBinarizer()
+        self.lb.fit(self.classes)
 
     def _fit(self, X, y, sample_weight=None):
         """Important for randomization tests, refits each estimator"""
-        self._estimators = [
-            _parallel_fit_estimator(e, X, y, sample_weight) for e in self.estimators
-        ]
+        print(f'using classes {np.unique(y)} for fit')
+        y = y.astype(np.int)
+        # if len(y.shape) == 1:
+        #    y = self.lb.transform(y)
+        self._estimators = [_parallel_fit_estimator(e, X, y, sample_weight) for e in self._estimators]
         self.calibrated = False
         self.refitted = True
-        self.classes = np.unique(y)
+        # self.classes = np.unique(y)
 
     def _calibrate_base_estimators(self, method, X, y):
         self.calibration = method
         self._check_is_fitted()
-        self._estimators = [
-            self._calibrate_model(model, method, X, y) for model in self._estimators
-        ]
+        self.estimators = [self._calibrate_model(model, method, X, y) for model in self._estimators]
         self.calibrated = True
 
-    def _calibrate_model(
-        self, model, method: str, X_valid: np.array, y_valid: np.array
-    ):
-        if method == "isotonic":
-            calibrated = CalibratedClassifierCV(model, cv="prefit", method="isotonic")
+    def _calibrate_model(self, model, method: str, X_valid: np.array, y_valid: np.array):
+        """
+        Note that we use _CalibratedClassifier to better deal with the label encoding.
+
+        Arguments:
+            model {BaseEstimator} -- sklearn model model
+            method {str} -- [description]
+            X_valid {np.array} -- Feature matrix
+            y_valid {np.array} -- Label vector
+
+        Returns:
+            [_CalibratedClassifier] -- calibrated classifier
+        """
+        if method == 'isotonic':
+            calibrated = _CalibratedClassifier(model, method='isotonic', classes=self.classes)
             calibrated.fit(X_valid, y_valid)
-        elif method == "sigmoid":
-            calibrated = CalibratedClassifierCV(model, cv="prefit", method="sigmoid")
+        elif method == 'sigmoid':
+            calibrated = _CalibratedClassifier(model, method='sigmoid', classes=self.classes)
             calibrated.fit(X_valid, y_valid)
-        elif method == "none":
+        elif method == 'none':
             calibrated = model
-        elif method == "spline":
-            calibrated = SplineCalibratedClassifierCV(model, cv="prefit")
+        elif method == 'spline':
+            warnings.warn('spline is deprecated option!', DeprecationWarning)
+            calibrated = SplineCalibratedClassifierCV(model, cv='prefit')
             calibrated.fit(X_valid, y_valid)
         else:
-            calibrated = CalibratedClassifierCV(model, cv="prefit", method="sigmoid")
+            calibrated = _CalibratedClassifier(model, method='sigmoid', classes=self.classes)
             calibrated.fit(X_valid, y_valid)
 
         return calibrated
@@ -76,19 +183,25 @@ class VotingClassifier:
         """
 
         self._check_is_fitted()
-        if self.voting == "soft":
+        if self.voting == 'soft':
             m = np.argmax(self.predict_proba(X), axis=1)
             if self.classes is not None:
-                maj = self.classes[m]
+                maj = self.classes[m]  # to directly get the oxidation states
             else:
                 maj = m
         else:  # 'hard' voting
             predictions = self._predict(X)
-            maj = np.apply_along_axis(
+            m = np.apply_along_axis(
                 lambda x: np.argmax(np.bincount(x, weights=self.weights)),
                 axis=1,
-                arr=predictions.astype("int"),
+                arr=predictions.astype('int'),
             )
+
+            if self.classes is not None:
+                maj = self.classes[m]  # to directly get the oxidation states
+            else:
+                maj = m
+
         return maj
 
     def _voting_agreement(self, X):
@@ -100,20 +213,19 @@ class VotingClassifier:
 
     def _collect_probas(self, X):
         """Collect results from clf.predict calls. """
-        return np.asarray([clf.predict_proba(X) for clf in self._estimators])
+        assert self.calibrated
+        return np.asarray([clf.predict_proba(X) for clf in self.estimators])
 
     def _check_is_fitted(self):
         for estimator in self._estimators:
-            if not hasattr(estimator, "classes_"):
-                raise ValueError("Classifier not fitted")
+            if not hasattr(estimator, 'classes_'):
+                raise ValueError('Classifier not fitted')
 
     def _predict_proba(self, X):
         """Predict class probabilities for X in 'soft' voting """
         self._check_is_fitted()
-        if self.voting == "hard":
-            raise AttributeError(
-                "predict_proba is not available when" " voting=%r" % self.voting
-            )
+        if self.voting == 'hard':
+            raise AttributeError('predict_proba is not available when' ' voting=%r' % self.voting)
         avg = np.average(self._collect_probas(X), axis=0, weights=self.weights)
         return avg
 
@@ -149,11 +261,13 @@ class VotingClassifier:
             Class labels predicted by each classifier.
         """
         self._check_is_fitted()
-        if self.voting == "soft":
+        if self.voting == 'soft':
             return self._collect_probas(X)
         else:
             return self._predict(X)
 
     def _predict(self, X):
         """Collect results from clf.predict calls. """
-        return np.asarray([clf.predict(X) for clf in self._estimators]).T
+        assert self.calibrated
+        return np.asarray([np.argmax(clf.predict_proba(X), axis=1) for clf in self.estimators
+                          ]).T  # workaround since _Classifier has no predictt method

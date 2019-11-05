@@ -1,6 +1,0 @@
-2019-09-21 18:24:35,990 | train_ensemble_classifier.py: intialized training class
-2019-09-21 18:24:35,991 | train_ensemble_classifier.py: the metrics are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/metrics
-2019-09-21 18:24:35,991 | train_ensemble_classifier.py: the models are saved to /home/kevin/Dropbox (LSMO)/proj62_guess_oxidation_states/machine_learn_oxstates/models
-2019-09-21 18:24:35,994 | train_ensemble_classifier.py: the classdistribution is {2: 13379, 3: 3185, 1: 3092, 5: 117, 4: 377, 6: 269}
-2019-09-21 18:24:36,027 | train_ensemble_classifier.py: entered the function that trains one fold
-2019-09-21 18:24:36,029 | train_ensemble_classifier.py: entered the function that trains one fold

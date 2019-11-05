@@ -19,10 +19,10 @@ import pickle
 import logging
 from typing import Tuple
 from comet_ml import Experiment
-from hyperopt import tpe, anneal, rand, mix
+from hyperopt import tpe, anneal, rand, mix, hp
 from hpsklearn.estimator import hyperopt_estimator
 from hpsklearn import components
-from utils import VotingClassifier
+from machine_learn_oxstates.utils import VotingClassifier
 from mlxtend.evaluate import BootstrapOutOfBag
 from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
@@ -44,10 +44,16 @@ STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
 MIN_SAMPLES = 10
 
 classifiers = [
+    (
+        'sgd',
+        partial(
+            components.sgd,
+            loss=hp.pchoice('loss', [(0.5, 'log'), (0.5, 'modified_huber')]),
+        ),
+    ),
     ('knn', components.knn),
     ('gradient_boosting', partial(components.gradient_boosting, loss='deviance')),
     ('extra_trees', components.extra_trees),
-    # ('svc', components.svc),
 ]
 
 trainlogger = logging.getLogger('trainer')
@@ -73,7 +79,7 @@ class MLOxidationStates:
             scaler: str = 'standard',
             metricspath: str = 'metrics',
             modelpath: str = 'models',
-            max_evals: int = 150,
+            max_evals: int = 300,
             voting: str = 'hard',
             calibrate: str = 'sigmoid',
             timeout: int = 600,
@@ -111,6 +117,9 @@ class MLOxidationStates:
         self.calibrate = calibrate
         self.oversampling = oversampling
         self.train_one_fold = train_one_fold
+        self.classes = [1, 2, 3, 4, 5, 6, 7, 8]
+
+        self.y = self.y.astype(np.int)
 
         trainlogger.info('intialized training class')
 
@@ -190,6 +199,7 @@ class MLOxidationStates:
         # calibrate the base esimators
         vc = VotingClassifier(models_sklearn, voting=voting)
         trainlogger.debug('now, calibrating the base base estimators')
+
         vc._calibrate_base_estimators(calibrate, X_valid, y_valid)  # pylint:disable=protected-access
 
         endtime = time.process_time()
@@ -223,7 +233,6 @@ class MLOxidationStates:
             timeout {int} -- timeout in seconds after which the optimization stops
             mix_ratios {dict} -- dictionary which provides the ratios of the  different optimization algorithms
             valid_size {float} -- fraction of the last part of the training set used for validation
-
         Returns:
             list -- list of tuples (name, model) of optimized models
         """
@@ -258,13 +267,14 @@ class MLOxidationStates:
                   cv_shuffle=False)  # avoid shuffleing to have the same validation set for the ensemble stage
 
             # chose the model with best hyperparameters and train it
-            m = m.best_model()['learner']
 
             n_train = int(len(y) * (1 - valid_size))
             X_train = X[:n_train]
             y_train = y[:n_train]
 
-            m.fit(X_train, y_train)
+            m.retrain_best_model_on_full_data(X_train, y_train)
+
+            m = m.best_model()['learner']
 
             optimized_models.append((name, m))
 
@@ -500,6 +510,7 @@ class MLOxidationStates:
             calibrate=self.calibrate,
             valid_size=valid_size,
         )
+
         ensemble_predictions = MLOxidationStates.model_eval(
             [('ensemble', ensemble_model)],
             xtrain,
