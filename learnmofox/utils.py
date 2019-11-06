@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 import os
 import numpy as np
+import pickle
 from sklearn.ensemble.voting import _parallel_fit_estimator
 from sklearn.dummy import DummyClassifier
 from scipy.stats import zscore
@@ -29,6 +30,12 @@ export COMET_API_KEY='Nqp9NvaVztUCG2exYT9vV2Dl0'
 
 {command}
 """
+
+
+def read_pickle(f: str):
+    with open(f, 'rb') as fh:
+        res = pickle.load(fh)
+    return res
 
 
 def training_calibrate(  # pylint:disable=too-many-arguments
@@ -122,7 +129,7 @@ class VotingClassifier:
         self.lb = LabelBinarizer()
         self.lb.fit(self.classes)
 
-    def fit(self, X, y, sample_weight=None):
+    def fit(self, X, y, sample_weight=None):  # pylint:disable=unused-argument
         self._fit(X, y, sample_weight=None)
         return self
 
@@ -218,7 +225,8 @@ class VotingClassifier:
 
     def _collect_probas(self, X):
         """Collect results from clf.predict calls. """
-        assert self.calibrated
+        if not self.calibrated:
+            warnings.warn('Using uncalibrated classififier')
         return np.asarray([clf.predict_proba(X) for clf in self.estimators])
 
     def _check_is_fitted(self):
@@ -273,6 +281,7 @@ class VotingClassifier:
 
     def _predict(self, X):
         """Collect results from clf.predict calls. """
-        assert self.calibrated
+        if not self.calibrated:
+            warnings.warn('Using uncalibrated classififier')
         return np.asarray([np.argmax(clf.predict_proba(X), axis=1) for clf in self.estimators
                           ]).T  # workaround since _Classifier has no predictt method

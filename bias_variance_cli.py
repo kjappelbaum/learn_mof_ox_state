@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+from __future__ import print_function
 import os
 import sys
 
 from glob import glob
 import numpy as np
+from pathlib import Path
 from functools import partial
 import click
 import joblib
@@ -22,7 +24,9 @@ CLI to get the bias-variance tradeoff for ensemble model and the base estimators
 
 
 def bv_decomp_wrapper(model, xtrain, ytrain, xtest, ytest):
-    name, modelobject = model
+    name = Path(model[0]).stem
+    modelobject = model[1]
+    print(('working on model {}'.format(name)))
 
     avg_expected_loss, avg_bias, avg_var = bias_variance_decomp(modelobject,
                                                                 xtrain,
@@ -30,7 +34,7 @@ def bv_decomp_wrapper(model, xtrain, ytrain, xtest, ytest):
                                                                 xtest,
                                                                 ytest,
                                                                 loss='0-1_loss',
-                                                                random_seed='821996')
+                                                                random_seed=821996)
 
     result_dict = {
         'name': name,
@@ -57,25 +61,29 @@ def main(modelpath, xtrainpath, ytrainpath, xtestpath, ytestpath, outdir):  # py
 
     make_if_not_exist(outdir)
 
-    X_train = scaler.transfrom(np.load(xtrainpath))
-    X_test = scaler.transfrom(np.load(xtestpath))
+    print('loading data')
+    X_train = scaler.transform(np.load(xtrainpath))
+    X_test = scaler.transform(np.load(xtestpath))
 
-    y_train = np.load(ytrainpath)
-    y_test = np.load(ytestpath)
+    y_train = np.load(ytrainpath).astype(np.int)
+    y_test = np.load(ytestpath).astype(np.int)
 
     models = glob(os.path.join(modelpath, '*.joblib'))
 
+    print('now starting dask and running the actual computation')
     global cluster
     global client
     cluster = LocalCluster(memory_limit='28GB')
     client = Client(cluster)
 
-    relevant_models = [(model, joblib.load(model)) for model in models if not 'scaler' in model]
+    relevant_models = [[model, joblib.load(model)] for model in models if not 'scaler' in model]
 
     bvpartial = partial(bv_decomp_wrapper, xtrain=X_train, ytrain=y_train, xtest=X_test, ytest=y_test)
     futures = client.map(bvpartial, relevant_models)
 
     results = client.gather(futures)
+
+    print('finished crunching, now dumping results')
 
     with open(os.path.join(outdir, 'bv_decomposition.pkl'), 'wb') as fh:
         pickle.dump(results, fh)

@@ -2,11 +2,16 @@
 # pylint:disable=too-many-nested-blocks
 from __future__ import absolute_import
 import os
+import sys
 from pathlib import Path
 from glob import glob
 import subprocess
 import click
 from learnmofox.utils import SUBMISSION_TEMPLATE, _make_if_not_exists
+
+from learnmofox import utils
+
+sys.modules['utils'] = utils
 
 to_analyze = [
     # "metal_center_feat",
