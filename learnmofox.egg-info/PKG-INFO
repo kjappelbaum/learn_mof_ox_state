@@ -38,6 +38,6 @@ Classifier: Programming Language :: Python :: 3.6
 Classifier: Programming Language :: Python :: 3.7
 Requires-Python: >=3.6.0
 Description-Content-Type: text/markdown
+Provides-Extra: testing
 Provides-Extra: linting
 Provides-Extra: documentation
-Provides-Extra: testing

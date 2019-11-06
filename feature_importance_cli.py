@@ -14,8 +14,8 @@ from functools import partial
 from sklearn.preprocessing import StandardScaler
 from mlxtend.evaluate import feature_importance_permutation
 import shap
-from learnmofox import utils, summarize_data
-from learnmofox.utils import read_pickle, make_if_not_exist
+from learnmofox.utils import read_pickle, make_if_not_exist, summarize_data
+from learnmofox import utils
 
 sys.modules['utils'] = utils
 

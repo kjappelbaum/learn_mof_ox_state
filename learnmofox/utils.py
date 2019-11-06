@@ -32,12 +32,6 @@ export COMET_API_KEY='Nqp9NvaVztUCG2exYT9vV2Dl0'
 """
 
 
-def read_pickle(f: str):
-    with open(f, 'rb') as fh:
-        res = pickle.load(fh)
-    return res
-
-
 def training_calibrate(  # pylint:disable=too-many-arguments
         modelpath,
         featurepath,
@@ -80,6 +74,12 @@ def summarize_data(x, y, points):
 def make_if_not_exist(filepath):
     if not os.path.exists(filepath):
         os.mkdir(filepath)
+
+
+def read_pickle(f: str):
+    with open(f, 'rb') as fh:
+        res = pickle.load(fh)
+    return res
 
 
 def setup_dummy(trainxpath, trainypath):
