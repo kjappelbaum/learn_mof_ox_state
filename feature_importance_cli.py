@@ -86,7 +86,7 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
     if not use_shap:
         print('starting permutation feature importance')
         # We do permutation feature importance for rounds rounds, using balanced accuracy as metric
-        with concurrent.futures.ProcessPoolExector(max_workers=2) as executor:
+        with concurrent.futures.ProcessPoolExecutor(max_workers=2) as executor:
             results = []
             for result in executor.map(permuation_importance_partial, sets):
                 results.append(result)

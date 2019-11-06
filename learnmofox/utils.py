@@ -76,12 +76,6 @@ def make_if_not_exist(filepath):
         os.mkdir(filepath)
 
 
-def read_pickle(f: str):
-    with open(f, 'rb') as fh:
-        res = pickle.load(fh)
-    return res
-
-
 def setup_dummy(trainxpath, trainypath):
     X = np.load(trainxpath)
     y = np.load(trainypath)
@@ -107,6 +101,12 @@ def load_data(  # pylint:disable=too-many-arguments
     holdouty = np.load(holdoutypath)
 
     return trainx, trainy, validx, validy, holdoutx, holdouty
+
+
+def read_pickle(f: str):
+    with open(f, 'rb') as fh:
+        res = pickle.load(fh)
+    return res
 
 
 class VotingClassifier:

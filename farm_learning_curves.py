@@ -7,7 +7,7 @@ from pathlib import Path
 from glob import glob
 import subprocess
 import click
-from learnmofox.utils import SUBMISSION_TEMPLATE, _make_if_not_exists
+from learnmofox.utils import SUBMISSION_TEMPLATE, make_if_not_exists
 
 from learnmofox import utils
 
@@ -72,7 +72,7 @@ def underscore_join(l):
 @click.command('cli')
 @click.option('--submit', is_flag=True)
 def main(submit):
-    _make_if_not_exists('learning_curves')
+    make_if_not_exists('learning_curves')
     for estimator in to_analyze:
         modelpath = underscore_join(['model', estimator])
         if check_if_model_exists(modelpath):
@@ -80,10 +80,10 @@ def main(submit):
                 if 'ensemble' in model:
                     p = Path(model)
                     modelbasename = os.path.join('learning_curves', underscore_join([estimator, p.stem]))
-                    _make_if_not_exists(modelbasename)
+                    make_if_not_exists(modelbasename)
                     for point in POINTS:
                         modelpointname = os.path.join(modelbasename, str(point))
-                        _make_if_not_exists(modelpointname)
+                        make_if_not_exists(modelpointname)
                         command = write_run_command(
                             model,
                             underscore_join(['data', estimator]),
