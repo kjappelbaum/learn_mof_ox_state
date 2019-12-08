@@ -3,7 +3,9 @@
 Tools to train and test a voting classifier that predicts oxidation states (of MOFs).
 
 > ⚠️ **Warning**: You need to export `COMET_API_KEY`, as the code will look for it if you want to track your experiments. If you do not want to do this, remove those lines in the code.
+
 > ⚠️ **Warning**: Some parts of the code requires some modifications in the packages, for which I did not make PRs so far, you need to use my forks. You need `pip>=18.1` for this to be set up automatically
+
 > ⚠️ **Info**: For some parts, there are also `.dvc` files that allow to reproduce the pipeline.
 
 ## Training
