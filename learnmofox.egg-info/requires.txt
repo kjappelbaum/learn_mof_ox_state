@@ -1,5 +1,3 @@
-hpsklearn
-hyperopt
 sklearn
 imblearn
 ml_insights
@@ -8,6 +6,13 @@ pandas
 click
 comet
 dvc
+numpy
+tqdm
+dask
+shap
+scipy
+hyperopt==0.2.2
+hpsklearn==0.0.3
 
 [documentation]
 sphinx

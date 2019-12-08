@@ -1,22 +1,25 @@
 # learn_mof_ox_state
 
- > ⚠️ **Warning**:  You need to export `COMET_API_KEY` as the code will look for it
+Tools to train and test a voting classifier that predicts oxidation states (of MOFs).
 
+> ⚠️ **Warning**: You need to export `COMET_API_KEY`, as the code will look for it if you want to track your experiments. If you do not want to do this, remove those lines in the code.
+> ⚠️ **Warning**: Some parts of the code requires some modifications in the packages, for which I did not make PRs so far, you need to use my forks. You need `pip>=18.1` for this to be set up automatically
+> ⚠️ **Info**: For some parts, there are also `.dvc` files that allow to reproduce the pipeline.
 
 ## Training
 
-* run every step of the pipeline from collection of the features to the analysis using DVC
-
-* run 10-fold stratified cross-validation
-
-
-## Feature selection
-
-* Drop maybe one class of feature vectors
-
+- `train_calibrate_voting_classifier_no_track.py`: to run the training without comet.ml
+- `train_calibrate_voting_classifier.py`: train a voting classifier (with optimized hyperparameters and track the experiments with comet.ml)
+- `train_ensemble_classifier.py`: run the hyperparameter optimization for the ensemble of models
+- `utils.py`: contains the custom voting classifier class and some utils
 
 ## Analysis
 
-* Run test with bootstrapped metrics on the special test sets
-
-* Run [randomization test](https://scikit-learn.org/stable/auto_examples/feature_selection/plot_permutation_test_for_classification.html#sphx-glr-auto-examples-feature-selection-plot-permutation-test-for-classification-py), cf. sOjala, M.; Garriga, G. C. Permutation Tests for Studying Classifier Performance. In 2009 Ninth IEEE International Conference on Data Mining; IEEE: Miami Beach, FL, USA, 2009; pp 908–913. https://doi.org/10.1109/ICDM.2009.108.
+- `feature_importance_cli.py`: command-line-tools to calculate feature importance with permutation or SHAP
+- `farm_learning_curves.py`: command-line-tool to run learning curves
+- `bias_variance_cli.py`: run a bias-variance decomposition analysis with mlxtend
+- `permutation_significance.py`: tool to run a permutation significance test (permute label and measure metrics to see if the model learned something meaningful)
+- `run_combinatorial_study.py`: train models on different feature subsets
+- `metrics.py` contains helper functions to calculate metrics
+- `bootstrapped_metrics.py`: functions to calculate a bootstrapped learning curve point
+- `test_model.py`: command-line-tool to run some basic tests

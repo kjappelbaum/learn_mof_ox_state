@@ -93,13 +93,14 @@ def main(  # pylint:disable=too-many-arguments, too-many-locals
 
         make_if_not_exist(outpath)
         with open(os.path.join(outpath, 'permutation_feature_importance.pkl'), 'wb') as fh:
-            pickle.dump(fh, results)
+            pickle.dump(results, fh)
 
     else:
         print('starting SHAP feature importance')
         make_if_not_exist(outpath)
         explainer = shap.KernelExplainer(
-            model, X_train)  # note that we use the training set as the background dataset to integrate out features
+            model.predict,
+            X_train)  # note that we use the training set as the background dataset to integrate out features
         shap_values = explainer.shap_values(X_test)
         shap_values_df = pd.DataFrame()
         shap_values_df['feature'] = feature_names

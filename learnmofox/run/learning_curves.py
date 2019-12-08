@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import click
 
-from comet_ml import Experiment
+from comet_ml import Experiment  # pylint:disable=unused-import
 from sklearn.preprocessing import StandardScaler
 from dask.distributed import Client, LocalCluster
 from functools import partial
@@ -130,7 +130,7 @@ def orchestrate_training_point(  # pylint:disable=too-many-arguments
     return [train_metrics, holdout_metrics]
 
 
-def learning_curve(  # pylint:disable=dangerous-default-value
+def learning_curve(  # pylint:disable=dangerous-default-value, too-many-arguments, too-many-locals
         modelpath,
         trainxpath,
         trainypath,

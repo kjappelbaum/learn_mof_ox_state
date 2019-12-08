@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+from __future__ import print_function
 import concurrent.futures
 import numpy as np
 from functools import partial
@@ -15,6 +16,7 @@ from sklearn.metrics import (
 )
 from tqdm import tqdm
 from six.moves import range
+import time
 
 
 def _bootstrap_metric_fold(_, model, X, y, scoring_funcs, sample_idx, rng):  # pylint:disable=too-many-arguments
@@ -109,15 +111,17 @@ def get_metrics_dict(true, predicted, dummy=False):
     }
 
 
-def _permutation_score_base(_, model, X, y, cv, metric_func, shuffle=True):
+def _permutation_score_base(_, model, X, y, cv, metric_func, shuffle=True):  # pylint:disable=too-many-arguments, too-many-locals
     model_ = model
     avg_score = []
     if shuffle:  # shuffle modifies in place!
-        np.random.shuffle(X)
+        # np.random.shuffle(X)
         np.random.shuffle(y)
 
+    print('entering CV loop')
+    count = 0
     for train, test in cv.split(X, y):
-
+        print(('CV iteration {}'.format(count)))
         X_train = X[train]
         X_test = X[test]
         scaler = StandardScaler()
@@ -130,22 +134,27 @@ def _permutation_score_base(_, model, X, y, cv, metric_func, shuffle=True):
         model_.fit(X_train, y_train)
         model_._calibrate_base_estimators('isotonic', X_valid, y_valid)  # pylint:disable=protected-access
         avg_score.append(metric_func(y_test, model_.predict(X_test)))
+        count += 1
 
+        print((np.mean(np.array(avg_score))))
     return np.mean(np.array(avg_score))
 
 
-def permutation_test(model, X, y, rounds=30, metric_func=balanced_accuracy_score, max_workers=6):
-    cv = StratifiedKFold(5)
+def permutation_test(model, X, y, rounds=30, metric_func=balanced_accuracy_score, max_workers=12):  # pylint:disable=too-many-arguments,unused-argument
+    cv = StratifiedKFold(10)
     permuted_scores = []
     model_ = model
     score = _permutation_score_base(None, model, X, y, cv, metric_func, shuffle=False)
     base_permutation_score = partial(_permutation_score_base, model=model_, X=X, y=y, cv=cv, metric_func=metric_func)
 
+    print('*** Now starting the shuffling ***')
     rounds = list(range(rounds))
-    with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
         for metric in tqdm(executor.map(base_permutation_score, list(rounds)), total=len(rounds)):
+            print(metric)
+            np.save('permuted_metric_{}'.format(time.strftime('%Y%m%d-%H%M%S')), metric)
             permuted_scores.append(metric)
 
     permuted_scores = np.array(permuted_scores)
-    p_value = (np.sum(permuted_scores >= score) + 1.0) / (rounds + 1)
+    p_value = (np.sum(permuted_scores >= score) + 1.0) / (len(rounds) + 1)
     return score, permuted_scores, p_value

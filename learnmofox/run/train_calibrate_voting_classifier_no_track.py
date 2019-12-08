@@ -90,7 +90,7 @@ class TrainVotingClassifier:
         validydata = np.load(validy)
 
         print(
-            f'the class labels in the validation data are {np.unique(validy)}, the ones in the training set are {np.unique(y)}'
+            f'the class labels in the validation data are {np.unique(validydata)}, the ones in the training set are {np.unique(y)}'
         )
         return cls(model, X, y, calibration, voting, outdir, scaler, validXdata, validydata)
 
@@ -100,8 +100,8 @@ class TrainVotingClassifier:
 
         startime = time.process_time()
         self.votingclassifier._fit(self.X, self.y)  # pylint:disable=protected-access
-        # use validation set to do probability calibration
 
+        # use validation set to do probability calibration
         print(f'sent {np.unique(self.validy)} to calibration')
         self.votingclassifier._calibrate_base_estimators(  # pylint:disable=protected-access
             self.calibration, self.validX, self.validy)

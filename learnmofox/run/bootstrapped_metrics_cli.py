@@ -9,15 +9,12 @@ import numpy as np
 import os
 import pandas as pd
 import click
-from learnmofox.utils import (
-    training_calibrate,
-    make_if_not_exist,
-    summarize_data,
-)
+from learnmofox.utils import training_calibrate, make_if_not_exist, summarize_data
 from learnmofox.metrics import bootstrapped_metrics, return_scoring_funcs
 
 
-def setup_learning_curve_point(trainxpath, trainypath, points, basepath):
+def setup_learning_curve_point(  # pylint:disable=too-many-arguments, too-many-locals
+        trainxpath, trainypath, validxpath, validypath, points, basepath):
     # Set up directories
     learning_curve_point_dir = os.path.join(basepath, '_'.join(['model', str(int(points))]))
     make_if_not_exist(learning_curve_point_dir)
@@ -32,10 +29,17 @@ def setup_learning_curve_point(trainxpath, trainypath, points, basepath):
     x = np.load(trainxpath)
     y = np.load(trainypath)
 
+    xvalid = np.load(validxpath)
+    yvalid = np.load(validypath)
+
     xsummarized, ysummarized = summarize_data(x, y, points)
+    xsummarized_valid, ysummarized_valid = summarize_data(xvalid, yvalid, points)
 
     np.save(os.path.join(datadir, 'features'), xsummarized)
     np.save(os.path.join(datadir, 'labels'), ysummarized)
+
+    np.save(os.path.join(datadir, 'features_valid'), xsummarized_valid)
+    np.save(os.path.join(datadir, 'labels_valid'), ysummarized_valid)
 
     return datadir, modeldir
 
@@ -54,25 +58,25 @@ def test_model(  # pylint:disable=too-many-arguments
 ):  # pylint:disable=too-many-locals
 
     print('Subsampling')
-    datadir, modeldir = setup_learning_curve_point(xtrainpath, ytrainpath, numpoints, outpath)
+    datadir, modeldir = setup_learning_curve_point(xtrainpath, ytrainpath, xvalidpath, yvalidpath, numpoints, outpath)
 
     print('Training on smaller training set')
     model, scaler = training_calibrate(
         modelpath,
-        xtrainpath,
-        ytrainpath,
-        xvalidpath,
-        yvalidpath,
+        os.path.join(datadir, 'features.npy'),
+        os.path.join(datadir, 'labels.npy'),
+        os.path.join(datadir, 'features_valid.npy'),
+        os.path.join(datadir, 'labels_valid.npy'),
         modeldir,
         scaler='standard',
         voting='soft',
         calibration='isotonic',
     )
 
-    # On the small training set
     print('Getting bootstrap metric on the training set')
     X = scaler.transform(np.load(os.path.join(datadir, 'features.npy')))
     y = np.load(os.path.join(datadir, 'labels.npy'))
+
     scores = bootstrapped_metrics(model, X, y, scoring_funcs=return_scoring_funcs())
     df_metrics = pd.DataFrame(scores)
     df_metrics.to_csv(os.path.join(outpath, 'bootstrapped_metrics_train.csv'), index=False)
@@ -88,8 +92,8 @@ def test_model(  # pylint:disable=too-many-arguments
 
 @click.command('cli')
 @click.argument('modelpath')
-@click.argument('xpath')
-@click.argument('ypath')
+@click.argument('xtrainpath')
+@click.argument('ytrainpath')
 @click.argument('xvalidpath')
 @click.argument('yvalidpath')
 @click.argument('xtestpath')

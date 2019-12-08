@@ -25,7 +25,7 @@ class NpEncoder(json.JSONEncoder):
     """https://stackoverflow.com/questions/50916422/python-typeerror-object-of-type-int64-is-not-json-serializable/50916741"""
 
     def default(self, obj):  # pylint:disable=arguments-differ, method-hidden
-        if isinstance(obj, np.integer):
+        if isinstance(obj, np.integer):  # pylint:disable=no-else-return
             return int(obj)
         elif isinstance(obj, np.floating):
             return float(obj)

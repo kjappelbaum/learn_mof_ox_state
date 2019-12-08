@@ -79,7 +79,7 @@ class MLOxidationStates:
             scaler: str = 'standard',
             metricspath: str = 'metrics',
             modelpath: str = 'models',
-            max_evals: int = 300,
+            max_evals: int = 500,
             voting: str = 'hard',
             calibrate: str = 'sigmoid',
             timeout: int = 600,
@@ -212,7 +212,7 @@ class MLOxidationStates:
             models: list,
             X: np.ndarray,
             y: np.ndarray,
-            max_evals: int = 50,
+            max_evals: int = 400,
             timeout: int = 10 * 60,
             mix_ratios: dict = {
                 'rand': 0.1,
@@ -258,9 +258,10 @@ class MLOxidationStates:
                 classifier=classifier('classifier'),
                 algo=mix_algo,
                 trial_timeout=timeout,
+                preprocessing=[],
                 max_evals=max_evals,
                 seed=RANDOM_SEED,
-                n_jobs=-1,
+                # n_jobs=-1, # todo fix installation to use my forks
             )
 
             m.fit(X, y, valid_size=valid_size,
@@ -458,7 +459,10 @@ class MLOxidationStates:
 
         # save the latest scaler so we can use it later with latest model for
         # evaluation on a holdout set
-        dump(scaler, os.path.join(self.modelpath, 'scaler_' + counter + '.joblib'))
+        dump(
+            scaler,
+            os.path.join(self.modelpath, STARTTIMESTRING + 'scaler_' + counter + '.joblib'),
+        )
         xtest = self.x[test]
         xtest = scaler.transform(xtest)
 

@@ -28,13 +28,16 @@ def bv_decomp_wrapper(model, xtrain, ytrain, xtest, ytest):
     modelobject = model[1]
     print(('working on model {}'.format(name)))
 
-    avg_expected_loss, avg_bias, avg_var = bias_variance_decomp(modelobject,
-                                                                xtrain,
-                                                                ytrain,
-                                                                xtest,
-                                                                ytest,
-                                                                loss='0-1_loss',
-                                                                random_seed=821996)
+    avg_expected_loss, avg_bias, avg_var = bias_variance_decomp(
+        modelobject,
+        xtrain,
+        ytrain,
+        xtest,
+        ytest,
+        loss='0-1_loss',
+        random_seed=821996,
+        num_rounds=100,
+    )
 
     result_dict = {
         'name': name,
@@ -73,7 +76,7 @@ def main(modelpath, xtrainpath, ytrainpath, xtestpath, ytestpath, outdir):  # py
     print('now starting dask and running the actual computation')
     global cluster
     global client
-    cluster = LocalCluster(memory_limit='28GB')
+    cluster = LocalCluster(memory_limit='28GB', n_workers=4)
     client = Client(cluster)
 
     relevant_models = [[model, joblib.load(model)] for model in models if not 'scaler' in model]

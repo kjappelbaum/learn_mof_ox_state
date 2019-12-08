@@ -7,7 +7,7 @@ from pathlib import Path
 from glob import glob
 import subprocess
 import click
-from learnmofox.utils import SUBMISSION_TEMPLATE, make_if_not_exists
+from learnmofox.utils import SUBMISSION_TEMPLATE, make_if_not_exist
 
 from learnmofox import utils
 
@@ -20,7 +20,7 @@ to_analyze = [
     # "metal_center_chemistry_feat",
     # "metal_center_geometry_feat",
     # "chemistry_geometry_feat",
-    'metal_center_chemistry_geometry_feat',
+    #"metal_center_chemistry_geometry_feat",
     # "random_feat",
     # "racs",
     # "racs_metal_center",
@@ -28,7 +28,7 @@ to_analyze = [
     # "racs_chemistry",
     # "racs_chemistry_metal_center",
     # "racs_chemistry_metal_center_geometry",
-    # "chemistry_metal_center_geometry_tight",
+    'chemistry_metal_center_geometry_tight',
 ]
 
 POINTS = [47000, 30000, 20000, 10000, 5000, 1000, 500, 200, 100]
@@ -36,7 +36,7 @@ POINTS = [47000, 30000, 20000, 10000, 5000, 1000, 500, 200, 100]
 
 def check_if_model_exists(modelpath):
     models = glob(os.path.join(modelpath, '*.joblib'))
-    if len(models) == 6:
+    if len(models) >= 6:
         return True
 
     return False
@@ -72,7 +72,7 @@ def underscore_join(l):
 @click.command('cli')
 @click.option('--submit', is_flag=True)
 def main(submit):
-    make_if_not_exists('learning_curves')
+    make_if_not_exist('learning_curves')
     for estimator in to_analyze:
         modelpath = underscore_join(['model', estimator])
         if check_if_model_exists(modelpath):
@@ -80,15 +80,15 @@ def main(submit):
                 if 'ensemble' in model:
                     p = Path(model)
                     modelbasename = os.path.join('learning_curves', underscore_join([estimator, p.stem]))
-                    make_if_not_exists(modelbasename)
+                    make_if_not_exist(modelbasename)
                     for point in POINTS:
                         modelpointname = os.path.join(modelbasename, str(point))
-                        make_if_not_exists(modelpointname)
+                        make_if_not_exist(modelpointname)
                         command = write_run_command(
                             model,
                             underscore_join(['data', estimator]),
-                            os.path.join(underscore_join(['holdout', estimator]), 'valid'),
-                            underscore_join(['holdout', estimator]),
+                            os.path.join(underscore_join(['houldout', estimator]), 'valid'),
+                            underscore_join(['houldout', estimator]),
                             modelpointname,
                             point,
                         )
