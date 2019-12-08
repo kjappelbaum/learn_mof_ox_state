@@ -2,6 +2,7 @@
 
 [![Actions Status](https://github.com/kjappelbaum/learn_mof_ox_state/workflows/Python%20package/badge.svg)](https://github.com/kjappelbaum/learn_mof_ox_state/actions)
 [![](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/download/releases/3.6.0/)
+[![DOI](https://zenodo.org/badge/208837592.svg)](https://zenodo.org/badge/latestdoi/208837592)
 
 Tools to train and test a voting classifier that predicts oxidation states (of MOFs).
 
