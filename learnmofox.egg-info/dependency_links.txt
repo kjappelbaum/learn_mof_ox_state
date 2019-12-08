@@ -1,2 +1,0 @@
-git+https://github.com/kjappelbaum/hyperopt-sklearn.git@master#egg=hpsklearn==0.0.3
-git+https://github.com/kjappelbaum/hyperopt.git#egg=hyperopt==0.2.2
