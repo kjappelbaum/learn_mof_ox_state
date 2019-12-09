@@ -5,8 +5,34 @@
 from __future__ import absolute_import
 import io
 import os
+import sys
+import subprocess
 
 from setuptools import find_packages, setup
+
+git_rpmfile = ('git+https://github.com/kjappelbaum/hyperopt-sklearn.git, git+#egg=hyperopt==0.2.2')
+
+try:
+    import rpmfile  # pylint:disable=unused-import
+except (ModuleNotFoundError, ImportError):
+    if '--user' in sys.argv:
+        subprocess.run(
+            [
+                sys.executable,
+                '-m',
+                'pip',
+                'install',
+                '--upgrade',
+                '--user',
+                git_rpmfile,
+            ],
+            check=False,
+        )
+    else:
+        subprocess.run(
+            [sys.executable, '-m', 'pip', 'install', '--upgrade', git_rpmfile],
+            check=False,
+        )
 
 # Package meta-data.
 NAME = 'learnmofox'
@@ -32,8 +58,6 @@ REQUIRED = [
     'dask',
     'shap',
     'scipy',
-    'hyperopt==0.2.2',
-    'hpsklearn==0.0.3',
 ]
 
 # What packages are optional?
@@ -68,10 +92,6 @@ setup(
     extras_require=EXTRAS,
     include_package_data=True,
     license='MIT',
-    dependency_links=[
-        'git+https://github.com/kjappelbaum/hyperopt-sklearn.git@master#egg=hpsklearn==0.0.3',
-        'git+https://github.com/kjappelbaum/hyperopt.git#egg=hyperopt==0.2.2'
-    ],
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
