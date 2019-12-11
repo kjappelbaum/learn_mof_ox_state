@@ -135,7 +135,7 @@ class VotingClassifier:
 
     def _fit(self, X, y, sample_weight=None):  # pylint:disable=unused-argument
         """Important for randomization tests, refits each estimator"""
-        print(f'using classes {np.unique(y)}  and {len(y)} points for fit')
+        print('using classes {}  and {} points for fit'.format(np.unique(y), len(y)))
         y = y.astype(np.int)
         # if len(y.shape) == 1:
         #    y = self.lb.transform(y)
