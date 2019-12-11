@@ -46,9 +46,9 @@ class TrainVotingClassifier:
         self.validy = validy
         self.y = self.y.astype(np.int)
         self.validy = self.validy.astype(np.int)
-        print(
-            f'the class labels in the validation data are {np.unique(self.validy)}, the ones in the training set are {np.unique(self.y)}'
-        )
+        # print(
+        #     f'the class labels in the validation data are {np.unique(self.validy)}, the ones in the training set are {np.unique(self.y)}'
+        # )
         assert len(np.unique(self.validy)) <= len(np.unique(self.y))
 
         assert len(self.X) == len(self.y)
@@ -109,9 +109,9 @@ class TrainVotingClassifier:
         validXdata = np.load(validX)
         validydata = np.load(validy)
 
-        print(
-            f'the class labels in the validation data are {np.unique(validy)}, the ones in the training set are {np.unique(y)}'
-        )
+        # print(
+        #     f'the class labels in the validation data are {np.unique(validy)}, the ones in the training set are {np.unique(y)}'
+        # )
         return cls(model, X, y, calibration, voting, outdir, scaler, validXdata, validydata)
 
     def _fit(self):
@@ -122,7 +122,7 @@ class TrainVotingClassifier:
         self.votingclassifier._fit(self.X, self.y)  # pylint:disable=protected-access
         # use validation set to do probability calibration
 
-        print(f'sent {np.unique(self.validy)} to calibration')
+        # print(f'sent {np.unique(self.validy)} to calibration')
         self.votingclassifier._calibrate_base_estimators(  # pylint:disable=protected-access
             self.calibration, self.validX, self.validy)
         endtime = time.process_time()
