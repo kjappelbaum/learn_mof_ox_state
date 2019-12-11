@@ -48,7 +48,7 @@ VERSION = "0.2.0-alpha"
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "sklearn",
+    "scikit-learn==0.21.3",
     "imblearn",
     "ml_insights",
     "mlxtend",
