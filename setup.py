@@ -15,7 +15,7 @@ git_rpmfile = ('git+https://github.com/kjappelbaum/hyperopt-sklearn.git, git+#eg
 try:
     import hyperopt  # pylint:disable=unused-import
     import hpsklearn  # pylint:disable=unused-import
-except (ModuleNotFoundError, ImportError):
+except Exception: # pylint:disable=broad-except
     if '--user' in sys.argv:
         subprocess.run(
             [
