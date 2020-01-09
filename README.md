@@ -4,6 +4,7 @@
 [![](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/download/releases/3.6.0/)
 [![DOI](https://zenodo.org/badge/208837592.svg)](https://zenodo.org/badge/latestdoi/208837592)
 [![Maintainability](https://api.codeclimate.com/v1/badges/2a0c417e69517a2738d2/maintainability)](https://codeclimate.com/github/kjappelbaum/learn_mof_ox_state/maintainability)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Tools to train and test a voting classifier that predicts oxidation states (of MOFs).
 
@@ -13,14 +14,39 @@ Tools to train and test a voting classifier that predicts oxidation states (of M
 
 > ⚠️ **Info**: For some parts, there are also `.dvc` files that allow to reproduce the pipeline.
 
-## Training
+## Installation
+To install the software with all dependencies, you can use
+
+```bash
+pip install git+https://github.com/kjappelbaum/mof_oxidation_states.git
+```
+
+This should, for appropiate versions of pip (`pip>=18.1`), also install [our fork of matminer from the correct branch](https://github.com/kjappelbaum/matminer.git@localpropertystats).
+This automatically installs several command-line tools (CLI) which are detailed below.
+
+The full process should take a some seconds.
+
+
+## Usage
+- The functions in this package requires input that can be generated with our [mine_mof_ox python package]().
+The full datasets which can be used to train a model, as well as a pre-trained model are deposited on the [MaterialsCloud Archive (doi: 10.24435/materialscloud:2019.0085/v1 )](https://doi.org/10.24435/materialscloud:2019.0085/v1). The analysis command line interfaces can be used to reproduce our findings, based on the data deposited in the MaterialsCloud Archive.
+
+- Some of the experiments we ran, togehter with code and datahash can also be found at [comet.ml](https://www.comet.ml/kjappelbaum/mof-oxidation-states/view/)
+
+
+## File contents
+### Training
+
+The training can, depending on the training set size, take hours.
 
 - `train_calibrate_voting_classifier_no_track.py`: to run the training without comet.ml
 - `train_calibrate_voting_classifier.py`: train a voting classifier (with optimized hyperparameters and track the experiments with comet.ml)
 - `train_ensemble_classifier.py`: run the hyperparameter optimization for the ensemble of models
 - `utils.py`: contains the custom voting classifier class and some utils
 
-## Analysis
+### Analysis
+
+The runtime for the tests depends on wheter they require retraining the model (permutation significance), which can take several hours, or whether they only involve evaluating the model for some data points, which will take minutes.
 
 - `feature_importance_cli.py`: command-line-tools to calculate feature importance with permutation or SHAP
 - `farm_learning_curves.py`: command-line-tool to run learning curves
