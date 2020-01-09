@@ -12,9 +12,7 @@ Tools to train and test a voting classifier that predicts oxidation states (of M
 
 > ⚠️ **Warning**: Some parts of the code requires some modifications in the packages, for which I did not make PRs so far, you need to use my forks. You need `pip>=18.1` for this to be set up automatically. More details can be found below.
 
->
-
- **Info**: For some parts, there are also `.dvc` files that allow to reproduce the pipeline.
+**Info**: For some parts, there are also [`.dvc` files](https://dvc.org) that allow to reproduce the pipeline.
 
 ## Installation
 
@@ -24,21 +22,21 @@ To install the software with all dependencies, you can use
 pip install git+https://github.com/kjappelbaum/mof_oxidation_states.git
 ```
 
-This should, for appropiate versions of pip (`pip>=18.1`), also install [our fork of matminer from the correct branch](https://github.com/kjappelbaum/matminer.git@localpropertystats).
+This should, for appropriate versions of pip (`pip>=18.1`), also install [our fork of matminer from the correct branch](https://github.com/kjappelbaum/matminer.git@localpropertystats).
 This automatically installs several command-line tools (CLI) which are detailed below.
 
-The full process should take a some seconds.
+The full process should take some seconds.
 
 ## Usage
 
-- The functions in this package requires input that can be generated with our [mine_mof_ox python package]().
+- The functions in this package requires input (features and labels) that can be generated with our [mine_mof_ox python package]().
   The full datasets which can be used to train a model, as well as a pre-trained model are deposited on the [MaterialsCloud Archive (doi: 10.24435/materialscloud:2019.0085/v1 )](https://doi.org/10.24435/materialscloud:2019.0085/v1). The analysis command line interfaces can be used to reproduce our findings, based on the data deposited in the MaterialsCloud Archive. The training CLI can for example be used as
 
 ```bash
-  python machine_learn_oxstates/learnmofox/train_ensemble_classifier.py {featureoutspath} {labelsoutpath} {modelpath} {metricsoutpath} standard soft isotonic 40000 20 none --train_one_fold
+  python machine_learn_oxstates/learnmofox/train_ensemble_classifier.py {featurespath} {labelspath} {modelpath} {metricsoutpath} standard soft isotonic 40000 20 none --train_one_fold
 ```
 
-- Some of the experiments we ran, togehter with code and datahash can also be found at [comet.ml](https://www.comet.ml/kjappelbaum/mof-oxidation-states/view/)
+- Some of the experiments we ran, together with code and datahash can also be found at [comet.ml](https://www.comet.ml/kjappelbaum/mof-oxidation-states/view/)
 
 - For testing a pre-trained model we recommend using our [webapp](https://dev-tools.materialscloud.org/oximachine/input_structure/), for which the code can be found, along with the Docker images, in another [Github repository](https://github.com/kjappelbaum/oximachinetool).
 
@@ -55,7 +53,7 @@ The training can, depending on the training set size, take hours.
 
 ### Analysis
 
-The runtime for the tests depends on wheter they require retraining the model (permutation significance), which can take several hours, or whether they only involve evaluating the model for some data points, which will take minutes.
+The runtime for the tests depends on whether they require retraining the model (permutation significance), which can take several hours, or whether they only involve evaluating the model for some data points, which will take minutes.
 
 - `feature_importance_cli.py`: command-line-tools to calculate feature importance with permutation or SHAP
 - `farm_learning_curves.py`: command-line-tool to run learning curves
