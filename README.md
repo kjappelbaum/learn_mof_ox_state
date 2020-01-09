@@ -3,12 +3,13 @@
 [![Actions Status](https://github.com/kjappelbaum/learn_mof_ox_state/workflows/Python%20package/badge.svg)](https://github.com/kjappelbaum/learn_mof_ox_state/actions)
 [![](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/download/releases/3.6.0/)
 [![DOI](https://zenodo.org/badge/208837592.svg)](https://zenodo.org/badge/latestdoi/208837592)
+[![Maintainability](https://api.codeclimate.com/v1/badges/2a0c417e69517a2738d2/maintainability)](https://codeclimate.com/github/kjappelbaum/learn_mof_ox_state/maintainability)
 
 Tools to train and test a voting classifier that predicts oxidation states (of MOFs).
 
 > ⚠️ **Warning**: You need to export `COMET_API_KEY`, as the code will look for it if you want to track your experiments. If you do not want to do this, remove those lines in the code.
 
-> ⚠️ **Warning**: Some parts of the code requires some modifications in the packages, for which I did not make PRs so far, you need to use my forks. You need `pip>=18.1` for this to be set up automatically
+> ⚠️ **Warning**: Some parts of the code requires some modifications in the packages, for which I did not make PRs so far, you need to use my forks. You need `pip>=18.1` for this to be set up automatically. More details can be found below.
 
 > ⚠️ **Info**: For some parts, there are also `.dvc` files that allow to reproduce the pipeline.
 
