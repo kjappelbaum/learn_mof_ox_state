@@ -36,7 +36,7 @@ The full process should take some seconds.
   python machine_learn_oxstates/learnmofox/train_ensemble_classifier.py {featurespath} {labelspath} {modelpath} {metricsoutpath} standard soft isotonic 40000 20 none --train_one_fold
 ```
 
-- Some of the experiments we ran, together with code and datahash can also be found at [comet.ml](https://www.comet.ml/kjappelbaum/mof-oxidation-states/view/)
+- Some of the experiments we ran, together with code and datahash, can also be found at [comet.ml](https://www.comet.ml/kjappelbaum/mof-oxidation-states/view/)
 
 - For testing a pre-trained model we recommend using our [webapp](https://dev-tools.materialscloud.org/oximachine/input_structure/), for which the code can be found, along with the Docker images, in another [Github repository](https://github.com/kjappelbaum/oximachinetool).
 
