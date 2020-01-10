@@ -19,7 +19,7 @@ Tools to train and test a voting classifier that predicts oxidation states (of M
 To install the software with all dependencies, you can use
 
 ```bash
-pip install git+https://github.com/kjappelbaum/mof_oxidation_states.git
+pip install git+https://github.com/kjappelbaum/learn_mof_ox_state.git
 ```
 
 This should, for appropriate versions of pip (`pip>=18.1`), also install [our fork of matminer from the correct branch](https://github.com/kjappelbaum/matminer.git@localpropertystats).
