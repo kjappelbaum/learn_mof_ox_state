@@ -63,3 +63,8 @@ The runtime for the tests depends on whether they require retraining the model (
 - `metrics.py` contains helper functions to calculate metrics
 - `bootstrapped_metrics.py`: functions to calculate a bootstrapped learning curve point
 - `test_model.py`: command-line-tool to run some basic tests
+
+## Example usage
+
+The use of the main functions of this package is shown in the Jupyter Notebook in the example directory.
+It contains some example structures and the output, which should be produces in seconds.
