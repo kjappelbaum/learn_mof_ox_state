@@ -29,7 +29,7 @@ The full process should take some seconds.
 
 ## Usage
 
-- The functions in this package requires input (features and labels) that can be generated with our [mine_mof_ox python package]().
+- The functions in this package requires input (features and labels) that can be generated with our [mine_mof_ox python package](https://github.com/kjappelbaum/mof_oxidation_states).
   The full datasets which can be used to train a model, as well as a pre-trained model are deposited on the [MaterialsCloud Archive (doi: 10.24435/materialscloud:2019.0085/v1 )](https://doi.org/10.24435/materialscloud:2019.0085/v1). The analysis command line interfaces can be used to reproduce our findings, based on the data deposited in the MaterialsCloud Archive. The training CLI can for example be used as
 
 ```bash
