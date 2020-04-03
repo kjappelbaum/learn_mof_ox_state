@@ -79,12 +79,12 @@ class MLOxidationStates:
             scaler: str = 'standard',
             metricspath: str = 'metrics',
             modelpath: str = 'models',
-            max_evals: int = 500,
+            max_evals: int = 300,
             voting: str = 'hard',
             calibrate: str = 'sigmoid',
             timeout: int = 600,
             oversampling: str = 'smote',
-            max_workers: int = 5,
+            max_workers: int = 16,
             train_one_fold: bool = False,
     ):  # pylint:disable=too-many-arguments
 
