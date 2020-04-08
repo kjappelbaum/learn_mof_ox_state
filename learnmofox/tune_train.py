@@ -311,13 +311,13 @@ class MLOxidationStates:
             outname_base_models = os.path.join(outdir_models, '_'.join([STARTTIMESTRING, postfix]))
 
             predict = model.predict(x)
-            accuracy_train = accuracy_score(y, predict)
+            accuracy = accuracy_score(y, predict)
 
             f1_micro = f1_score(y, predict, average='micro')
 
             f1_macro = f1_score(y, predict, average='macro')
 
-            balanced_accuracy= balanced_accuracy_score(train_true, train_predict)
+            balanced_accuracy= balanced_accuracy_score(y, train_predict)
 
             precision = precision_score(y, predict, average='micro')
 
@@ -331,7 +331,7 @@ class MLOxidationStates:
                 'accuracy' + postfix: accuracy,
                 'f1_micro' + postfix: f1_micro,
                 'f1_macro' + postfix: f1_macro,
-                'balanced_accuracy' + posfix: balanced_accuracy,
+                'balanced_accuracy' + postfix: balanced_accuracy,
                 'precision' + postfix: precision,
                 'recall' + postfix: recall,
                 'points' + postfix: len(y),
@@ -422,8 +422,8 @@ def train_model(
     joblib.dump(ml_object.scaler, os.path.join(modelpath, 'scaler.joblib'))
     experiment.log_asset(os.path.join(modelpath, 'scaler.joblib'))
     scores_test = ml_object.model_eval(models, X_test, y_test, experiment, 'test', modelpath)
-    scores_train = ml_object.model_eval(models, X_train, y_test, experiment, 'train', modelpath)
-    scores_valid = ml_object.model_eval(models, X_valid, y_valid, experiment, 'valid', modelpath)
+    scores_train = ml_object.model_eval(models, ml_object.x, ml_object.y, experiment, 'train', modelpath)
+    scores_valid = ml_object.model_eval(models, ml_object.x_valid,  ml_object.y_valid, experiment, 'valid', modelpath)
 
 
     votingclassifier = ml_object.calibrate_ensemble(
@@ -437,8 +437,8 @@ def train_model(
     votingclassifier_tuple = [('votingclassifier', votingclassifier)]
 
     cores_test = ml_object.model_eval(votingclassifier_tuple, X_test, y_test, experiment, 'test', modelpath)
-    scores_train = ml_object.model_eval(votingclassifier_tuple, X_train, y_test, experiment, 'train', modelpath)
-    scores_valid = ml_object.model_eval(votingclassifier_tuple, X_valid, y_valid, experiment, 'valid', modelpath)
+    scores_train = ml_object.model_eval(votingclassifier_tuple, ml_object.x, ml_object.y, experiment, 'train', modelpath)
+    scores_valid = ml_object.model_eval(votingclassifier_tuple, ml_object.x_valid, ml_object.y_valid, experiment, 'valid', modelpath)
 
     
 
