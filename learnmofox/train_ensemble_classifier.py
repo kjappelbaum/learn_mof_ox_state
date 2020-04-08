@@ -55,7 +55,7 @@ classifiers = [
     ('gradient_boosting', partial(components.gradient_boosting, loss='deviance')),
     ('extra_trees', components.extra_trees),
     ('svr', components.svc_rbf),
-    ('rf', components.random_forest),
+    ('nb', components.gaussian_nb),
 ]
 
 trainlogger = logging.getLogger('trainer')
