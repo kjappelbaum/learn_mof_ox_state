@@ -40,9 +40,9 @@ import concurrent.futures
 import click
 
 
-def roclossfn(y_true, y_probabilities):
-    lossroc=1-roc_auc_score(y_true, y_probabilities)
-    return lossroc
+def f1lossfn(y_true, y_probabilities):
+    f1lossfn=1-f1_score(y_true, y_probabilities, average='macro')
+    return f1lossfn
 
 
 RANDOM_SEED = 821996
@@ -68,7 +68,7 @@ classifiers = [
 trainlogger = logging.getLogger('trainer')
 trainlogger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s | %(filename)s: %(message)s')
-filehandler = logging.FileHandler(os.path.join('logs', STARTTIMESTRING + '_train.log'))
+filehandler = logging.FileHandler(os.path.join(STARTTIMESTRING + '_train.log'))
 filehandler.setFormatter(formatter)
 trainlogger.addHandler(filehandler)
 
@@ -121,6 +121,23 @@ class MLOxidationStates:
         self.x = self.scaler.fit_transform(self.x)
         self.x_valid = self.scaler.transform(self.x_valid)
 
+        classcounter = dict(Counter(self.y))
+        trainlogger.info('the classdistribution is %s', classcounter)
+        classes_to_keep = []
+        for oxidationstate, count in classcounter.items():
+            if count > MIN_SAMPLES:
+                classes_to_keep.append(oxidationstate)
+            else:
+                trainlogger.warning(
+                    'will drop class %s since it has not enough examples',
+                    oxidationstate,
+                )
+
+        selected_idx = np.where(np.isin(self.y, classes_to_keep))[0]
+        self.x = self.x[selected_idx]
+        self.y = self.y[selected_idx]
+
+        
         self.max_evals = max_evals
         self.voting = voting
         self.timeout = timeout
@@ -224,12 +241,12 @@ class MLOxidationStates:
                     trial_timeout=timeout,
                     preprocessing=[],
                     max_evals=max_evals,
-                    loss_fn = roc_auc_score, # AUC loss is probably more meaningfull than accuracy 
-                    continuous_loss_fn = True, # this is important when we want to use the roc_auc loss
+                    loss_fn = f1lossfn, # AUC loss is probably more meaningfull than accuracy 
+                    # continuous_loss_fn = True, 
                     seed=RANDOM_SEED,
                 )
-
-                m.fit(X, y, n) # hyperopt-sklearn takes care of the cross validations
+              
+                m.fit(X, y, cv_shuffle=True, n_folds=n) # hyperopt-sklearn takes care of the cross validations
 
                 m.retrain_best_model_on_full_data(X, y)
 
@@ -355,9 +372,9 @@ class MLOxidationStates:
 @click.argument('yvalidpath', type=click.Path(exists=True))
 @click.argument('xtestpath', type=click.Path(exists=True))
 @click.argument('ytestpath', type=click.Path(exists=True))
-@click.argument('modelpath', type=click.Path(exists=True))
+@click.argument('modelpath', type=click.Path())
 @click.argument('scaler', default='standard')
-@click.argument('voting', default='hard')
+@click.argument('voting', default='soft')
 @click.argument('calibrate', default='isotonic')
 @click.argument('n', default=10)
 @click.argument('max_evals', default=250)
@@ -406,6 +423,7 @@ def train_model(
     )
 
     models = ml_object.tune_fit(
+        classifiers,
         ml_object.x,
         ml_object.y,
         ml_object.experiment,
