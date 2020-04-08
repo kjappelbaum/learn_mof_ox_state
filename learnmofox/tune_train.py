@@ -60,8 +60,9 @@ classifiers = [
     ('knn', components.knn),
     ('gradient_boosting', partial(components.gradient_boosting, loss='deviance')),
     ('extra_trees', components.extra_trees),
-    ('svr', components.svc_rbf),
     ('nb', components.gaussian_nb),
+    ('lda', components.linear_discriminant_analysis),
+    ('qda', components.quadratic_discriminant_analysis)
 ]
 
 trainlogger = logging.getLogger('trainer')
