@@ -81,7 +81,7 @@ class MLOxidationStates:
             scaler: str = 'standard',
             metricspath: str = 'metrics',
             modelpath: str = 'models',
-            max_evals: int = 300,
+            max_evals: int = 250,
             voting: str = 'hard',
             calibrate: str = 'sigmoid',
             timeout: int = 600,
@@ -114,7 +114,7 @@ class MLOxidationStates:
         self.timings = []
         self.metricspath = metricspath
         self.modelpath = modelpath
-        self.mix_ratios = {'rand': 0.1, 'tpe': 0.8, 'anneal': 0.1}
+        self.mix_ratios = {'rand': 0.15, 'tpe': 0.7, 'anneal': 0.15}
         self.max_workers = max_workers
         self.calibrate = calibrate
         self.oversampling = oversampling
@@ -164,7 +164,7 @@ class MLOxidationStates:
             X: np.array,
             y: np.array,
             voting: str = 'soft',
-            calibrate: str = 'spline',
+            calibrate: str = 'isotonic',
             valid_size: float = VALID_SIZE,
     ) -> Tuple[VotingClassifier, float]:
         """Collects base models into a voting classifier, trains it and then performs
@@ -178,7 +178,7 @@ class MLOxidationStates:
         Keyword Arguments:
             voting {str} -- voting mechanism (hard or soft) (default: {"soft"})
             n {int} -- number of CV folds for isotonic regression (default: {10})
-            calibrate {str} -- probability calibration method (none, isotonic, sigmoid) (default: {soft})
+            calibrate {str} -- probability calibration method (none, isotonic, sigmoid) (default: {isotonic})
             valid_size {float} -- fraction of the last part of the training set used for validation
 
         Returns:
