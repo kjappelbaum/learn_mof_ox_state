@@ -54,7 +54,7 @@ classifiers = [
     ('knn', components.knn),
     ('gradient_boosting', partial(components.gradient_boosting, loss='deviance')),
     ('extra_trees', components.extra_trees),
-    ('svr', components.svr_rbf),
+    ('svr', components.svc_rbf),
     ('rf', components.random_forest),
 ]
 
