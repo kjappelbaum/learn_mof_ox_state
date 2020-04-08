@@ -317,13 +317,13 @@ class MLOxidationStates:
 
             f1_macro = f1_score(y, predict, average='macro')
 
-            balanced_accuracy= balanced_accuracy_score(y, train_predict)
+            balanced_accuracy= balanced_accuracy_score(y, predict)
 
             precision = precision_score(y, predict, average='micro')
 
             recall = recall_score(y, predict, average='micro')
 
-            experiment.log_confusion_matrix(y, predicted, title=postfix.strip('_'))
+            experiment.log_confusion_matrix(y, predict, title=postfix.strip('_'))
 
             prediction = {
                 'model': name,
@@ -419,7 +419,7 @@ def train_model(
 
     X_test = ml_object.scaler.transform(X_test)
 
-    joblib.dump(ml_object.scaler, os.path.join(modelpath, 'scaler.joblib'))
+    dump(ml_object.scaler, os.path.join(modelpath, 'scaler.joblib'))
     experiment.log_asset(os.path.join(modelpath, 'scaler.joblib'))
     scores_test = ml_object.model_eval(models, X_test, y_test, experiment, 'test', modelpath)
     scores_train = ml_object.model_eval(models, ml_object.x, ml_object.y, experiment, 'train', modelpath)
