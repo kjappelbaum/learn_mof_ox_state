@@ -254,12 +254,12 @@ class MLOxidationStates:
             trial_timeout=timeout,
             preprocessing=[],
             max_evals=max_evals,
-            loss_fn = f1lossfn, # AUC loss is probably more meaningfull than accuracy 
+            loss_fn = f1lossfn, # f1 macro is probably more meaningfull than accuracy 
             # continuous_loss_fn = True, 
             seed=RANDOM_SEED,
         )
    
-        
+        trainlogger.info('training {}'.format(name))
         m.fit(X, y, cv_shuffle=True, n_folds=n) # hyperopt-sklearn takes care of the cross validations
 
         m.retrain_best_model_on_full_data(X, y)
