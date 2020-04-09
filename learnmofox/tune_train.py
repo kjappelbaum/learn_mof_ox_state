@@ -254,7 +254,7 @@ class MLOxidationStates:
             trial_timeout=timeout,
             preprocessing=[],
             max_evals=max_evals,
-            loss_fn = f1lossfn, # f1 macro is probably more meaningfull than accuracy 
+            #loss_fn = f1lossfn, # f1 macro is probably more meaningfull than accuracy 
             # continuous_loss_fn = True, 
             seed=RANDOM_SEED,
         )
