@@ -11,8 +11,9 @@ from __future__ import absolute_import
 from __future__ import print_function
 from functools import partial
 import time
-from collections import Counter
 import numpy as np
+from collections import Counter
+import concurrent.futures
 import os
 import json
 import pickle
@@ -55,14 +56,15 @@ classifiers = [
         partial(
             components.sgd,
             loss=hp.pchoice('loss', [(0.5, 'log'), (0.5, 'modified_huber')]),
-        ),
+        )
     ),
+    ('svc', partial(
+            components.svc_rbf, probability=True
+        )),
     ('knn', components.knn),
-    ('gradient_boosting', partial(components.gradient_boosting, loss='deviance')),
+    ('gradient_boosting', components.xgboost_classification),
     ('extra_trees', components.extra_trees),
     ('nb', components.gaussian_nb),
-    ('lda', components.linear_discriminant_analysis),
-    ('qda', components.quadratic_discriminant_analysis)
 ]
 
 trainlogger = logging.getLogger('trainer')
@@ -234,27 +236,37 @@ class MLOxidationStates:
         )
 
         with experiment.train():
-            for name, classifier in models:
-                m = hyperopt_estimator(
-                    classifier=classifier('classifier'),
-                    algo=mix_algo,
-                    trial_timeout=timeout,
-                    preprocessing=[],
-                    max_evals=max_evals,
-                    loss_fn = f1lossfn, # AUC loss is probably more meaningfull than accuracy 
-                    # continuous_loss_fn = True, 
-                    seed=RANDOM_SEED,
-                )
-              
-                m.fit(X, y, cv_shuffle=True, n_folds=n) # hyperopt-sklearn takes care of the cross validations
-
-                m.retrain_best_model_on_full_data(X, y)
-
-                m = m.best_model()['learner']
-
-                optimized_models.append((name, m))
+            partialml = partial(MLOxidationStates.train_one_model, X=X, y=y, max_evals=max_evals, mix_algo=mix_algo, timeout=timeout, n=n)
+            with concurrent.futures.ProcessPoolExecutor() as executor:
+                for name, m in executor.map(partialml, models):
+                    trainlogger.info('trained {}'.format(name))
+                    optimized_models.append((name, m))
 
         return optimized_models
+
+    @staticmethod 
+    def train_one_model(name_classifier, X: np.array, y: np.array, mix_algo, max_evals: int, timeout: int, n: int) -> Tuple: 
+        name, classifier = name_classifier
+
+        m = hyperopt_estimator(
+            classifier=classifier('classifier'),
+            algo=mix_algo,
+            trial_timeout=timeout,
+            preprocessing=[],
+            max_evals=max_evals,
+            loss_fn = f1lossfn, # AUC loss is probably more meaningfull than accuracy 
+            # continuous_loss_fn = True, 
+            seed=RANDOM_SEED,
+        )
+   
+        
+        m.fit(X, y, cv_shuffle=True, n_folds=n) # hyperopt-sklearn takes care of the cross validations
+
+        m.retrain_best_model_on_full_data(X, y)
+
+        m = m.best_model()['learner']
+
+        return (name, m)
 
     @staticmethod
     def calibrate_ensemble(
