@@ -58,13 +58,13 @@ classifiers = [
             loss=hp.pchoice('loss', [(0.5, 'log'), (0.5, 'modified_huber')]),
         )
     ),
-    # ('svc', partial(
-    #         components.svc_rbf, probability=True
-    #     )),
+    ('svc', partial(
+            components.svc_rbf, probability=True
+        )),
     ('knn', components.knn),
-#    ('gradient_boosting', components.xgboost_classification),
+   ('gradient_boosting', components.xgboost_classification),
     ('extra_trees', components.extra_trees),
-    # ('nb', components.gaussian_nb),
+    ('nb', components.gaussian_nb),
 ]
 
 trainlogger = logging.getLogger('trainer')
@@ -248,13 +248,14 @@ class MLOxidationStates:
     def train_one_model(name_classifier, X: np.array, y: np.array, mix_algo, max_evals: int, timeout: int, n: int) -> Tuple: 
         name, classifier = name_classifier
 
+        trainlogger.info("i'm using a timeout of {}".format(timeout))
         m = hyperopt_estimator(
             classifier=classifier('classifier'),
             algo=mix_algo,
             trial_timeout=timeout,
             preprocessing=[],
             max_evals=max_evals,
-            #loss_fn = f1lossfn, # f1 macro is probably more meaningfull than accuracy 
+            loss_fn = f1lossfn, # f1 macro is probably more meaningfull than accuracy 
             # continuous_loss_fn = True, 
             seed=RANDOM_SEED,
         )
@@ -438,10 +439,11 @@ def train_model(
         classifiers,
         ml_object.x,
         ml_object.y,
-        ml_object.experiment,
-        max_evals,
-        ml_object.n,
-        mix_ratios=ml_object.mix_ratios
+        experiment=ml_object.experiment,
+        max_evals=max_evals,
+        timeout=1000,
+        mix_ratios=ml_object.mix_ratios,
+        n=ml_object.n,
     )
     
     X_test = np.load(xtestpath)
