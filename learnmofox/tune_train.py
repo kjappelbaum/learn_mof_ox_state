@@ -41,8 +41,8 @@ import concurrent.futures
 import click
 
 
-def f1lossfn(y_true, y_probabilities):
-    f1lossfn=1-f1_score(y_true, y_probabilities, average='macro')
+def f1lossfn(y_true, y):
+    f1lossfn=1-f1_score(y_true, y, average='macro')
     return f1lossfn
 
 
@@ -58,13 +58,13 @@ classifiers = [
             loss=hp.pchoice('loss', [(0.5, 'log'), (0.5, 'modified_huber')]),
         )
     ),
-    ('svc', partial(
-            components.svc_rbf, probability=True
-        )),
+    # ('svc', partial(
+    #         components.svc_rbf, probability=True
+    #     )),
     ('knn', components.knn),
-    ('gradient_boosting', components.xgboost_classification),
+#    ('gradient_boosting', components.xgboost_classification),
     ('extra_trees', components.extra_trees),
-    ('nb', components.gaussian_nb),
+    # ('nb', components.gaussian_nb),
 ]
 
 trainlogger = logging.getLogger('trainer')
