@@ -50,6 +50,21 @@ RANDOM_SEED = 821996
 STARTTIMESTRING = time.strftime("%Y%m%d-%H%M%S")
 MIN_SAMPLES = 10
 
+# classifiers = [
+#     (
+#         "sgd",
+#         partial(
+#             components.sgd,
+#             loss=hp.pchoice("loss", [(0.5, "log"), (0.5, "modified_huber")]),
+#         ),
+#     ),
+#     ("svc", partial(components.svc_rbf, probability=True)),
+#     ("knn", components.knn),
+#     ("gradient_boosting", components.xgboost_classification),
+#     ("extra_trees", components.extra_trees),
+#     ("nb", components.gaussian_nb),
+# ]
+
 classifiers = [
     (
         "sgd",
@@ -58,12 +73,11 @@ classifiers = [
             loss=hp.pchoice("loss", [(0.5, "log"), (0.5, "modified_huber")]),
         ),
     ),
-    ("svc", partial(components.svc_rbf, probability=True)),
     ("knn", components.knn),
-    ("gradient_boosting", components.xgboost_classification),
+    ("gradient_boosting", partial(components.gradient_boosting, loss="deviance")),
     ("extra_trees", components.extra_trees),
-    ("nb", components.gaussian_nb),
 ]
+
 
 trainlogger = logging.getLogger("trainer")
 trainlogger.setLevel(logging.DEBUG)
