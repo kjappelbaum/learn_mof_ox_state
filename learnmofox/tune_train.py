@@ -385,7 +385,7 @@ class MLOxidationStates:
 
             recall = recall_score(y, predict, average="micro")
 
-            experiment.log_confusion_matrix(y, predict, title=postfix.strip("_"))
+            
 
             prediction = {
                 "model": name,
@@ -400,9 +400,13 @@ class MLOxidationStates:
                 "n_features" + postfix: x.shape[0],
             }
 
-            experiment.log_metrics(prediction)
-
             predictions.append(prediction)
+
+            try: 
+                experiment.log_metrics(prediction)
+                experiment.log_confusion_matrix(y, predict, title=postfix.strip("_"))
+            except Exception: 
+                pass
 
         return predictions
 
