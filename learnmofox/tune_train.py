@@ -369,6 +369,9 @@ class MLOxidationStates:
                 outdir_models, "_".join([STARTTIMESTRING, postfix])
             )
 
+            dump(model, outname_base_models + ".joblib")
+            experiment.log_asset(outname_base_models + ".joblib")
+
             predict = model.predict(x)
             accuracy = accuracy_score(y, predict)
 
@@ -398,9 +401,6 @@ class MLOxidationStates:
             }
 
             experiment.log_metrics(prediction)
-
-            dump(model, outname_base_models + ".joblib")
-            experiment.log_asset(outname_base_models + ".joblib")
 
             predictions.append(prediction)
 
