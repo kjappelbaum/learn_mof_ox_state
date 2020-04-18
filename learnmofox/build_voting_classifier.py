@@ -6,7 +6,7 @@ from pathlib import Path
 import time
 import numpy as np
 import click
-from .tune_train import MLOxidationStates
+from learnmofox.run.tune_train import MLOxidationStates
 import logging
 import joblib
 import os
