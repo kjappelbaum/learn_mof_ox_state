@@ -508,7 +508,7 @@ def train_model(
         modelpath,
     )
 
-    votingclassifier = ml_object.calibrate_ensemble(
+    votingclassifier, _ = ml_object.calibrate_ensemble(
         models,
         ml_object.x_valid,
         ml_object.y_valid,

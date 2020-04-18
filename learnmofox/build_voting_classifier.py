@@ -82,7 +82,7 @@ def train_model(
         name = Path(model).stem
         model = joblib.load(model)
         models_loaded.append((name, model))
-    votingclassifier = ml_object.calibrate_ensemble(
+    votingclassifier, _ = ml_object.calibrate_ensemble(
         models_loaded,
         ml_object.x_valid,
         ml_object.y_valid,
