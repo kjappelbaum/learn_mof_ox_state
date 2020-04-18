@@ -164,7 +164,7 @@ class MLOxidationStates:
         self.classes = [1, 2, 3, 4, 5, 6, 7, 8]
 
         self.y = self.y.astype(np.int)
-        self.y_valid = self.y.astype(np.int)
+        self.y_valid = self.y_valid.astype(np.int)
 
         trainlogger.info("intialized training class")
 
