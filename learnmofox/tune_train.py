@@ -9,6 +9,7 @@ Currently, this is overly complicated and which probably also makes it slow.
 
 from __future__ import absolute_import
 from __future__ import print_function
+from comet_ml import Experiment
 from functools import partial
 import time
 import numpy as np
@@ -21,7 +22,6 @@ import pickle
 import logging
 import keras
 from typing import Tuple
-from comet_ml import Experiment
 from hyperopt import tpe, anneal, rand, mix, hp
 from hpsklearn.estimator import hyperopt_estimator
 from hpsklearn import components
@@ -488,7 +488,9 @@ def train_model(
 
     X_test = ml_object.scaler.transform(X_test)
 
-    dump(ml_object.scaler, os.path.join(modelpath, "scaler_{}.joblib".format(train_stem)))
+    dump(
+        ml_object.scaler, os.path.join(modelpath, "scaler_{}.joblib".format(train_stem))
+    )
     experiment.log_asset(os.path.join(modelpath, "scaler_{}.joblib".format(train_stem)))
     scores_test = ml_object.model_eval(
         models, X_test, y_test, experiment, "test_" + train_stem, modelpath
