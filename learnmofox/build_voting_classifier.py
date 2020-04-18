@@ -6,7 +6,7 @@ from pathlib import Path
 import time
 import numpy as np
 import click
-from learnmofox.tune_train import MLOxidationStates
+from learnmofox.tune_train import MLOxidationStates, trainlogger
 import logging
 import joblib
 import os
@@ -48,15 +48,14 @@ def train_model(
     experiment.log_asset(xtestpath)
     experiment.log_asset(ytestpath)
 
-    logger.info('Train X: {}'.format(xpath))
-    logger.info('Train y: {}'.format(ypath))
+    trainlogger.info("Train X: {}".format(xpath))
+    trainlogger.info("Train y: {}".format(ypath))
 
-    logger.info('Validation X: {}'.format(xvalidpath))
-    logger.info('Validation y: {}'.format(yvalidpath))
+    trainlogger.info("Validation X: {}".format(xvalidpath))
+    trainlogger.info("Validation y: {}".format(yvalidpath))
 
-    logger.info('Test X: {}'.format(xtestpath))
-    logger.info('Test y: {}'.format(ytestpath))
-
+    trainlogger.info("Test X: {}".format(xtestpath))
+    trainlogger.info("Test y: {}".format(ytestpath))
 
     train_stem = Path(xpath).stem
     ml_object = MLOxidationStates.from_x_y_paths(
