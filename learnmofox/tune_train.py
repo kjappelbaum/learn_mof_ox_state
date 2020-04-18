@@ -18,6 +18,7 @@ import os
 import json
 import pickle
 import logging
+import keras
 from typing import Tuple
 from comet_ml import Experiment
 from hyperopt import tpe, anneal, rand, mix, hp
@@ -364,9 +365,9 @@ class MLOxidationStates:
         trainlogger.debug("entered evaluation function")
 
         for name, model in models:
-            postfix = "_".join([postfix, name])
+            postfix_ = "_".join([postfix, name])
             outname_base_models = os.path.join(
-                outdir_models, "_".join([STARTTIMESTRING, postfix])
+                outdir_models, "_".join([STARTTIMESTRING, postfix_])
             )
 
             dump(model, outname_base_models + ".joblib")
@@ -385,27 +386,25 @@ class MLOxidationStates:
 
             recall = recall_score(y, predict, average="micro")
 
-            
-
             prediction = {
                 "model": name,
                 "outname_base_models": outname_base_models,
-                "accuracy" + postfix: accuracy,
-                "f1_micro" + postfix: f1_micro,
-                "f1_macro" + postfix: f1_macro,
-                "balanced_accuracy" + postfix: balanced_accuracy,
-                "precision" + postfix: precision,
-                "recall" + postfix: recall,
-                "points" + postfix: len(y),
-                "n_features" + postfix: x.shape[0],
+                "accuracy" + postfix_: accuracy,
+                "f1_micro" + postfix_: f1_micro,
+                "f1_macro" + postfix_: f1_macro,
+                "balanced_accuracy" + postfix_: balanced_accuracy,
+                "precision" + postfix_: precision,
+                "recall" + postfix_: recall,
+                "points" + postfix_: len(y),
+                "n_features" + postfix_: x.shape[0],
             }
 
             predictions.append(prediction)
 
-            try: 
+            try:
                 experiment.log_metrics(prediction)
-                experiment.log_confusion_matrix(y, predict, title=postfix.strip("_"))
-            except Exception: 
+                experiment.log_confusion_matrix(keras.utils.to_categorical(y), keras.utils.to_categorical(predict), title=postfix_.strip("_"))
+            except Exception:
                 pass
 
         return predictions
