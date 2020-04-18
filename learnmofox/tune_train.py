@@ -15,6 +15,7 @@ import numpy as np
 from collections import Counter
 import concurrent.futures
 import os
+from pathlib import Path
 import json
 import pickle
 import logging
@@ -403,7 +404,11 @@ class MLOxidationStates:
 
             try:
                 experiment.log_metrics(prediction)
-                experiment.log_confusion_matrix(keras.utils.to_categorical(y), keras.utils.to_categorical(predict), title=postfix_.strip("_"))
+                experiment.log_confusion_matrix(
+                    keras.utils.to_categorical(y),
+                    keras.utils.to_categorical(predict),
+                    title=postfix_.strip("_"),
+                )
             except Exception:
                 pass
 
@@ -453,6 +458,7 @@ def train_model(
     experiment.log_asset(xtestpath)
     experiment.log_asset(ytestpath)
 
+    train_stem = Path(xpath).stem
     ml_object = MLOxidationStates.from_x_y_paths(
         xpath=os.path.abspath(xpath),
         ypath=os.path.abspath(ypath),
@@ -485,16 +491,17 @@ def train_model(
     dump(ml_object.scaler, os.path.join(modelpath, "scaler.joblib"))
     experiment.log_asset(os.path.join(modelpath, "scaler.joblib"))
     scores_test = ml_object.model_eval(
-        models, X_test, y_test, experiment, "test", modelpath
+        models, X_test, y_test, experiment, "test_" + train_stem, modelpath
     )
     scores_train = ml_object.model_eval(
-        models, ml_object.x, ml_object.y, experiment, "train", modelpath
+        models, ml_object.x, ml_object.y, experiment, "train" + train_stem, modelpath
     )
     scores_valid = ml_object.model_eval(
-        models, ml_object.x_valid, ml_object.y_valid, experiment, "valid", modelpath
+        models, ml_object.x_valid, ml_object.y_valid, experiment, "valid" + train_stem, modelpath
     )
 
     votingclassifier = ml_object.calibrate_ensemble(
+        models,
         ml_object.x_valid,
         ml_object.y_valid,
         ml_object.experiment,
@@ -502,7 +509,7 @@ def train_model(
         ml_object.calibrate,
     )
 
-    votingclassifier_tuple = [("votingclassifier", votingclassifier)]
+    votingclassifier_tuple = [("votingclassifier_" + train_stem, votingclassifier)]
 
     cores_test = ml_object.model_eval(
         votingclassifier_tuple, X_test, y_test, experiment, "test", modelpath
