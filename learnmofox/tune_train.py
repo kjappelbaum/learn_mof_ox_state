@@ -488,8 +488,8 @@ def train_model(
 
     X_test = ml_object.scaler.transform(X_test)
 
-    dump(ml_object.scaler, os.path.join(modelpath, "scaler.joblib"))
-    experiment.log_asset(os.path.join(modelpath, "scaler.joblib"))
+    dump(ml_object.scaler, os.path.join(modelpath, "scaler_{}.joblib".format(train_stem)))
+    experiment.log_asset(os.path.join(modelpath, "scaler_{}.joblib".format(train_stem)))
     scores_test = ml_object.model_eval(
         models, X_test, y_test, experiment, "test_" + train_stem, modelpath
     )
@@ -497,7 +497,12 @@ def train_model(
         models, ml_object.x, ml_object.y, experiment, "train" + train_stem, modelpath
     )
     scores_valid = ml_object.model_eval(
-        models, ml_object.x_valid, ml_object.y_valid, experiment, "valid" + train_stem, modelpath
+        models,
+        ml_object.x_valid,
+        ml_object.y_valid,
+        experiment,
+        "valid" + train_stem,
+        modelpath,
     )
 
     votingclassifier = ml_object.calibrate_ensemble(
