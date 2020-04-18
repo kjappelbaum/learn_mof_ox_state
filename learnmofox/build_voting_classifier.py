@@ -48,6 +48,16 @@ def train_model(
     experiment.log_asset(xtestpath)
     experiment.log_asset(ytestpath)
 
+    logger.info('Train X: {}'.format(xpath))
+    logger.info('Train y: {}'.format(ypath))
+
+    logger.info('Validation X: {}'.format(xvalidpath))
+    logger.info('Validation y: {}'.format(yvalidpath))
+
+    logger.info('Test X: {}'.format(xtestpath))
+    logger.info('Test y: {}'.format(ytestpath))
+
+
     train_stem = Path(xpath).stem
     ml_object = MLOxidationStates.from_x_y_paths(
         xpath=os.path.abspath(xpath),

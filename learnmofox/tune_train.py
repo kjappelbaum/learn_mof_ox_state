@@ -326,6 +326,7 @@ class MLOxidationStates:
 
         models_sklearn = [(name, model) for name, model in models]
 
+        assert len(X_valid) == len(y_valid)
         # calibrate the base esimators
         with experiment.train():
             vc = VotingClassifier(models_sklearn, voting=voting)
