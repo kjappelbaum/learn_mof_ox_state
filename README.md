@@ -22,7 +22,7 @@ pip install git+https://github.com/kjappelbaum/learn_mof_ox_state.git
 
 The full process should take some seconds.
 
-Note that the models have been fitted using `scikit-learn==0.21.3` and therefore one should ideally used this version. For better compatibility with the other dependencies (`matminer`, `apricot`) that depend on newer versions of `scikit-learn` we patched the model by adding the `_strategy` attribute to the initialization `DummyClassifier` of the `GradientBoostingClassifier` and adding the `n_samples_fit_` attribute to the `KNeighborsClassifier`.
+Note that the models have been fitted using `scikit-learn==0.21.3` and therefore one should ideally used this version. For better compatibility with the other dependencies (`matminer`, `apricot`) that depend on newer versions of `scikit-learn` we patched the model by adding the `_strategy` attribute to the initialization `DummyClassifier` of the `GradientBoostingClassifier` and adding the `n_samples_fit_` attribute to the `KNeighborsClassifier`. If you plan to do some further developments, it might be advisable to bump all dependencies before training a new model.
 
 ## Usage
 
@@ -35,7 +35,7 @@ Note that the models have been fitted using `scikit-learn==0.21.3` and therefore
 
 - Some experiments we ran, together with code and datahash, can also be found at [comet.ml](https://www.comet.ml/kjappelbaum/mof-oxidation-states/view/)
 
-- For testing a pre-trained model we recommend using our [webapp](https://dev-tools.materialscloud.org/oximachine/input_structure/), for which the code can be found, along with the Docker images, in another [GitHub repository](https://github.com/kjappelbaum/oximachinetool).
+- For testing a pre-trained model we recommend using our [webapp](go.epfl.ch/oximachine), for which the code can be found, along with the Docker images, in another [GitHub repository](https://github.com/kjappelbaum/oximachinetool).
 
 ## File contents
 
