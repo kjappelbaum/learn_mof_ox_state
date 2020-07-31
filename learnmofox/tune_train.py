@@ -1,90 +1,73 @@
 # -*- coding: utf-8 -*-
 # pylint:disable=too-many-arguments, too-many-locals, line-too-long, logging-fstring-interpolation
-
 """
-This is to streamline the modeling process. One should be able to use only one module 
-to reproduce the full work. 
+This is to streamline the modeling process. One should be able to use only one module
+to reproduce the full work.
 Currently, this is overly complicated and which probably also makes it slow.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-from comet_ml import Experiment
-from functools import partial
-import time
-import numpy as np
-from collections import Counter
+from __future__ import absolute_import, print_function
+
 import concurrent.futures
-import os
-from pathlib import Path
 import json
-import pickle
 import logging
-import keras
+import os
+import pickle
+import time
+from collections import Counter
+from functools import partial
+from pathlib import Path
 from typing import Tuple
-from hyperopt import tpe, anneal, rand, mix, hp
-from hpsklearn.estimator import hyperopt_estimator
-from hpsklearn import components
-from learnmofox.utils import VotingClassifier
-from mlxtend.evaluate import BootstrapOutOfBag
-from sklearn.model_selection import StratifiedKFold
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
-from sklearn.metrics import (
-    accuracy_score,
-    balanced_accuracy_score,
-    f1_score,
-    roc_auc_score,
-    precision_score,
-    recall_score,
-)
-import pandas as pd
-from joblib import dump
-import concurrent.futures
+
 import click
+import keras
+import numpy as np
+import pandas as pd
+from comet_ml import Experiment
+from hyperopt import anneal, hp, mix, rand, tpe
+from joblib import dump
+from mlxtend.evaluate import BootstrapOutOfBag
+from sklearn.metrics import (accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score,
+                             roc_auc_score)
+from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
+
+from hpsklearn import components
+from hpsklearn.estimator import hyperopt_estimator
+from learnmofox.utils import VotingClassifier
 
 
 def f1lossfn(y_true, y):
-    f1lossfn = 1 - f1_score(y_true, y, average="macro")
+    f1lossfn = 1 - f1_score(y_true, y, average='macro')
     return f1lossfn
 
 
-RANDOM_SEED = 821996
-STARTTIMESTRING = time.strftime("%Y%m%d-%H%M%S")
-MIN_SAMPLES = 10
+def balanced_accuracy_score_loss(y_true, y):
+    loss = 1 - balanced_accuracy_score(y_true, y)
+    return loss
 
-# classifiers = [
-#     (
-#         "sgd",
-#         partial(
-#             components.sgd,
-#             loss=hp.pchoice("loss", [(0.5, "log"), (0.5, "modified_huber")]),
-#         ),
-#     ),
-#     ("svc", partial(components.svc_rbf, probability=True)),
-#     ("knn", components.knn),
-#     ("gradient_boosting", components.xgboost_classification),
-#     ("extra_trees", components.extra_trees),
-#     ("nb", components.gaussian_nb),
-# ]
+
+RANDOM_SEED = 821996
+STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
+MIN_SAMPLES = 10
 
 classifiers = [
     (
-        "sgd",
+        'sgd',
         partial(
             components.sgd,
-            loss=hp.pchoice("loss", [(0.5, "log"), (0.5, "modified_huber")]),
+            loss=hp.pchoice('loss', [(0.5, 'log'), (0.5, 'modified_huber')]),
         ),
     ),
-    ("knn", components.knn),
-    ("gradient_boosting", partial(components.gradient_boosting, loss="deviance")),
-    ("extra_trees", components.extra_trees),
+    ('knn', components.knn),
+    ('gradient_boosting', partial(components.gradient_boosting, loss='deviance')),
+    ('extra_trees', components.extra_trees),
 ]
 
-
-trainlogger = logging.getLogger("trainer")
+trainlogger = logging.getLogger('trainer')
 trainlogger.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s | %(filename)s: %(message)s")
-filehandler = logging.FileHandler(os.path.join(STARTTIMESTRING + "_train.log"))
+formatter = logging.Formatter('%(asctime)s | %(filename)s: %(message)s')
+filehandler = logging.FileHandler(os.path.join(STARTTIMESTRING + '_train.log'))
 filehandler.setFormatter(formatter)
 trainlogger.addHandler(filehandler)
 
@@ -99,12 +82,12 @@ class MLOxidationStates:
         X_valid: np.array,
         y_valid: np.array,
         n: int = 10,
-        eval_method: str = "kfold",
-        scaler: str = "standard",
-        modelpath: str = "models",
+        eval_method: str = 'kfold',
+        scaler: str = 'standard',
+        modelpath: str = 'models',
         max_evals: int = 250,
-        voting: str = "hard",
-        calibrate: str = "sigmoid",
+        voting: str = 'hard',
+        calibrate: str = 'sigmoid',
         timeout: int = 600,
         max_workers: int = 16,
         experiment: Experiment = None,
@@ -124,28 +107,28 @@ class MLOxidationStates:
 
         self.n = n
         self.eval_method = eval_method
-        if scaler == "robust":
-            self.scalername = "robust"
+        if scaler == 'robust':
+            self.scalername = 'robust'
             self.scaler = RobustScaler()
-        elif scaler == "standard":
-            self.scalername = "standard"
+        elif scaler == 'standard':
+            self.scalername = 'standard'
             self.scaler = StandardScaler()
-        elif scaler == "minmax":
-            self.scalername = "minmax"
+        elif scaler == 'minmax':
+            self.scalername = 'minmax'
             self.scaler = MinMaxScaler()
 
         self.x = self.scaler.fit_transform(self.x)
         self.x_valid = self.scaler.transform(self.x_valid)
 
         classcounter = dict(Counter(self.y))
-        trainlogger.info("the classdistribution is %s", classcounter)
+        trainlogger.info('the classdistribution is %s', classcounter)
         classes_to_keep = []
         for oxidationstate, count in classcounter.items():
             if count > MIN_SAMPLES:
                 classes_to_keep.append(oxidationstate)
             else:
                 trainlogger.warning(
-                    "will drop class %s since it has not enough examples",
+                    'will drop class %s since it has not enough examples',
                     oxidationstate,
                 )
 
@@ -158,7 +141,7 @@ class MLOxidationStates:
         self.timeout = timeout
         self.timings = []
         self.modelpath = modelpath
-        self.mix_ratios = {"rand": 0.15, "tpe": 0.7, "anneal": 0.15}
+        self.mix_ratios = {'rand': 0.15, 'tpe': 0.7, 'anneal': 0.15}
         self.max_workers = max_workers
         self.calibrate = calibrate
         self.classes = [1, 2, 3, 4, 5, 6, 7, 8]
@@ -166,7 +149,7 @@ class MLOxidationStates:
         self.y = self.y.astype(np.int)
         self.y_valid = self.y_valid.astype(np.int)
 
-        trainlogger.info("intialized training class")
+        trainlogger.info('intialized training class')
 
     @classmethod
     def from_x_y_paths(
@@ -209,7 +192,11 @@ class MLOxidationStates:
         experiment: Experiment,
         max_evals: int = 400,
         timeout: int = 10 * 60,
-        mix_ratios: dict = {"rand": 0.1, "tpe": 0.8, "anneal": 0.1},
+        mix_ratios: dict = {
+            'rand': 0.1,
+            'tpe': 0.8,
+            'anneal': 0.1
+        },
         n: int = 10,
     ) -> list:
         """Tune model hyperparameters using hyperopt using a mixed strategy.
@@ -229,18 +216,18 @@ class MLOxidationStates:
         """
 
         assert sum(list(mix_ratios.values())) == 1
-        assert list(mix_ratios.keys()) == ["rand", "tpe", "anneal"]
+        assert list(mix_ratios.keys()) == ['rand', 'tpe', 'anneal']
 
-        trainlogger.debug("performing hyperparameter optimization")
+        trainlogger.debug('performing hyperparameter optimization')
 
         optimized_models = []
 
         mix_algo = partial(
             mix.suggest,
             p_suggest=[
-                (mix_ratios["rand"], rand.suggest),
-                (mix_ratios["tpe"], tpe.suggest),
-                (mix_ratios["anneal"], anneal.suggest),
+                (mix_ratios['rand'], rand.suggest),
+                (mix_ratios['tpe'], tpe.suggest),
+                (mix_ratios['anneal'], anneal.suggest),
             ],
         )
 
@@ -256,26 +243,26 @@ class MLOxidationStates:
             )
             with concurrent.futures.ProcessPoolExecutor() as executor:
                 for name, m in executor.map(partialml, models):
-                    trainlogger.info("trained {}".format(name))
+                    trainlogger.info('trained {}'.format(name))
                     optimized_models.append((name, m))
 
         return optimized_models
 
     @staticmethod
     def train_one_model(
-        name_classifier,
-        X: np.array,
-        y: np.array,
-        mix_algo,
-        max_evals: int,
-        timeout: int,
-        n: int,
+            name_classifier,
+            X: np.array,
+            y: np.array,
+            mix_algo,
+            max_evals: int,
+            timeout: int,
+            n: int,
     ) -> Tuple:
         name, classifier = name_classifier
 
         trainlogger.info("i'm using a timeout of {}".format(timeout))
         m = hyperopt_estimator(
-            classifier=classifier("classifier"),
+            classifier=classifier('classifier'),
             algo=mix_algo,
             trial_timeout=timeout,
             preprocessing=[],
@@ -285,25 +272,23 @@ class MLOxidationStates:
             seed=RANDOM_SEED,
         )
 
-        trainlogger.info("training {}".format(name))
-        m.fit(
-            X, y, cv_shuffle=True, n_folds=n
-        )  # hyperopt-sklearn takes care of the cross validations
+        trainlogger.info('training {}'.format(name))
+        m.fit(X, y, cv_shuffle=True, n_folds=n)  # hyperopt-sklearn takes care of the cross validations
 
         m.retrain_best_model_on_full_data(X, y)
 
-        m = m.best_model()["learner"]
+        m = m.best_model()['learner']
 
         return (name, m)
 
     @staticmethod
     def calibrate_ensemble(
-        models: list,
-        X_valid: np.array,
-        y_valid: np.array,
-        experiment: Experiment,
-        voting: str = "soft",
-        calibrate: str = "isotonic",
+            models: list,
+            X_valid: np.array,
+            y_valid: np.array,
+            experiment: Experiment,
+            voting: str = 'soft',
+            calibrate: str = 'isotonic',
     ) -> Tuple[VotingClassifier, float]:
         """Collects base models into a voting classifier, trains it and then performs
         probability calibration
@@ -321,7 +306,7 @@ class MLOxidationStates:
         Returns:
             [CalibratedClassifierCV, float] -- [calibrated classifier and elapsed time]
         """
-        trainlogger.debug("calibrating and building ensemble model")
+        trainlogger.debug('calibrating and building ensemble model')
         startime = time.process_time()
 
         models_sklearn = [(name, model) for name, model in models]
@@ -330,11 +315,9 @@ class MLOxidationStates:
         # calibrate the base esimators
         with experiment.train():
             vc = VotingClassifier(models_sklearn, voting=voting)
-            trainlogger.debug("now, calibrating the base base estimators")
+            trainlogger.debug('now, calibrating the base base estimators')
 
-            vc._calibrate_base_estimators(
-                calibrate, X_valid, y_valid
-            )  # pylint:disable=protected-access
+            vc._calibrate_base_estimators(calibrate, X_valid, y_valid)  # pylint:disable=protected-access
 
         endtime = time.process_time()
         elapsed_time = endtime - startime
@@ -347,7 +330,7 @@ class MLOxidationStates:
         x: np.array,
         y: np.array,
         experiment: Experiment,
-        postfix: str = "_train",
+        postfix: str = '_train',
         outdir_models: str = None,
     ):
         """Peforms a model evaluation on training and test set and dump the predictions with the actual values
@@ -355,8 +338,8 @@ class MLOxidationStates:
 
         Arguments:
             models {list} -- list of tuples with model name and model itself
-            x {np.array} -- feature matrix 
-            y {np.array} -- label vector 
+            x {np.array} -- feature matrix
+            y {np.array} -- label vector
             experiment {comet_ml.Experiment}
             postfix {str} -- string that will be attached to filename
             outdir_models {str} -- output directory for models
@@ -364,41 +347,39 @@ class MLOxidationStates:
 
         predictions = []
 
-        trainlogger.debug("entered evaluation function")
+        trainlogger.debug('entered evaluation function')
 
         for name, model in models:
-            postfix_ = "_".join([postfix, name])
-            outname_base_models = os.path.join(
-                outdir_models, "_".join([STARTTIMESTRING, postfix_])
-            )
+            postfix_ = '_'.join([postfix, name])
+            outname_base_models = os.path.join(outdir_models, '_'.join([STARTTIMESTRING, postfix_]))
 
-            dump(model, outname_base_models + ".joblib")
-            experiment.log_asset(outname_base_models + ".joblib")
+            dump(model, outname_base_models + '.joblib')
+            experiment.log_asset(outname_base_models + '.joblib')
 
             predict = model.predict(x)
             accuracy = accuracy_score(y, predict)
 
-            f1_micro = f1_score(y, predict, average="micro")
+            f1_micro = f1_score(y, predict, average='micro')
 
-            f1_macro = f1_score(y, predict, average="macro")
+            f1_macro = f1_score(y, predict, average='macro')
 
             balanced_accuracy = balanced_accuracy_score(y, predict)
 
-            precision = precision_score(y, predict, average="micro")
+            precision = precision_score(y, predict, average='micro')
 
-            recall = recall_score(y, predict, average="micro")
+            recall = recall_score(y, predict, average='micro')
 
             prediction = {
-                "model": name,
-                "outname_base_models": outname_base_models,
-                "accuracy" + postfix_: accuracy,
-                "f1_micro" + postfix_: f1_micro,
-                "f1_macro" + postfix_: f1_macro,
-                "balanced_accuracy" + postfix_: balanced_accuracy,
-                "precision" + postfix_: precision,
-                "recall" + postfix_: recall,
-                "points" + postfix_: len(y),
-                "n_features" + postfix_: x.shape[0],
+                'model': name,
+                'outname_base_models': outname_base_models,
+                'accuracy' + postfix_: accuracy,
+                'f1_micro' + postfix_: f1_micro,
+                'f1_macro' + postfix_: f1_macro,
+                'balanced_accuracy' + postfix_: balanced_accuracy,
+                'precision' + postfix_: precision,
+                'recall' + postfix_: recall,
+                'points' + postfix_: len(y),
+                'n_features' + postfix_: x.shape[0],
             }
 
             predictions.append(prediction)
@@ -408,7 +389,7 @@ class MLOxidationStates:
                 experiment.log_confusion_matrix(
                     keras.utils.to_categorical(y),
                     keras.utils.to_categorical(predict),
-                    title=postfix_.strip("_"),
+                    title=postfix_.strip('_'),
                 )
             except Exception:
                 pass
@@ -416,19 +397,19 @@ class MLOxidationStates:
         return predictions
 
 
-@click.command("cli")
-@click.argument("xpath", type=click.Path(exists=True))
-@click.argument("ypath", type=click.Path(exists=True))
-@click.argument("xvalidpath", type=click.Path(exists=True))
-@click.argument("yvalidpath", type=click.Path(exists=True))
-@click.argument("xtestpath", type=click.Path(exists=True))
-@click.argument("ytestpath", type=click.Path(exists=True))
-@click.argument("modelpath", type=click.Path())
-@click.argument("scaler", default="standard")
-@click.argument("voting", default="soft")
-@click.argument("calibrate", default="isotonic")
-@click.argument("n", default=10)
-@click.argument("max_evals", default=250)
+@click.command('cli')
+@click.argument('xpath', type=click.Path(exists=True))
+@click.argument('ypath', type=click.Path(exists=True))
+@click.argument('xvalidpath', type=click.Path(exists=True))
+@click.argument('yvalidpath', type=click.Path(exists=True))
+@click.argument('xtestpath', type=click.Path(exists=True))
+@click.argument('ytestpath', type=click.Path(exists=True))
+@click.argument('modelpath', type=click.Path())
+@click.argument('scaler', default='standard')
+@click.argument('voting', default='soft')
+@click.argument('calibrate', default='isotonic')
+@click.argument('n', default=10)
+@click.argument('max_evals', default=250)
 def train_model(
     xpath,
     ypath,
@@ -446,12 +427,12 @@ def train_model(
     if not os.path.exists(os.path.abspath(modelpath)):
         os.mkdir(os.path.abspath(modelpath))
 
-    experiment = Experiment(project_name="mof-oxidation-states")
-    experiment.log_parameter(name="scaler", value=scaler)
-    experiment.log_parameter(name="n", value=n)
-    experiment.log_parameter(name="voting", value=voting)
-    experiment.log_parameter(name="calibrate", value=calibrate)
-    experiment.log_parameter(name="max_evals", value=max_evals)
+    experiment = Experiment(project_name='mof-oxidation-states')
+    experiment.log_parameter(name='scaler', value=scaler)
+    experiment.log_parameter(name='n', value=n)
+    experiment.log_parameter(name='voting', value=voting)
+    experiment.log_parameter(name='calibrate', value=calibrate)
+    experiment.log_parameter(name='max_evals', value=max_evals)
     experiment.log_asset(xpath)
     experiment.log_asset(ypath)
     experiment.log_asset(xvalidpath)
@@ -489,22 +470,16 @@ def train_model(
 
     X_test = ml_object.scaler.transform(X_test)
 
-    dump(
-        ml_object.scaler, os.path.join(modelpath, "scaler_{}.joblib".format(train_stem))
-    )
-    experiment.log_asset(os.path.join(modelpath, "scaler_{}.joblib".format(train_stem)))
-    scores_test = ml_object.model_eval(
-        models, X_test, y_test, experiment, "test_" + train_stem, modelpath
-    )
-    scores_train = ml_object.model_eval(
-        models, ml_object.x, ml_object.y, experiment, "train" + train_stem, modelpath
-    )
+    dump(ml_object.scaler, os.path.join(modelpath, 'scaler_{}.joblib'.format(train_stem)))
+    experiment.log_asset(os.path.join(modelpath, 'scaler_{}.joblib'.format(train_stem)))
+    scores_test = ml_object.model_eval(models, X_test, y_test, experiment, 'test_' + train_stem, modelpath)
+    scores_train = ml_object.model_eval(models, ml_object.x, ml_object.y, experiment, 'train' + train_stem, modelpath)
     scores_valid = ml_object.model_eval(
         models,
         ml_object.x_valid,
         ml_object.y_valid,
         experiment,
-        "valid" + train_stem,
+        'valid' + train_stem,
         modelpath,
     )
 
@@ -517,23 +492,20 @@ def train_model(
         ml_object.calibrate,
     )
 
-    votingclassifier_tuple = [("votingclassifier_" + train_stem, votingclassifier)]
+    votingclassifier_tuple = [('votingclassifier_' + train_stem, votingclassifier)]
 
-    cores_test = ml_object.model_eval(
-        votingclassifier_tuple, X_test, y_test, experiment, "test", modelpath
-    )
-    scores_train = ml_object.model_eval(
-        votingclassifier_tuple, ml_object.x, ml_object.y, experiment, "train", modelpath
-    )
+    cores_test = ml_object.model_eval(votingclassifier_tuple, X_test, y_test, experiment, 'test', modelpath)
+    scores_train = ml_object.model_eval(votingclassifier_tuple, ml_object.x, ml_object.y, experiment, 'train',
+                                        modelpath)
     scores_valid = ml_object.model_eval(
         votingclassifier_tuple,
         ml_object.x_valid,
         ml_object.y_valid,
         experiment,
-        "valid",
+        'valid',
         modelpath,
     )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     train_model()  # pylint:disable=no-value-for-parameter

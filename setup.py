@@ -5,37 +5,9 @@
 from __future__ import absolute_import
 import io
 import os
-import sys
-import subprocess
+import versioneer
 
 from setuptools import find_packages, setup
-
-git_rpmfile = (
-    "git+https://github.com/kjappelbaum/hyperopt-sklearn.git, git+#egg=hyperopt==0.2.2"
-)
-
-try:
-    import hyperopt  # pylint:disable=unused-import
-    import hpsklearn  # pylint:disable=unused-import
-except Exception:  # pylint:disable=broad-except
-    if "--user" in sys.argv:
-        subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "pip",
-                "install",
-                "--upgrade",
-                "--user",
-                git_rpmfile,
-            ],
-            check=False,
-        )
-    else:
-        subprocess.run(
-            [sys.executable, "-m", "pip", "install", "--upgrade", git_rpmfile],
-            check=False,
-        )
 
 # Package meta-data.
 NAME = "learnmofox"
@@ -44,24 +16,10 @@ URL = "https://github.com/kjappelbaum/learn_mof_ox_state"
 EMAIL = "kevin.jablonka@epfl.ch"
 AUTHOR = "Kevin M. Jablonka, Daniele Ongari, Seyed Mohamad Moosavi, Berend Smit"
 REQUIRES_PYTHON = ">=3.5.0"
-VERSION = "0.2.0-alpha"
 
 # What packages are required for this module to be executed?
-REQUIRED = [
-    "scikit-learn==0.21.3",
-    "imblearn",
-    "ml_insights",
-    "mlxtend",
-    "pandas",
-    "click",
-    "comet",
-    "dvc",
-    "numpy",
-    "tqdm",
-    "dask",
-    "shap",
-    "scipy",
-]
+with open("requirements.txt", "r") as fh:
+    REQUIRED = fh.readlines()
 
 # What packages are optional?
 EXTRAS = {
@@ -82,8 +40,8 @@ except FileNotFoundError:
 
 setup(
     name=NAME,
-    version=VERSION,
-    description=DESCRIPTION,
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     long_description=long_description,
     long_description_content_type="text/markdown",
     author=AUTHOR,
@@ -94,9 +52,8 @@ setup(
     install_requires=REQUIRED,
     extras_require=EXTRAS,
     include_package_data=True,
-    license="MIT",
+    license="GPL v3",
     classifiers=[
-        "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",

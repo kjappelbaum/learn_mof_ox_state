@@ -1,1 +1,3 @@
 include README.md LICENSE
+include versioneer.py
+include learnmofox/_version.py
