@@ -7,7 +7,6 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kjappelbaum/learn_mof_ox_state/master?filepath=examples%2Fexample.ipynb)
 
-
 Tools to train and test a voting classifier that predicts oxidation states (of MOFs).
 
 > ⚠️ **Warning**: You need to export `COMET_API_KEY`, as the code will look for it if you want to track your experiments (when you retrain the model). If you do not want to do this, remove those lines in the code. You might also want to consider other tracking options such as weights and biases.
