@@ -38,6 +38,7 @@ print(REQUIRED)
 EXTRAS = {
     'testing': ['pytest'],
     'linting': ['prospector', 'pre-commit', 'pylint'],
+    'changelog': ['gitchangelog'],
     'documentation': ['sphinx', 'sphinx_rtd_theme', 'sphinx-autodoc-typehints'],
 }
 

@@ -1,6 +1,6 @@
 scikit-learn<0.23>=0.22
 git+https://github.com/kjappelbaum/hyperopt-sklearn.git#egg=hpsklearn
-imblearn==0.6.2
+imbalanced-learn<0.7>=0.6
 ml_insights>=0.0.21
 mlxtend>=0.17.2
 pandas>=1.0

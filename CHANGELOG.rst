@@ -21,6 +21,7 @@ New
 
 Changes
 ~~~~~~~
+- Chore: added changelog. [Kevin]
 - Chore: update readme. [Kevin]
 - Chore: adding binder badge. [Kevin]
 - Chore: updating readme. [Kevin]
