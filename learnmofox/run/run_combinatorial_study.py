@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 # pylint:disable=line-too-long
-from __future__ import absolute_import
-from __future__ import print_function
 import os
-import click
 import subprocess
+
+import click
 
 TRAINING_SET = ['mofs', 'mp_mofs']
 

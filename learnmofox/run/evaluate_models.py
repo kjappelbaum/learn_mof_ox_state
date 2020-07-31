@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+import os
+import pickle
+from glob import glob
+from pathlib import Path
+
 import joblib
 import numpy as np
-import os
-from pathlib import Path
-from glob import glob
-import pickle
 
 from learnmofox import metrics
 from learnmofox.utils import read_pickle
-from six.moves import zip
 
 
 def evaluate_model(modelpath, featurespath, labelspath, namespath, scalerpath):  # pylint:disable=too-many-locals

@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
-# pylint:disable=too-many-arguments, too-many-locals, line-too-long, logging-fstring-interpolation
+# pylint:disable=too-many-arguments, too-many-locals, line-too-long,  logging-format-interpolation
 """
 This is to streamline the modeling process. One should be able to use only one module
 to reproduce the full work.
 Currently, this is overly complicated and which probably also makes it slow.
 """
 
-from __future__ import absolute_import, print_function
-
 import concurrent.futures
-import json
 import logging
 import os
-import pickle
 import time
 from collections import Counter
 from functools import partial
@@ -22,18 +18,14 @@ from typing import Tuple
 import click
 import keras
 import numpy as np
-import pandas as pd
 from comet_ml import Experiment
-from hyperopt import anneal, hp, mix, rand, tpe
-from joblib import dump
-from mlxtend.evaluate import BootstrapOutOfBag
-from sklearn.metrics import (accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score,
-                             roc_auc_score)
-from sklearn.model_selection import StratifiedKFold
-from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
-
 from hpsklearn import components
 from hpsklearn.estimator import hyperopt_estimator
+from hyperopt import anneal, hp, mix, rand, tpe
+from joblib import dump
+from sklearn.metrics import (accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score)
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
+
 from learnmofox.utils import VotingClassifier
 
 
@@ -309,12 +301,10 @@ class MLOxidationStates:
         trainlogger.debug('calibrating and building ensemble model')
         startime = time.process_time()
 
-        models_sklearn = [(name, model) for name, model in models]
-
         assert len(X_valid) == len(y_valid)
         # calibrate the base esimators
         with experiment.train():
-            vc = VotingClassifier(models_sklearn, voting=voting)
+            vc = VotingClassifier(models, voting=voting)
             trainlogger.debug('now, calibrating the base base estimators')
 
             vc._calibrate_base_estimators(calibrate, X_valid, y_valid)  # pylint:disable=protected-access

@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
-import sys
-import os
-import click
-import pickle
-import joblib
-import pandas as pd
-from sklearn.metrics import balanced_accuracy_score
 import concurrent.futures
-import numpy as np
+import os
+import pickle
+import sys
 from functools import partial
-from sklearn.preprocessing import StandardScaler
-from mlxtend.evaluate import feature_importance_permutation
+
+import click
+import joblib
+import numpy as np
+import pandas as pd
 import shap
-from learnmofox.utils import read_pickle, make_if_not_exist, summarize_data
+from mlxtend.evaluate import feature_importance_permutation
+from sklearn.metrics import balanced_accuracy_score
+from sklearn.preprocessing import StandardScaler
+
 from learnmofox import utils
+from learnmofox.utils import make_if_not_exist, read_pickle, summarize_data
 
 sys.modules['utils'] = utils
 
@@ -52,16 +52,16 @@ def permuation_importance_wrapper(datatuple, model, rounds, metric=balanced_accu
 @click.argument('points', type=int, default=5000)
 @click.option('--use_shap', is_flag=True)
 def main(  # pylint:disable=too-many-arguments, too-many-locals
-        model,
-        xtrainpath,
-        ytrainpath,
-        xtestpath,
-        ytestpath,
-        featurenamespath,
-        outpath,
-        rounds,
-        points,
-        use_shap,
+    model,
+    xtrainpath,
+    ytrainpath,
+    xtestpath,
+    ytestpath,
+    featurenamespath,
+    outpath,
+    rounds,
+    points,
+    use_shap,
 ):
     # load model and data and also scale the data
     print('loading model and data')

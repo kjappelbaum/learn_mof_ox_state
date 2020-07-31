@@ -1,22 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
 import concurrent.futures
-import numpy as np
-from functools import partial
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    recall_score,
-    precision_score,
-    balanced_accuracy_score,
-)
-from tqdm import tqdm
-from six.moves import range
 import time
+from functools import partial
+
+import numpy as np
+from sklearn.metrics import (accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score)
+from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.preprocessing import StandardScaler
+from tqdm import tqdm
 
 
 def _bootstrap_metric_fold(_, model, X, y, scoring_funcs, sample_idx, rng):  # pylint:disable=too-many-arguments

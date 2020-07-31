@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint:disable=too-many-arguments, too-many-locals, line-too-long, logging-fstring-interpolation
+# pylint:disable=too-many-arguments, too-many-locals, line-too-long, logging-format-interpolation
 """
 Trains an ensemble classifier to predict the oxidation state
 Produces a  outpath/train_metrics.json file for DVC
@@ -7,37 +7,31 @@ Produces a  outpath/train_metrics.json file for DVC
 Note that it tries to fit the different folds in parallel using multiple processes, by default it
 uses maximal 5 workers which is good e.g. require CV=5 or  CV=10 if you can run that many processes in parallel.
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from functools import partial
+import concurrent.futures
+import json
+import logging
+import os
+import pickle
 import time
 from collections import Counter
-import numpy as np
-import os
-import json
-import pickle
-import logging
+from functools import partial
 from typing import Tuple
-from comet_ml import Experiment
-from hyperopt import tpe, anneal, rand, mix, hp
-from hpsklearn.estimator import hyperopt_estimator
-from hpsklearn import components
-from learnmofox.utils import VotingClassifier
-from mlxtend.evaluate import BootstrapOutOfBag
-from sklearn.model_selection import StratifiedKFold
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
-from sklearn.metrics import (
-    accuracy_score,
-    balanced_accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-)
-from imblearn.over_sampling import SMOTE, BorderlineSMOTE, ADASYN
-import pandas as pd
-from joblib import dump
-import concurrent.futures
+
 import click
+import numpy as np
+import pandas as pd
+from comet_ml import Experiment
+from hpsklearn import components
+from hpsklearn.estimator import hyperopt_estimator
+from hyperopt import anneal, hp, mix, rand, tpe
+from imblearn.over_sampling import ADASYN, SMOTE, BorderlineSMOTE
+from joblib import dump
+from mlxtend.evaluate import BootstrapOutOfBag
+from sklearn.metrics import (accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score)
+from sklearn.model_selection import StratifiedKFold
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
+
+from learnmofox.utils import VotingClassifier
 
 RANDOM_SEED = 1234
 STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
@@ -59,7 +53,7 @@ classifiers = [
 ]
 
 trainlogger = logging.getLogger('trainer')
-trainlogger.setLevel(logging.DEBUG)
+trainlogger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s | %(filename)s: %(message)s')
 filehandler = logging.FileHandler(os.path.join('logs', STARTTIMESTRING + '_train.log'))
 filehandler.setFormatter(formatter)
@@ -72,22 +66,22 @@ class MLOxidationStates:
     """Collects some functions used for training of the oxidation state classifier"""
 
     def __init__(
-            self,
-            X: np.array,
-            y: np.array,
-            n: int = 10,
-            max_size: int = None,
-            eval_method: str = 'kfold',
-            scaler: str = 'standard',
-            metricspath: str = 'metrics',
-            modelpath: str = 'models',
-            max_evals: int = 250,
-            voting: str = 'hard',
-            calibrate: str = 'sigmoid',
-            timeout: int = 600,
-            oversampling: str = None,
-            max_workers: int = 16,
-            train_one_fold: bool = False,
+        self,
+        X: np.array,
+        y: np.array,
+        n: int = 10,
+        max_size: int = None,
+        eval_method: str = 'kfold',
+        scaler: str = 'standard',
+        metricspath: str = 'metrics',
+        modelpath: str = 'models',
+        max_evals: int = 250,
+        voting: str = 'hard',
+        calibrate: str = 'sigmoid',
+        timeout: int = 600,
+        oversampling: str = None,
+        max_workers: int = 16,
+        train_one_fold: bool = False,
     ):  # pylint:disable=too-many-arguments
 
         self.x = X
@@ -127,18 +121,18 @@ class MLOxidationStates:
 
     @classmethod
     def from_x_y_paths(
-            cls,
-            xpath: str,
-            ypath: str,
-            modelpath: str,
-            metricspath: str,
-            scaler: str,
-            n: int,
-            voting: str,
-            calibrate: str,
-            max_size: int,
-            oversampling: str,
-            train_one_fold: bool,
+        cls,
+        xpath: str,
+        ypath: str,
+        modelpath: str,
+        metricspath: str,
+        scaler: str,
+        n: int,
+        voting: str,
+        calibrate: str,
+        max_size: int,
+        oversampling: str,
+        train_one_fold: bool,
     ):
         """Constructs a MLOxidationStates object from filepaths"""
         x = np.load(xpath, allow_pickle=True)
@@ -187,8 +181,6 @@ class MLOxidationStates:
         trainlogger.debug('calibrating and building ensemble model')
         startime = time.process_time()
 
-        models_sklearn = [(name, model) for name, model in models]
-
         # hyperopt uses by  default the last .2 percent as a validation set, we use the same convention here to do the
         # probability calibration
         # https://github.com/hyperopt/hyperopt-sklearn/blob/52a5522fae473bce0ea1de5f36bb84ed37990d02/hpsklearn/estimator.py#L268
@@ -199,7 +191,7 @@ class MLOxidationStates:
         y_valid = y[n_train:]
 
         # calibrate the base esimators
-        vc = VotingClassifier(models_sklearn, voting=voting)
+        vc = VotingClassifier(models, voting=voting)
         trainlogger.debug('now, calibrating the base base estimators')
 
         vc._calibrate_base_estimators(calibrate, X_valid, y_valid)  # pylint:disable=protected-access
@@ -211,17 +203,17 @@ class MLOxidationStates:
 
     @staticmethod
     def tune_fit(  # pylint:disable=dangerous-default-value
-            models: list,
-            X: np.ndarray,
-            y: np.ndarray,
-            max_evals: int = 400,
-            timeout: int = 10 * 60,
-            mix_ratios: dict = {
-                'rand': 0.1,
-                'tpe': 0.8,
-                'anneal': 0.1
-            },
-            valid_size: float = VALID_SIZE,
+        models: list,
+        X: np.ndarray,
+        y: np.ndarray,
+        max_evals: int = 400,
+        timeout: int = 10 * 60,
+        mix_ratios: dict = {
+            'rand': 0.1,
+            'tpe': 0.8,
+            'anneal': 0.1
+        },
+        valid_size: float = VALID_SIZE,
     ) -> list:
         """Tune model hyperparameters using hyperopt using a mixed strategy.
         Make sure when using this function that no data leakage happens.
@@ -318,14 +310,14 @@ class MLOxidationStates:
 
     @staticmethod
     def model_eval(
-            models: list,
-            xtrain: np.array,
-            ytrain: np.array,
-            xtest: np.array,
-            ytest: np.array,
-            postfix: str = 0,
-            outdir_metrics: str = None,
-            outdir_models: str = None,
+        models: list,
+        xtrain: np.array,
+        ytrain: np.array,
+        xtest: np.array,
+        ytest: np.array,
+        postfix: str = 0,
+        outdir_metrics: str = None,
+        outdir_models: str = None,
     ):
         """Peforms a model evaluation on training and test set and dump the predictions with the actual values
         into an outout file
@@ -697,17 +689,17 @@ class MLOxidationStates:
 @click.argument('oversampling', default='smote')
 @click.option('--train_one_fold', is_flag=True)
 def train_model(
-        xpath,
-        ypath,
-        modelpath,
-        metricspath,
-        scaler,
-        voting,
-        calibrate,
-        max_size,
-        n,
-        oversampling,
-        train_one_fold,
+    xpath,
+    ypath,
+    modelpath,
+    metricspath,
+    scaler,
+    voting,
+    calibrate,
+    max_size,
+    n,
+    oversampling,
+    train_one_fold,
 ):
     if not os.path.exists(os.path.abspath(modelpath)):
         os.mkdir(os.path.abspath(modelpath))

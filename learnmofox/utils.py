@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
 # pylint:disable=no-else-return,invalid-name
-from __future__ import absolute_import
-from __future__ import print_function
 import os
-import numpy as np
 import pickle
-from sklearn.ensemble.voting import _parallel_fit_estimator
-from sklearn.dummy import DummyClassifier
+import warnings
+
+import numpy as np
+from ml_insights import SplineCalibratedClassifierCV
 from scipy.stats import zscore
 from sklearn.calibration import _CalibratedClassifier
-from ml_insights import SplineCalibratedClassifierCV
+from sklearn.dummy import DummyClassifier
 from sklearn.preprocessing import LabelBinarizer
-import warnings
+
 from learnmofox.run import TrainVotingClassifier
-from mine_mof_oxstate.utils import apricot_select
+
+# the naming of this function was changed in 5e443b3
+try:
+    from sklearn.ensemble.voting import _parallel_fit_estimator
+except ImportError:
+    from sklearn.ensemble.voting import _fit_single_estimator as _parallel_fit_estimator
 
 SUBMISSION_TEMPLATE = """#!/bin/bash -l
 #SBATCH --chdir ./
@@ -33,15 +37,15 @@ export COMET_API_KEY='Nqp9NvaVztUCG2exYT9vV2Dl0'
 
 
 def training_calibrate(  # pylint:disable=too-many-arguments
-        modelpath,
-        featurepath,
-        labelpath,
-        validxpath,
-        validypath,
-        outdir,
-        scaler='standard',
-        voting='soft',
-        calibration='isotonic',
+    modelpath,
+    featurepath,
+    labelpath,
+    validxpath,
+    validypath,
+    outdir,
+    scaler='standard',
+    voting='soft',
+    calibration='isotonic',
 ):
     """Loads, trains and calibrates a votingclassifier and return the fitted classifier and the 'trained' scaler"""
     vc = TrainVotingClassifier.from_files(
@@ -58,17 +62,6 @@ def training_calibrate(  # pylint:disable=too-many-arguments
     vc.train()
     model, scaler = vc.return_models()
     return model, scaler
-
-
-def summarize_data(x, y, points):
-    assert len(x) == len(y)
-    assert len(y) >= points  # otherwise there is no way to select anything
-    indices = apricot_select(x, points)
-
-    xsummarized = x[indices]
-    ysummarized = y[indices]
-
-    return xsummarized, ysummarized
 
 
 def make_if_not_exist(filepath):
@@ -89,7 +82,7 @@ def setup_dummy(trainxpath, trainypath):
 
 
 def load_data(  # pylint:disable=too-many-arguments
-        trainxpath, trainypath, validxpath, validypath, holdoutxpath, holdoutypath):
+    trainxpath, trainypath, validxpath, validypath, holdoutxpath, holdoutypath):
     """Loads the data and returns np.arrays"""
     trainx = np.load(trainxpath)
     trainy = np.load(trainypath)

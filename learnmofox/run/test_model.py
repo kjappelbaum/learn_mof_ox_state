@@ -3,22 +3,19 @@
 """
 This module is meant to be used to test the performance on a seperate holdout set
 """
-
-from __future__ import absolute_import
-from __future__ import print_function
-import numpy as np
-import os
-import pandas as pd
 import json
-import click
-from comet_ml import Experiment
+import os
 
+import click
+import numpy as np
+import pandas as pd
+from comet_ml import Experiment
 from joblib import load
-from mine_mof_oxstate.utils import read_pickle
-from learnmofox.metrics import bootstrapped_metrics, return_scoring_funcs
 from mlxtend.evaluate import feature_importance_permutation
 from sklearn.calibration import calibration_curve
-from six.moves import zip
+
+from learnmofox.metrics import bootstrapped_metrics, return_scoring_funcs
+from oximachine_featurizer.utils import read_pickle
 
 
 class NpEncoder(json.JSONEncoder):
@@ -36,13 +33,13 @@ class NpEncoder(json.JSONEncoder):
 
 
 def test_model(  # pylint:disable=too-many-arguments
-        modelpath: str,
-        scalerpath: str,
-        Xpath: str,
-        ypath: str,
-        namepath: str,
-        outpath: str,
-        featurelabelpath: str = None,
+    modelpath: str,
+    scalerpath: str,
+    Xpath: str,
+    ypath: str,
+    namepath: str,
+    outpath: str,
+    featurelabelpath: str = None,
 ):  # pylint:disable=too-many-locals
     """Takes a trained model and performes some tests on it and calculates statistics.
 

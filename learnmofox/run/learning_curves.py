@@ -1,23 +1,16 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
-import os
-import pandas as pd
-import numpy as np
-import click
-
-from comet_ml import Experiment  # pylint:disable=unused-import
-from sklearn.preprocessing import StandardScaler
-from dask.distributed import Client, LocalCluster
-from functools import partial
 import itertools
-from learnmofox.utils import (
-    setup_dummy,
-    get_metrics_dict,
-    make_if_not_exist,
-    training_calibrate,
-    summarize_data,
-)
+import os
+from functools import partial
+
+import click
+import numpy as np
+import pandas as pd
+from comet_ml import Experiment  # pylint:disable=unused-import
+from dask.distributed import Client, LocalCluster
+from sklearn.preprocessing import StandardScaler
+
+from learnmofox.utils import (get_metrics_dict, make_if_not_exist, setup_dummy, summarize_data, training_calibrate)
 
 # Module to calculate learning curves.
 # To run you need to:
@@ -33,13 +26,13 @@ from learnmofox.utils import (
 
 
 def model_evaluate(  # pylint:disable=too-many-arguments
-        model,
-        scaler,
-        trainxpath,
-        trainypath,
-        holdoutxpath,
-        holdoutypath,
-        dummy=False):
+    model,
+    scaler,
+    trainxpath,
+    trainypath,
+    holdoutxpath,
+    holdoutypath,
+    dummy=False):
     """Predicts using the model from training and holdout set and returns two dictionaries with the metrics"""
     if scaler is None:
         scaler = StandardScaler().fit(np.load(trainxpath))
@@ -90,14 +83,14 @@ def setup_learning_curve_point(trainxpath, trainypath, points):
 
 
 def orchestrate_training_point(  # pylint:disable=too-many-arguments
-        modelpath,
-        trainxpath,
-        trainypath,
-        validxpath,
-        validypath,
-        holdoutxpath,
-        holdoutypath,
-        points,
+    modelpath,
+    trainxpath,
+    trainypath,
+    validxpath,
+    validypath,
+    holdoutxpath,
+    holdoutypath,
+    points,
 ):
     # Setup directories and summarize data
     datadir, modeldir = setup_learning_curve_point(trainxpath, trainypath, points)
@@ -131,25 +124,25 @@ def orchestrate_training_point(  # pylint:disable=too-many-arguments
 
 
 def learning_curve(  # pylint:disable=dangerous-default-value, too-many-arguments, too-many-locals
-        modelpath,
-        trainxpath,
-        trainypath,
-        validxpath,
-        validypath,
-        holdoutxpath,
-        holdoutypath,
-        sizes=[
-            100000,
-            80000,
-            60000,
-            40000,
-            20000,
-            10000,
-            5000,
-            2000,
-            1000,
-            500,
-        ],
+    modelpath,
+    trainxpath,
+    trainypath,
+    validxpath,
+    validypath,
+    holdoutxpath,
+    holdoutypath,
+    sizes=[
+        100000,
+        80000,
+        60000,
+        40000,
+        20000,
+        10000,
+        5000,
+        2000,
+        1000,
+        500,
+    ],
 ):
 
     # Set up the dummy classifiers
@@ -232,14 +225,14 @@ def learning_curve(  # pylint:disable=dangerous-default-value, too-many-argument
 @click.argument('holdoutypath', type=click.Path(exists=True))
 @click.argument('sizes', type=int, nargs=-1)
 def main(  # pylint:disable=too-many-arguments
-        modelpath,
-        trainxpath,
-        trainypath,
-        validxpath,
-        validypath,
-        holdoutxpath,
-        holdoutypath,
-        sizes,
+    modelpath,
+    trainxpath,
+    trainypath,
+    validxpath,
+    validypath,
+    holdoutxpath,
+    holdoutypath,
+    sizes,
 ):
     print('*** Learning curve ***')
     print(('will calculate the learning curve for following training set sizes {}'.format(sizes)))

@@ -1,31 +1,31 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
-from __future__ import print_function
-from comet_ml import Experiment
-from pathlib import Path
-import time
-import numpy as np
-import click
-from learnmofox.tune_train import MLOxidationStates, trainlogger
-import logging
-import joblib
+# pylint:disable=logging-format-interpolation
 import os
+import time
+from pathlib import Path
+
+import click
+import joblib
+import numpy as np
+from comet_ml import Experiment
+
+from learnmofox.tune_train import MLOxidationStates, trainlogger
 
 RANDOM_SEED = 821996
-STARTTIMESTRING = time.strftime("%Y%m%d-%H%M%S")
+STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
 MIN_SAMPLES = 10
 
 
-@click.command("cli")
-@click.argument("xpath", type=click.Path(exists=True))
-@click.argument("ypath", type=click.Path(exists=True))
-@click.argument("xvalidpath", type=click.Path(exists=True))
-@click.argument("yvalidpath", type=click.Path(exists=True))
-@click.argument("xtestpath", type=click.Path(exists=True))
-@click.argument("ytestpath", type=click.Path(exists=True))
-@click.argument("modelpath", type=click.Path())
-@click.argument("models", nargs=-1)
-@click.argument("scaler", nargs=1)
+@click.command('cli')
+@click.argument('xpath', type=click.Path(exists=True))
+@click.argument('ypath', type=click.Path(exists=True))
+@click.argument('xvalidpath', type=click.Path(exists=True))
+@click.argument('yvalidpath', type=click.Path(exists=True))
+@click.argument('xtestpath', type=click.Path(exists=True))
+@click.argument('ytestpath', type=click.Path(exists=True))
+@click.argument('modelpath', type=click.Path())
+@click.argument('models', nargs=-1)
+@click.argument('scaler', nargs=1)
 def train_model(
     xpath,
     ypath,
@@ -40,7 +40,7 @@ def train_model(
     if not os.path.exists(os.path.abspath(modelpath)):
         os.mkdir(os.path.abspath(modelpath))
 
-    experiment = Experiment(project_name="mof-oxidation-states")
+    experiment = Experiment(project_name='mof-oxidation-states')
     experiment.log_asset(xpath)
     experiment.log_asset(ypath)
     experiment.log_asset(xvalidpath)
@@ -48,14 +48,14 @@ def train_model(
     experiment.log_asset(xtestpath)
     experiment.log_asset(ytestpath)
 
-    trainlogger.info("Train X: {}".format(xpath))
-    trainlogger.info("Train y: {}".format(ypath))
+    trainlogger.info('Train X: {}'.format(xpath))
+    trainlogger.info('Train y: {}'.format(ypath))
 
-    trainlogger.info("Validation X: {}".format(xvalidpath))
-    trainlogger.info("Validation y: {}".format(yvalidpath))
+    trainlogger.info('Validation X: {}'.format(xvalidpath))
+    trainlogger.info('Validation y: {}'.format(yvalidpath))
 
-    trainlogger.info("Test X: {}".format(xtestpath))
-    trainlogger.info("Test y: {}".format(ytestpath))
+    trainlogger.info('Test X: {}'.format(xtestpath))
+    trainlogger.info('Test y: {}'.format(ytestpath))
 
     train_stem = Path(xpath).stem
     ml_object = MLOxidationStates.from_x_y_paths(
@@ -66,8 +66,8 @@ def train_model(
         modelpath=os.path.abspath(modelpath),
         scaler=scaler,
         n=int(10),
-        voting="soft",
-        calibrate="istonic",
+        voting='soft',
+        calibrate='istonic',
         experiment=experiment,
     )
 
@@ -91,23 +91,20 @@ def train_model(
         ml_object.calibrate,
     )
 
-    votingclassifier_tuple = [("votingclassifier_" + train_stem, votingclassifier)]
+    votingclassifier_tuple = [('votingclassifier_' + train_stem, votingclassifier)]
 
-    cores_test = ml_object.model_eval(
-        votingclassifier_tuple, X_test, y_test, experiment, "test", modelpath
-    )
-    scores_train = ml_object.model_eval(
-        votingclassifier_tuple, ml_object.x, ml_object.y, experiment, "train", modelpath
-    )
+    cores_test = ml_object.model_eval(votingclassifier_tuple, X_test, y_test, experiment, 'test', modelpath)
+    scores_train = ml_object.model_eval(votingclassifier_tuple, ml_object.x, ml_object.y, experiment, 'train',
+                                        modelpath)
     scores_valid = ml_object.model_eval(
         votingclassifier_tuple,
         ml_object.x_valid,
         ml_object.y_valid,
         experiment,
-        "valid",
+        'valid',
         modelpath,
     )
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     train_model()  # pylint:disable=no-value-for-parameter

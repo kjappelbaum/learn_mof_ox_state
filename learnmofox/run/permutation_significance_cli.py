@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-
-from __future__ import absolute_import
-from __future__ import print_function
-import click
-from learnmofox import utils
-from learnmofox.metrics import permutation_test
-import joblib
-import numpy as np
 import pickle
 import sys
+
+import click
+import joblib
+import numpy as np
 from sklearn.metrics import balanced_accuracy_score
+
+from learnmofox import utils
+from learnmofox.metrics import permutation_test
 from learnmofox.utils import summarize_data
+
 sys.modules['utils'] = utils
 
 

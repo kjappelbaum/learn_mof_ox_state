@@ -7,29 +7,28 @@ expensive hyperopt search should be performed.
 This assumed that we read a VotingClassifier, which has the private _fit and _calibrate
 methods.
 """
-from __future__ import absolute_import
-from __future__ import print_function
-import time
 import os
+import time
+
 import click
 import numpy as np
-from joblib import load, dump
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler
+from joblib import dump, load
+from sklearn.preprocessing import MinMaxScaler, RobustScaler, StandardScaler
 
 
 class TrainVotingClassifier:
 
     def __init__(  # pylint:disable=too-many-arguments
-            self,
-            votingclassifier,
-            X,
-            y,
-            calibration=None,
-            voting=None,
-            outdir=None,
-            scaler='minmax',
-            validX=None,
-            validy=None,
+        self,
+        votingclassifier,
+        X,
+        y,
+        calibration=None,
+        voting=None,
+        outdir=None,
+        scaler='minmax',
+        validX=None,
+        validy=None,
     ):
         self.votingclassifier = votingclassifier
         self.X = X
@@ -72,16 +71,16 @@ class TrainVotingClassifier:
 
     @classmethod
     def from_files(  # pylint:disable=too-many-arguments, too-many-locals
-            cls,
-            joblibpath,
-            featurematrixpath,
-            labelpath,
-            calibration=None,
-            voting=None,
-            outdir=None,
-            scaler='standard',
-            validX=None,
-            validy=None,
+        cls,
+        joblibpath,
+        featurematrixpath,
+        labelpath,
+        calibration=None,
+        voting=None,
+        outdir=None,
+        scaler='standard',
+        validX=None,
+        validy=None,
     ):
         model = load(joblibpath)
         X = np.load(featurematrixpath)
@@ -135,15 +134,15 @@ class TrainVotingClassifier:
 @click.argument('validx')
 @click.argument('validy')
 def main(  # pylint:disable=too-many-arguments
-        modelpath,
-        featurepath,
-        labelpath,
-        calibration,
-        voting,
-        outdir,
-        scaler,
-        validx,
-        validy,
+    modelpath,
+    featurepath,
+    labelpath,
+    calibration,
+    voting,
+    outdir,
+    scaler,
+    validx,
+    validy,
 ):
 
     vc = TrainVotingClassifier.from_files(

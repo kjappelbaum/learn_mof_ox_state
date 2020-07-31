@@ -2,19 +2,18 @@
 """
 This module can be used to get a learning curve point with bootstrapped errorbars.
 """
-
-from __future__ import absolute_import
-from __future__ import print_function
-import numpy as np
 import os
-import pandas as pd
+
 import click
-from learnmofox.utils import training_calibrate, make_if_not_exist, summarize_data
+import numpy as np
+import pandas as pd
+
 from learnmofox.metrics import bootstrapped_metrics, return_scoring_funcs
+from learnmofox.utils import (make_if_not_exist, summarize_data, training_calibrate)
 
 
 def setup_learning_curve_point(  # pylint:disable=too-many-arguments, too-many-locals
-        trainxpath, trainypath, validxpath, validypath, points, basepath):
+    trainxpath, trainypath, validxpath, validypath, points, basepath):
     # Set up directories
     learning_curve_point_dir = os.path.join(basepath, '_'.join(['model', str(int(points))]))
     make_if_not_exist(learning_curve_point_dir)
@@ -45,16 +44,16 @@ def setup_learning_curve_point(  # pylint:disable=too-many-arguments, too-many-l
 
 
 def test_model(  # pylint:disable=too-many-arguments
-        modelpath: str,
-        xtrainpath: str,
-        ytrainpath: str,
-        xvalidpath: str,
-        yvalidpath: str,
-        xtestpath: str,
-        ytestpath: str,
-        outpath: str,
-        numpoints: int,
-        bootstraps: int,  # pylint:disable=unused-argument
+    modelpath: str,
+    xtrainpath: str,
+    ytrainpath: str,
+    xvalidpath: str,
+    yvalidpath: str,
+    xtestpath: str,
+    ytestpath: str,
+    outpath: str,
+    numpoints: int,
+    bootstraps: int,  # pylint:disable=unused-argument
 ):  # pylint:disable=too-many-locals
 
     print('Subsampling')
@@ -102,16 +101,16 @@ def test_model(  # pylint:disable=too-many-arguments
 @click.argument('numpoints', type=int)
 @click.argument('bootstraps', type=int, default=200)
 def main(
-        modelpath,
-        xtrainpath,
-        ytrainpath,
-        xvalidpath,
-        yvalidpath,
-        xtestpath,
-        ytestpath,
-        outpath,
-        numpoints,
-        bootstraps,
+    modelpath,
+    xtrainpath,
+    ytrainpath,
+    xvalidpath,
+    yvalidpath,
+    xtestpath,
+    ytestpath,
+    outpath,
+    numpoints,
+    bootstraps,
 ):  # pylint:disable=too-many-arguments
     test_model(
         modelpath,
