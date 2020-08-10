@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
 import os
+import joblib
 import pickle
-from functools import partial
 import time
+from functools import partial
+
 import numpy as np
 from comet_ml import Experiment
 from hpsklearn import components
 from hpsklearn.estimator import hyperopt_estimator
 from hyperopt import anneal, hp, mix, rand, tpe
 from joblib import dump
+from sklearn.feature_selection import VarianceThreshold
 from sklearn.metrics import (accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score)
+from sklearn.preprocessing import StandardScaler
 
 from learnmofox.utils import VotingClassifier
+
 STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
 TIMEOUT = 200
 MAX_EVALS = 100
@@ -147,6 +152,19 @@ def main():
     X_train = np.load(FEAT_TRAIN_PATH)
     X_valid = np.load(FEAT_VALID_PATH)
     X_test = np.load(FEAT_TEST_PATH)
+
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_valid = scaler.transform(X_valid)
+    X_test = scaler.transform(X_test)
+
+    joblib.dump(os.path.join('models', STARTTIMESTRING + '_' + 'scaler.joblib'), scaler)
+    vt = VarianceThreshold(0.1)
+    X_train = vt.fit_transform(X_train)
+    X_valid = vt.transform(X_valid)
+    X_test = vt.transform(X_test)
+
+    joblib.dump(os.path.join('models', STARTTIMESTRING + '_' + 'vt.joblib'), vt)
 
     y_train = np.load(LABEL_TRAIN_PATH)
     y_valid = np.load(LABEL_VALID_PATH)
