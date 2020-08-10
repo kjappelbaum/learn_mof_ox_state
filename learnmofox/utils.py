@@ -82,7 +82,8 @@ def setup_dummy(trainxpath, trainypath):
 
 
 def load_data(  # pylint:disable=too-many-arguments
-    trainxpath, trainypath, validxpath, validypath, holdoutxpath, holdoutypath):
+    trainxpath, trainypath, validxpath, validypath, holdoutxpath, holdoutypath
+):
     """Loads the data and returns np.arrays"""
     trainx = np.load(trainxpath)
     trainy = np.load(trainypath)
@@ -109,16 +110,19 @@ class VotingClassifier:
     https://gist.github.com/tomquisel/a421235422fdf6b51ec2ccc5e3dee1b4"""
 
     def __init__(self, estimators, voting='hard', weights=None):
-        self._estimators = [e[1] for e in estimators]  # in self._estimators are the raw, uncalibrated, estimators
-        self.estimators = (self._estimators
-                          )  # in self.estimators are the calibrated estimators which are used for predictions
+        self._estimators = [
+            e[1] for e in estimators
+        ]  # in self._estimators are the raw, uncalibrated, estimators
+        self.estimators = (
+            self._estimators
+        )  # in self.estimators are the calibrated estimators which are used for predictions
         self.named_estimators = dict(estimators)
         self.voting = voting
         self.weights = weights
         self.calibration = None
         self.calibrated = False
         self.refitted = False
-        self.classes = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+        self.classes = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8])
         self.lb = LabelBinarizer()
         self.lb.fit(self.classes)
 
@@ -132,7 +136,9 @@ class VotingClassifier:
         y = y.astype(np.int)
         # if len(y.shape) == 1:
         #    y = self.lb.transform(y)
-        self._estimators = [_parallel_fit_estimator(e, X, y, sample_weight) for e in self._estimators]
+        self._estimators = [
+            _parallel_fit_estimator(e, X, y, sample_weight) for e in self._estimators
+        ]
         self.calibrated = False
         self.refitted = True
         # self.classes = np.unique(y)
@@ -140,10 +146,14 @@ class VotingClassifier:
     def _calibrate_base_estimators(self, method, X, y):
         self.calibration = method
         self._check_is_fitted()
-        self.estimators = [self._calibrate_model(model, method, X, y) for model in self._estimators]
+        self.estimators = [
+            self._calibrate_model(model, method, X, y) for model in self._estimators
+        ]
         self.calibrated = True
 
-    def _calibrate_model(self, model, method: str, X_valid: np.array, y_valid: np.array):
+    def _calibrate_model(
+        self, model, method: str, X_valid: np.array, y_valid: np.array
+    ):
         """
         Note that we use _CalibratedClassifier to better deal with the label encoding.
 
@@ -157,10 +167,14 @@ class VotingClassifier:
             [_CalibratedClassifier] -- calibrated classifier
         """
         if method == 'isotonic':
-            calibrated = _CalibratedClassifier(model, method='isotonic', classes=self.classes)
+            calibrated = _CalibratedClassifier(
+                model, method='isotonic', classes=self.classes
+            )
             calibrated.fit(X_valid, y_valid)
         elif method == 'sigmoid':
-            calibrated = _CalibratedClassifier(model, method='sigmoid', classes=self.classes)
+            calibrated = _CalibratedClassifier(
+                model, method='sigmoid', classes=self.classes
+            )
             calibrated.fit(X_valid, y_valid)
         elif method == 'none':
             calibrated = model
@@ -169,7 +183,9 @@ class VotingClassifier:
             calibrated = SplineCalibratedClassifierCV(model, cv='prefit')
             calibrated.fit(X_valid, y_valid)
         else:
-            calibrated = _CalibratedClassifier(model, method='sigmoid', classes=self.classes)
+            calibrated = _CalibratedClassifier(
+                model, method='sigmoid', classes=self.classes
+            )
             calibrated.fit(X_valid, y_valid)
 
         return calibrated
@@ -231,7 +247,9 @@ class VotingClassifier:
         """Predict class probabilities for X in 'soft' voting """
         self._check_is_fitted()
         if self.voting == 'hard':
-            raise AttributeError('predict_proba is not available when' ' voting=%r' % self.voting)
+            raise AttributeError(
+                'predict_proba is not available when' ' voting=%r' % self.voting
+            )
         avg = np.average(self._collect_probas(X), axis=0, weights=self.weights)
         return avg
 
@@ -276,5 +294,6 @@ class VotingClassifier:
         """Collect results from clf.predict calls. """
         if not self.calibrated:
             warnings.warn('Using uncalibrated classififier')
-        return np.asarray([np.argmax(clf.predict_proba(X), axis=1) for clf in self.estimators
-                          ]).T  # workaround since _Classifier has no predictt method
+        return np.asarray(
+            [np.argmax(clf.predict_proba(X), axis=1) for clf in self.estimators]
+        ).T  # workaround since _Classifier has no predictt method
