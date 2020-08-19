@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from joblib import load, dump
 from comet_ml import Experiment
 import os
@@ -14,15 +15,15 @@ from sklearn.metrics import (
 from sklearn.preprocessing import StandardScaler
 
 
-STARTTIMESTRING = time.strftime("%Y%m%d-%H%M%S")
+STARTTIMESTRING = time.strftime('%Y%m%d-%H%M%S')
 
-FEAT_TRAIN_PATH = "/scratch/kjablonk/oximachine_all/merged_dataset2/features_train.npy"
-FEAT_TEST_PATH = "/scratch/kjablonk/oximachine_all/merged_dataset2/features_test.npy"
-FEAT_VALID_PATH = "/scratch/kjablonk/oximachine_all/merged_dataset2/features_valid.npy"
+FEAT_TRAIN_PATH = '/scratch/kjablonk/oximachine_all/merged_dataset2/features_train.npy'
+FEAT_TEST_PATH = '/scratch/kjablonk/oximachine_all/merged_dataset2/features_test.npy'
+FEAT_VALID_PATH = '/scratch/kjablonk/oximachine_all/merged_dataset2/features_valid.npy'
 
-LABEL_TRAIN_PATH = "/scratch/kjablonk/oximachine_all/merged_dataset2/labels_train.npy"
-LABEL_TEST_PATH = "/scratch/kjablonk/oximachine_all/merged_dataset2/labels_test.npy"
-LABEL_VALID_PATH = "/scratch/kjablonk/oximachine_all/merged_dataset2/labels_valid.npy"
+LABEL_TRAIN_PATH = '/scratch/kjablonk/oximachine_all/merged_dataset2/labels_train.npy'
+LABEL_TEST_PATH = '/scratch/kjablonk/oximachine_all/merged_dataset2/labels_test.npy'
+LABEL_VALID_PATH = '/scratch/kjablonk/oximachine_all/merged_dataset2/labels_valid.npy'
 
 
 from sklearn.preprocessing import StandardScaler
@@ -30,7 +31,7 @@ from sklearn.preprocessing import StandardScaler
 from learnmofox.utils import VotingClassifier
 
 experiment = Experiment(
-    api_key=os.getenv("COMET_API_KEY", None), project_name="mof-oxidation-states",
+    api_key=os.getenv('COMET_API_KEY', None), project_name='mof-oxidation-states',
 )
 
 X_train = np.load(FEAT_TRAIN_PATH)
@@ -58,7 +59,7 @@ def model_eval(
     ytrain: np.array,
     xtest: np.array,
     ytest: np.array,
-    postfix: str = "0",
+    postfix: str = '0',
     outdir_metrics: str = None,
     outdir_models: str = None,
 ):
@@ -78,15 +79,15 @@ def model_eval(
     predictions = []
 
     for name, model in models:
-        outdir_metrics_verbose = os.path.join(os.path.join(outdir_metrics, "verbose"))
+        outdir_metrics_verbose = os.path.join(os.path.join(outdir_metrics, 'verbose'))
         if not os.path.exists(outdir_metrics_verbose):
             os.mkdir(outdir_metrics_verbose)
 
         outname_base_metrics = os.path.join(
-            outdir_metrics_verbose, "_".join([STARTTIMESTRING, name, postfix])
+            outdir_metrics_verbose, '_'.join([STARTTIMESTRING, name, postfix])
         )
         outname_base_models = os.path.join(
-            outdir_models, "_".join([STARTTIMESTRING, name, postfix])
+            outdir_models, '_'.join([STARTTIMESTRING, name, postfix])
         )
 
         train_true = ytrain
@@ -96,74 +97,74 @@ def model_eval(
         test_predict = model.predict(xtest)
         accuracy_train = accuracy_score(train_true, train_predict)
         accuracy_test = accuracy_score(test_true, test_predict)
-        f1_micro_train = f1_score(train_true, train_predict, average="micro")
-        f1_micro_test = f1_score(test_true, test_predict, average="micro")
+        f1_micro_train = f1_score(train_true, train_predict, average='micro')
+        f1_micro_test = f1_score(test_true, test_predict, average='micro')
 
-        f1_macro_train = f1_score(train_true, train_predict, average="macro")
-        f1_macro_test = f1_score(test_true, test_predict, average="macro")
+        f1_macro_train = f1_score(train_true, train_predict, average='macro')
+        f1_macro_test = f1_score(test_true, test_predict, average='macro')
 
         balanced_accuracy_train = balanced_accuracy_score(train_true, train_predict)
         balanced_accuracy_test = balanced_accuracy_score(test_true, test_predict)
-        precision_train = precision_score(train_true, train_predict, average="micro")
-        precision_test = precision_score(train_true, train_predict, average="micro")
-        recall_train = recall_score(train_true, train_predict, average="micro")
-        recall_test = recall_score(test_true, test_predict, average="micro")
+        precision_train = precision_score(train_true, train_predict, average='micro')
+        precision_test = precision_score(train_true, train_predict, average='micro')
+        recall_train = recall_score(train_true, train_predict, average='micro')
+        recall_test = recall_score(test_true, test_predict, average='micro')
 
         prediction = {
-            "model": name,
-            "postfix": postfix,
-            "outname_base_models": outname_base_models,
-            "outname_base_metrics": outname_base_metrics,
-            "accuracy_train": accuracy_train,
-            "accuracy_test": accuracy_test,
-            "f1_micro_train": f1_micro_train,
-            "f1_micro_test": f1_micro_test,
-            "f1_macro_train": f1_macro_train,
-            "f1_macro_test": f1_macro_test,
-            "balanced_accuracy_train": balanced_accuracy_train,
-            "balanced_accuracy_test": balanced_accuracy_test,
-            "precision_train": precision_train,
-            "precision_test": precision_test,
-            "recall_train": recall_train,
-            "recall_test": recall_test,
-            "training_points": len(ytrain),
-            "test_points": len(ytest),
+            'model': name,
+            'postfix': postfix,
+            'outname_base_models': outname_base_models,
+            'outname_base_metrics': outname_base_metrics,
+            'accuracy_train': accuracy_train,
+            'accuracy_test': accuracy_test,
+            'f1_micro_train': f1_micro_train,
+            'f1_micro_test': f1_micro_test,
+            'f1_macro_train': f1_macro_train,
+            'f1_macro_test': f1_macro_test,
+            'balanced_accuracy_train': balanced_accuracy_train,
+            'balanced_accuracy_test': balanced_accuracy_test,
+            'precision_train': precision_train,
+            'precision_test': precision_test,
+            'recall_train': recall_train,
+            'recall_test': recall_test,
+            'training_points': len(ytrain),
+            'test_points': len(ytest),
         }
 
         arrays = {
-            "train_true": train_true,
-            "train_predict": train_predict,
-            "test_predict": test_predict,
-            "test_true": test_true,
+            'train_true': train_true,
+            'train_predict': train_predict,
+            'test_predict': test_predict,
+            'test_true': test_true,
         }
 
         arrays.update(prediction)
 
         predictions.append(arrays)
 
-        with open(outname_base_metrics + ".pkl", "wb") as fh:
+        with open(outname_base_metrics + '.pkl', 'wb') as fh:
             pickle.dump(arrays, fh)
 
-        dump(model, outname_base_models + ".joblib")
+        dump(model, outname_base_models + '.joblib')
 
 
 optimized_models = [
-    ("gradient_boosting", load("models/20200814-184230_gradient_boosting_0.joblib")),
-    ("sgd", load("models/20200814-184230_sgd_0.joblib")),
-    ("knn", load("models/20200814-184230_knn_0.joblib")),
-    ("extra_trees", load("models/20200814-184230_extra_trees_0.joblib")),
+    ('gradient_boosting', load('models/20200814-184230_gradient_boosting_0.joblib')),
+    ('sgd', load('models/20200814-184230_sgd_0.joblib')),
+    ('knn', load('models/20200814-184230_knn_0.joblib')),
+    ('extra_trees', load('models/20200814-184230_extra_trees_0.joblib')),
 ]
 
-vc = VotingClassifier(optimized_models, voting="soft")
+vc = VotingClassifier(optimized_models, voting='soft')
 
-vc._calibrate_base_estimators("sigmoid", X_valid, y_valid)
+vc._calibrate_base_estimators('sigmoid', X_valid, y_valid)
 
 model_eval(
-    [("ensemble", vc)],
+    [('ensemble', vc)],
     X_train,
     y_train,
     X_test,
     y_test,
-    outdir_metrics="metrics",
-    outdir_models="models",
+    outdir_metrics='metrics',
+    outdir_models='models',
 )
