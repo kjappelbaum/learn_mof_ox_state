@@ -3,15 +3,11 @@
 [![Actions Status](https://github.com/kjappelbaum/learn_mof_ox_state/workflows/Python%20package/badge.svg)](https://github.com/kjappelbaum/learn_mof_ox_state/actions)
 [![](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/download/releases/3.6.0/)
 [![DOI](https://zenodo.org/badge/208837592.svg)](https://zenodo.org/badge/latestdoi/208837592)
-[![Maintainability](https://api.codeclimate.com/v1/badges/2a0c417e69517a2738d2/maintainability)](https://codeclimate.com/github/kjappelbaum/learn_mof_ox_state/maintainability)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kjappelbaum/learn_mof_ox_state/master?filepath=examples%2Fexample.ipynb)
 
 Tools to train and test a voting classifier that predicts oxidation states (of MOFs).
 
 > ⚠️ **Warning**: You need to export `COMET_API_KEY`, as the code will look for it if you want to track your experiments (when you retrain the model). If you do not want to do this, remove those lines in the code. You might also want to consider other tracking options such as weights and biases.
-
-**Info**: For some parts, there are also [`.dvc` files](https://dvc.org) that allow to reproduce the pipeline.
 
 ## Installation
 
@@ -36,7 +32,7 @@ Note that the models have been fitted using `scikit-learn==0.21.3` and therefore
 
 - Some experiments we ran, together with code and datahash, can also be found at [comet.ml](https://www.comet.ml/kjappelbaum/mof-oxidation-states/view/)
 
-- For testing a pre-trained model we recommend using our [webapp](go.epfl.ch/oximachine), for which the code can be found, along with the Docker images, in another [GitHub repository](https://github.com/kjappelbaum/oximachinetool).
+- For testing a pre-trained model we recommend using our [webapp](go.epfl.ch/oximachine), for which the code can be found, along with the Docker images, in another [GitHub repository](http://github.com/kjappelbaum/oximachinetool). There is also a small Python package, [oximachinerunner](https://github.com/kjappelbaum/oximachinerunner), that allows to run inference on crystal structures.
 
 ## File contents
 

@@ -9,12 +9,14 @@ from learnmofox import utils
 
 THIS_DIR = os.path.dirname(__file__)
 
-sys.modules['utils'] = utils
+sys.modules["utils"] = utils
 
-model = load(os.path.join(THIS_DIR, '..', 'examples', 'votingclassifier_patched.joblib'))
-scaler = load(os.path.join(THIS_DIR, '..', 'examples', 'scaler_0.joblib'))
+model = load(
+    os.path.join(THIS_DIR, "..", "examples", "votingclassifier_patched.joblib")
+)
+scaler = load(os.path.join(THIS_DIR, "..", "examples", "scaler_0.joblib"))
 
-with open(os.path.join(THIS_DIR, '..', 'examples', 'features.pkl'), 'rb') as fh:
+with open(os.path.join(THIS_DIR, "..", "examples", "features.pkl"), "rb") as fh:
     features_dict = pickle.load(fh)
 
 

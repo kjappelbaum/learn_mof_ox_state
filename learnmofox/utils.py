@@ -43,9 +43,9 @@ def training_calibrate(  # pylint:disable=too-many-arguments
     validxpath,
     validypath,
     outdir,
-    scaler='standard',
-    voting='soft',
-    calibration='isotonic',
+    scaler="standard",
+    voting="soft",
+    calibration="isotonic",
 ):
     """Loads, trains and calibrates a votingclassifier and return the fitted classifier and the 'trained' scaler"""
     vc = TrainVotingClassifier.from_files(
@@ -72,8 +72,8 @@ def make_if_not_exist(filepath):
 def setup_dummy(trainxpath, trainypath):
     X = np.load(trainxpath)
     y = np.load(trainypath)
-    dummy_uniform = DummyClassifier(strategy='uniform')
-    dummy_stratified = DummyClassifier(strategy='stratified')
+    dummy_uniform = DummyClassifier(strategy="uniform")
+    dummy_stratified = DummyClassifier(strategy="stratified")
 
     dummy_uniform.fit(X, y)
     dummy_stratified.fit(X, y)
@@ -98,7 +98,7 @@ def load_data(  # pylint:disable=too-many-arguments
 
 
 def read_pickle(f: str):
-    with open(f, 'rb') as fh:
+    with open(f, "rb") as fh:
         res = pickle.load(fh)
     return res
 
@@ -109,7 +109,7 @@ class VotingClassifier:
         - Multiclass as I like it (prediction gives the label and not the index)
     https://gist.github.com/tomquisel/a421235422fdf6b51ec2ccc5e3dee1b4"""
 
-    def __init__(self, estimators, voting='hard', weights=None):
+    def __init__(self, estimators, voting="hard", weights=None):
         self._estimators = [
             e[1] for e in estimators
         ]  # in self._estimators are the raw, uncalibrated, estimators
@@ -132,7 +132,7 @@ class VotingClassifier:
 
     def _fit(self, X, y, sample_weight=None):  # pylint:disable=unused-argument
         """Important for randomization tests, refits each estimator"""
-        print('using classes {}  and {} points for fit'.format(np.unique(y), len(y)))
+        print("using classes {}  and {} points for fit".format(np.unique(y), len(y)))
         y = y.astype(np.int)
         # if len(y.shape) == 1:
         #    y = self.lb.transform(y)
@@ -166,32 +166,32 @@ class VotingClassifier:
         Returns:
             [_CalibratedClassifier] -- calibrated classifier
         """
-        if method == 'isotonic':
+        if method == "isotonic":
             calibrated = _CalibratedClassifier(
-                model, method='isotonic', classes=self.classes
+                model, method="isotonic", classes=self.classes
             )
             calibrated.fit(X_valid, y_valid)
-        elif method == 'sigmoid':
+        elif method == "sigmoid":
             calibrated = _CalibratedClassifier(
-                model, method='sigmoid', classes=self.classes
+                model, method="sigmoid", classes=self.classes
             )
             calibrated.fit(X_valid, y_valid)
-        elif method == 'none':
+        elif method == "none":
             calibrated = model
-        elif method == 'spline':
-            warnings.warn('spline is deprecated option!', DeprecationWarning)
-            calibrated = SplineCalibratedClassifierCV(model, cv='prefit')
+        elif method == "spline":
+            warnings.warn("spline is deprecated option!", DeprecationWarning)
+            calibrated = SplineCalibratedClassifierCV(model, cv="prefit")
             calibrated.fit(X_valid, y_valid)
         else:
             calibrated = _CalibratedClassifier(
-                model, method='sigmoid', classes=self.classes
+                model, method="sigmoid", classes=self.classes
             )
             calibrated.fit(X_valid, y_valid)
 
         return calibrated
 
     def predict(self, X):
-        """ Predict class labels for X.
+        """Predict class labels for X.
         Parameters
         ----------
         X : {array-like, sparse matrix}, shape = [n_samples, n_features]
@@ -204,7 +204,7 @@ class VotingClassifier:
         """
 
         self._check_is_fitted()
-        if self.voting == 'soft':
+        if self.voting == "soft":
             m = np.argmax(self.predict_proba(X), axis=1)
             if self.classes is not None:
                 maj = self.classes[m]  # to directly get the oxidation states
@@ -215,7 +215,7 @@ class VotingClassifier:
             m = np.apply_along_axis(
                 lambda x: np.argmax(np.bincount(x, weights=self.weights)),
                 axis=1,
-                arr=predictions.astype('int'),
+                arr=predictions.astype("int"),
             )
 
             if self.classes is not None:
@@ -235,20 +235,20 @@ class VotingClassifier:
     def _collect_probas(self, X):
         """Collect results from clf.predict calls. """
         if not self.calibrated:
-            warnings.warn('Using uncalibrated classififier')
+            warnings.warn("Using uncalibrated classififier")
         return np.asarray([clf.predict_proba(X) for clf in self.estimators])
 
     def _check_is_fitted(self):
         for estimator in self._estimators:
-            if not hasattr(estimator, 'classes_'):
-                raise ValueError('Classifier not fitted')
+            if not hasattr(estimator, "classes_"):
+                raise ValueError("Classifier not fitted")
 
     def _predict_proba(self, X):
         """Predict class probabilities for X in 'soft' voting """
         self._check_is_fitted()
-        if self.voting == 'hard':
+        if self.voting == "hard":
             raise AttributeError(
-                'predict_proba is not available when' ' voting=%r' % self.voting
+                "predict_proba is not available when" " voting=%r" % self.voting
             )
         avg = np.average(self._collect_probas(X), axis=0, weights=self.weights)
         return avg
@@ -285,7 +285,7 @@ class VotingClassifier:
             Class labels predicted by each classifier.
         """
         self._check_is_fitted()
-        if self.voting == 'soft':
+        if self.voting == "soft":
             return self._collect_probas(X)
         else:
             return self._predict(X)
@@ -293,7 +293,7 @@ class VotingClassifier:
     def _predict(self, X):
         """Collect results from clf.predict calls. """
         if not self.calibrated:
-            warnings.warn('Using uncalibrated classififier')
+            warnings.warn("Using uncalibrated classififier")
         return np.asarray(
             [np.argmax(clf.predict_proba(X), axis=1) for clf in self.estimators]
         ).T  # workaround since _Classifier has no predictt method
