@@ -4,6 +4,8 @@ import os
 import pickle
 import warnings
 
+warnings.simplefilter("ignore", FutureWarning)
+
 import numpy as np
 from ml_insights import SplineCalibratedClassifierCV
 from scipy.stats import zscore
