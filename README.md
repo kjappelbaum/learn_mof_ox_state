@@ -31,7 +31,7 @@ Note that the models have been fitted using `scikit-learn==0.21.3` and therefore
 
 - Some experiments we ran, together with code and datahash, can also be found at [comet.ml](https://www.comet.ml/kjappelbaum/mof-oxidation-states/view/)
 
-- For testing a pre-trained model we recommend using our [webapp](go.epfl.ch/oximachine), for which the code can be found, along with the Docker images, in another [GitHub repository](http://github.com/kjappelbaum/oximachinetool). There is also a small Python package, [oximachinerunner](https://github.com/kjappelbaum/oximachinerunner), that allows to run inference on crystal structures.
+- For testing a pre-trained model we recommend using our [webapp](https://go.epfl.ch/oximachine), for which the code can be found, along with the Docker images, in another [GitHub repository](http://github.com/kjappelbaum/oximachinetool). There is also a small Python package, [oximachinerunner](https://github.com/kjappelbaum/oximachinerunner), that allows to run inference on crystal structures.
 
 ## File contents
 
