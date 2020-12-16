@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import pickle
 import time
 
 import numpy as np
@@ -14,7 +15,6 @@ from sklearn.metrics import (
     recall_score,
 )
 from sklearn.preprocessing import StandardScaler
-import pickle
 
 STARTTIMESTRING = time.strftime("%Y%m%d-%H%M%S")
 
