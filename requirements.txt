@@ -8,4 +8,4 @@ click==7.*
 comet==3.*
 tqdm==4.*
 dask==2.14
-shap~=0.35
+shap~=0.37
