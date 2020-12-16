@@ -6,6 +6,6 @@ mlxtend~=0.17.2
 pandas~=1.0
 click~=7.1
 comet~=3.1
-tqdm~=4.48
+tqdm~=4.54
 dask~=2.14
 shap~=0.35
