@@ -12,7 +12,6 @@ from hpsklearn import components
 from hpsklearn.estimator import hyperopt_estimator
 from hyperopt import anneal, hp, mix, rand, tpe
 from joblib import dump
-from sklearn.feature_selection import VarianceThreshold
 from sklearn.metrics import (
     accuracy_score,
     balanced_accuracy_score,

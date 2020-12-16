@@ -19,22 +19,6 @@ try:
 except ImportError:
     from sklearn.ensemble.voting import _fit_single_estimator as _parallel_fit_estimator
 
-SUBMISSION_TEMPLATE = """#!/bin/bash -l
-#SBATCH --chdir ./
-#SBATCH --mem 24GB
-#SBATCH -N 1
-#SBATCH -n 1
-#SBATCH --job-name {name}
-#SBATCH --time {time}:00:00
-#SBATCH --partition serial
-
-source /home/kjablonk/anaconda3/bin/activate
-conda activate ml
-export COMET_API_KEY='Nqp9NvaVztUCG2exYT9vV2Dl0'
-
-{command}
-"""
-
 
 def training_calibrate(  # pylint:disable=too-many-arguments
     modelpath,

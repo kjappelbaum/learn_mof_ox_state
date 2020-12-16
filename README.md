@@ -1,11 +1,10 @@
 # learn_mof_ox_state
 
 [![Actions Status](https://github.com/kjappelbaum/learn_mof_ox_state/workflows/Python%20package/badge.svg)](https://github.com/kjappelbaum/learn_mof_ox_state/actions)
-[![](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/download/releases/3.6.0/)
 [![DOI](https://zenodo.org/badge/208837592.svg)](https://zenodo.org/badge/latestdoi/208837592)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/kjappelbaum/learn_mof_ox_state/master?filepath=examples%2Fexample.ipynb)
 
-Tools to train and test a voting classifier that predicts oxidation states (of MOFs).
+Tools to train and test a voting classifier that predicts oxidation states (of MOFs), for example to replicate our work [1]. If you're just interested in using a pre-trained model, the [oximachinerunner](https://github.com/kjappelbaum/oximachinerunner) package.
 
 > ⚠️ **Warning**: You need to export `COMET_API_KEY`, as the code will look for it if you want to track your experiments (when you retrain the model). If you do not want to do this, remove those lines in the code. You might also want to consider other tracking options such as weights and biases.
 
@@ -62,3 +61,7 @@ The runtime for the tests depends on whether they require retraining the model (
 
 The use of the main functions of this package is shown in the Jupyter Notebook in the example directory.
 It contains some example structures and the output, which should be produces in seconds.
+
+## References
+
+[1] Jablonka, Kevin Maik; Ongari, Daniele; Moosavi, Seyed Mohamad; Smit, Berend (2020): Using Collective Knowledge to Assign Oxidation States. ChemRxiv. Preprint. https://doi.org/10.26434/chemrxiv.11604129.v1

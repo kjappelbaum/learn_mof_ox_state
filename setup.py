@@ -15,7 +15,7 @@ DESCRIPTION = "machine learn MOF oxidation states"
 URL = "https://github.com/kjappelbaum/learn_mof_ox_state"
 EMAIL = "kevin.jablonka@epfl.ch"
 AUTHOR = "Kevin M. Jablonka, Daniele Ongari, Seyed Mohamad Moosavi, Berend Smit"
-REQUIRES_PYTHON = ">=3.6.0"
+REQUIRES_PYTHON = ">=3.7.0"
 
 # What packages are required for this module to be executed?
 with open("requirements.txt", "r") as fh:
@@ -81,7 +81,6 @@ setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Development Status :: 4 - Beta",
