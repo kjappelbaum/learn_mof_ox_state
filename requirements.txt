@@ -7,5 +7,5 @@ pandas==1.*
 click==7.*
 comet==3.*
 tqdm==4.*
-dask==2.14
+dask==2022.10.2
 shap~=0.35
