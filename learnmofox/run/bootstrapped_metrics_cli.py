@@ -2,6 +2,7 @@
 """
 This module can be used to get a learning curve point with bootstrapped errorbars.
 """
+
 import os
 
 import click
