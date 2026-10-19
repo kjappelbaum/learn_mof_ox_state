@@ -7,6 +7,7 @@ expensive hyperopt search should be performed.
 This assumed that we read a VotingClassifier, which has the private _fit and _calibrate
 methods.
 """
+
 import os
 import time
 
